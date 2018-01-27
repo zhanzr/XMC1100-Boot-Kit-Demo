@@ -127,9 +127,12 @@ CLK_VAL2_Val    EQU     0x80000000
                 EXPORT  __Vectors
                 EXPORT  __Vectors_End
                 EXPORT  __Vectors_Size
+				IMPORT	MemtestFunc
+					
 
 __Vectors       DCD     __initial_sp              ; Top of Stack
-                DCD     Reset_Handler             ; Reset Handler
+;                DCD     Reset_Handler             ; Reset Handler
+				DCD	MemtestFunc
                 DCD     0                         ; Reserved
                 DCD     0                         ; Reserved
                 DCD     CLK_VAL1_Val              ; CLK_VAL1

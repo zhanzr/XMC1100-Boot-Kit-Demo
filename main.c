@@ -70,16 +70,199 @@ void SystemCoreClockSetup(void)
 //  SystemCoreClockUpdate();
 }
 
-//extern void initialise_monitor_handles(void);
+static inline void SimpleDelay(uint32_t d)
+{
+	uint32_t t = d;
+	while(--t)
+	{
+		__NOP();
+	}
+}
+
+void FailSafePOR(void)
+{
+	while(1)
+	{
+		LED_On(0);
+		SimpleDelay(100000);
+		LED_Off(0);
+		SimpleDelay(100000);
+	}
+}
+
+/* Constants necessary for RAM test (RAM_END is word aligned ) */
+#define	RAM_SIZE		0x3FFC
+#define RAM_START  (uint32_t *)(0x20000000)  
+//#define RAM_START  (uint32_t *)(0x20000800)
+#define RAM_END    (uint32_t *)(0x20003FFC)
+//#define RAM_END    (uint32_t *)(0x20003FFC)
+/* These are the direct and inverted data (pattern) used during the RAM
+test, performed using March C- Algorithm */
+#define BCKGRND     ((uint32_t)0x00000000uL)
+#define INV_BCKGRND ((uint32_t)0xFFFFFFFFuL)
+
+#define RT_RAM_BLOCKSIZE      ((uint32_t)6u)  /* Number of RAM words tested at once */
+
+#define RAM_BLOCKSIZE         ((uint32_t)16)
+static const uint8_t RAM_SCRMBL[RAM_BLOCKSIZE] = {0u,1u,3u,2u,4u,5u,7u,6u,8u,9u,11u,10u,12u,13u,15u,14u};
+static const uint8_t RAM_REVSCRMBL[RAM_BLOCKSIZE] = {1u,0u,2u,3u,5u,4u,6u,7u,9u,8u,10u,11u,13u,12u,14u,15u};
+
+typedef enum {ERROR = 0, SUCCESS = !ERROR} ErrorStatus;
+
+/**
+  * @brief  This function verifies that RAM is functional,
+  *   using the March C- algorithm.
+  * @param :  None
+  * @retval : ErrorStatus = (ERROR, SUCCESS)
+  */
+ErrorStatus FullRamMarchC(void)
+{
+      ErrorStatus Result = SUCCESS;
+      uint32_t *p;       /* RAM pointer */
+      uint32_t j;        /* Index for RAM physical addressing */
+      
+      uint32_t ra= __return_address(); /* save return address (as it will be destroyed) */
+
+   /* ---------------------------- STEP 1 ----------------------------------- */
+   /* Write background with addresses increasing */
+   for (p = RAM_START; p <= RAM_END; p++)
+   {
+      /* Scrambling not important when there's no consecutive verify and write */
+      *p = BCKGRND;
+   }
+
+   /* ---------------------------- STEP 2 ----------------------------------- */
+   /* Verify background and write inverted background with addresses increasing */
+   for (p = RAM_START; p <= RAM_END; p += RAM_BLOCKSIZE)
+   {
+      for (j = 0u; j < RAM_BLOCKSIZE; j++)
+      {
+         if ( *(p + (uint32_t)RAM_SCRMBL[j]) != BCKGRND)
+         {
+            Result = ERROR;
+         }
+         *(p + (uint32_t)RAM_SCRMBL[j]) = INV_BCKGRND;
+      }
+   }
+
+   /* ---------------------------- STEP 3 ----------------------------------- */
+   /* Verify inverted background and write background with addresses increasing */
+   for (p = RAM_START; p <= RAM_END; p += RAM_BLOCKSIZE)
+   {
+      for (j = 0u; j < RAM_BLOCKSIZE; j++)
+      {
+         if ( *(p + (uint32_t)RAM_SCRMBL[j]) != INV_BCKGRND)
+         {
+            Result = ERROR;
+         }
+         *(p + (uint32_t)RAM_SCRMBL[j]) = BCKGRND;
+      }
+   }
+
+   /* ---------------------------- STEP 4 ----------------------------------- */
+   /* Verify background and write inverted background with addresses decreasing */
+   for (p = RAM_END; p > RAM_START; p -= RAM_BLOCKSIZE)
+   {
+      for (j = 0u; j < RAM_BLOCKSIZE; j++)
+      {
+         if ( *(p - (uint32_t)RAM_REVSCRMBL[j]) != BCKGRND)
+         {
+            Result = ERROR;
+         }
+         *(p - (uint32_t)RAM_REVSCRMBL[j]) = INV_BCKGRND;
+      }
+   }
+
+   /* ---------------------------- STEP 5 ----------------------------------- */
+   /* Verify inverted background and write background with addresses decreasing */
+   for (p = RAM_END; p > RAM_START; p -= RAM_BLOCKSIZE)
+   {
+      for (j = 0u; j < RAM_BLOCKSIZE; j++)
+      {
+         if ( *(p - (uint32_t)RAM_REVSCRMBL[j]) != INV_BCKGRND)
+         {
+            Result = ERROR;
+         }
+         *(p - (uint32_t)RAM_REVSCRMBL[j]) = BCKGRND;
+      }
+   }
+
+   /* ---------------------------- STEP 6 ----------------------------------- */
+   /* Verify background with addresses increasing */
+   for (p = RAM_START; p <= RAM_END; p++)
+   {
+      if (*p != BCKGRND)
+      {
+         Result = ERROR;    /* No need to take into account scrambling here */
+      }
+   }
+
+  /* Restore destroyed return address back into the stack (all the content is destroyed).
+     Next line of code supposes the {r4-r5,pc} for Keil(ARMCC 5.06) registers
+     only was saved into stack by this test so their restored values are not valid: 
+     => optiomizations at caller must be switched off as caller cannot relay on r4-r7 values!!!
+	 The return opcode would be
+	 POP {r4-r5,pc}
+	 or
+	 POP {r4-r7,pc}
+	 depending on the version of the compiler.
+	 So it is necessary to skip the registers(r4-r5, or r4-r7), only restore the return address to the 
+	 corrupted stack.*/
+   *((uint32_t *)(__current_sp()) + 2u) = ra;
+
+   return(Result);
+}
+
+//This test is destructive and will initialize the whole RAM to zero.
+void MemtestFunc(void)
+{
+  #define GotoCompilerStartUp() Reset_Handler();
+
+//	SystemInit();
+	
+  /*Initialize the UART driver */
+	uart_tx.mode = XMC_GPIO_MODE_OUTPUT_PUSH_PULL_ALT7;
+	uart_rx.mode = XMC_GPIO_MODE_INPUT_TRISTATE;
+ /* Configure UART channel */
+  XMC_UART_CH_Init(XMC_UART0_CH1, &uart_config);
+  XMC_UART_CH_SetInputSource(XMC_UART0_CH1, XMC_UART_CH_INPUT_RXD,USIC0_C1_DX0_P1_3);
+	/* Start UART channel */
+  XMC_UART_CH_Start(XMC_UART0_CH1);
+  /* Configure pins */
+	XMC_GPIO_Init(UART_TX, &uart_tx);
+  XMC_GPIO_Init(UART_RX, &uart_rx);
+	
+	LED_Initialize();
+
+  /* --------------------- Variable memory functional test -------------------*/
+  /* WARNING: Stack is zero-initialized when exiting from this routine */
+  if (FullRamMarchC() != SUCCESS)
+  {  
+		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'R');
+		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'T');
+		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'F');
+		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'L');
+		XMC_UART_CH_Transmit(XMC_UART0_CH1, '\n');
+		
+		FailSafePOR();
+  }
+	else
+	{
+		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'R');
+		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'T');
+		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'O');
+		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'K');
+		XMC_UART_CH_Transmit(XMC_UART0_CH1, '\n');
+	}
+	
+	GotoCompilerStartUp();
+}
 
 int main(void)
 {
 	__IO uint32_t tmpTick;
 	__IO uint32_t deltaTick;
 	__IO uint32_t i=0;		
-  uint32_t *address;
-  uint32_t pBuffer[64];
-  uint32_t rBuffer[16];
 	
 	__IO XMC_RTC_TIME_t now_rtc_time;
 
@@ -100,7 +283,7 @@ int main(void)
 	XMC_GPIO_Init(UART_TX, &uart_tx);
   XMC_GPIO_Init(UART_RX, &uart_rx);
 	
-  printf ("CStyle Template For XMC1100 Bootkit by zzr(zhanzr@foxmail.com) @%u Hz\n",
+  printf ("Memtest(March C) For XMC1100 Bootkit by zzr(zhanzr@foxmail.com) @%u Hz\n",
 	SystemCoreClock	);
 	
 	//RTC
@@ -118,10 +301,10 @@ int main(void)
 	
 	while (1)
   {				
-    LED_On(0);
-    LED_On(1);
-    LED_On(2);
-    LED_On(3);
+//    LED_On(0);
+//    LED_On(1);
+//    LED_On(2);
+//    LED_On(3);
     LED_On(4);
 		
 		tmpTick = g_Ticks;
@@ -132,12 +315,12 @@ int main(void)
 		}
 		
 		XMC_RTC_GetTime(&now_rtc_time);
-		printf("%02d:%02d:%02d\n", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);
+//		printf("%02d:%02d:%02d\n", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);
 
-    LED_Off(0);
-    LED_Off(1);
-    LED_Off(2);
-    LED_Off(3);
+//    LED_Off(0);
+//    LED_Off(1);
+//    LED_Off(2);
+//    LED_Off(3);
     LED_Off(4);
 		
 		tmpTick = g_Ticks;
