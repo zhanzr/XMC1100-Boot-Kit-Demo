@@ -15,6 +15,8 @@
 #include <xmc_flash.h>
 #include "led.h"
 
+#include "slist.h"
+
 #define UART_RX P1_3
 #define UART_TX P1_2
 
@@ -76,6 +78,19 @@ static inline void SimpleDelay(uint32_t d)
 	while(--t)
 	{
 		__NOP();
+	}
+}
+
+void XMC_AssertHandler(const char *const msg, const char *const file, uint32_t line)
+{
+  printf("Assert:%s,%s,%u\n", msg, file, line);
+
+	while(1)
+	{
+		LED_On(1);
+		SimpleDelay(100000);
+		LED_Off(1);
+		SimpleDelay(100000);
 	}
 }
 
@@ -213,11 +228,11 @@ ErrorStatus FullRamMarchC(void)
    return(Result);
 }
 
+extern void Reset_Handler(void);
 //This test is destructive and will initialize the whole RAM to zero.
 void MemtestFunc(void)
 {
-  #define GotoCompilerStartUp() Reset_Handler();
-
+	//It seems not necessary to call this function as we only use the default clock setting
 //	SystemInit();
 	
   /*Initialize the UART driver */
@@ -255,7 +270,21 @@ void MemtestFunc(void)
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, '\n');
 	}
 	
-	GotoCompilerStartUp();
+	Reset_Handler();
+}
+
+void print_list_content(XMC_LIST_t* sl)
+{
+	SList* pL = (SList *)*sl;
+	
+	uint32_t len = SLIST_GetLength(sl);
+	printf("List Length:%u\n", len);
+	
+	for(uint32_t i=0; i<len; ++i, pL = pL->next)
+	{
+		printf("%u\t", *(uint32_t*)pL->pVal);
+	}
+	printf("\n");
 }
 
 int main(void)
@@ -283,7 +312,7 @@ int main(void)
 	XMC_GPIO_Init(UART_TX, &uart_tx);
   XMC_GPIO_Init(UART_RX, &uart_rx);
 	
-  printf ("Memtest(March C) For XMC1100 Bootkit by zzr(zhanzr@foxmail.com) @%u Hz\n",
+  printf ("Data Structure Study For XMC1100 Bootkit by zzr(zhanzr@foxmail.com) @%u Hz\n",
 	SystemCoreClock	);
 	
 	//RTC
@@ -298,6 +327,33 @@ int main(void)
   XMC_RTC_Start();
 	
 	LED_Initialize();
+	
+	//Demo for SList
+	XMC_LIST_t intList;
+	XMC_LIST_Init(&intList);
+	print_list_content(&intList);
+	
+	printf("Now Add\n");
+	uint32_t a = 1;
+	SList nodeA = {.pVal = &a};
+	SLIST_Add(&intList, &nodeA);
+	print_list_content(&intList);
+	uint32_t b = 2;
+	SList nodeB = {.pVal = &b};
+	SLIST_Add(&intList, &nodeB);	
+	print_list_content(&intList);
+	uint32_t c = 3;
+	SList nodeC = {.pVal = &c};
+	SLIST_Add(&intList, &nodeC);
+	print_list_content(&intList);
+	
+	printf("Now Remove\n");
+	SLIST_Remove(&intList, &nodeA);
+	print_list_content(&intList);
+	SLIST_Remove(&intList, &nodeC);
+	print_list_content(&intList);
+	
+	//Demo for XMC_PRIOARRAY_t
 	
 	while (1)
   {				
@@ -314,8 +370,8 @@ int main(void)
 			__WFI();
 		}
 		
-		XMC_RTC_GetTime(&now_rtc_time);
-//		printf("%02d:%02d:%02d\n", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);
+		XMC_RTC_GetTime((XMC_RTC_TIME_t *)&now_rtc_time);
+		printf("%02d:%02d:%02d\n", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);
 
 //    LED_Off(0);
 //    LED_Off(1);

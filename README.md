@@ -1,13 +1,11 @@
-RAM Test Demo.
+Data Structure Study.
 
-March C and March X algorithm.
+Demo for the two data structures in the XMC Lib:
 
-The memeory test function needs to be located before the CMSIS startup function.
+The XMC_LIST_t and XMC_PRIOARRAY_t defined in the xmc_common.h are not for user code.
 
-So the reset handler would be customized handler, which will be executed just after
-the power up. During the memory test, the stack will be destroyed, so any function need
-stack to function normally such as STDIO interface would be unavailable.
+Because the node structure does not contain value.It seems the official team plan to use these structures only inside the library.
 
-After the memory test, depending on the result of the test, two possibilities:
-1. Fail Safe if the memory test failed.
-2. Compiler supplied reset handler if the memory test pass.
+This demo provides an implementation based on the reference code.
+
+Half complete.
