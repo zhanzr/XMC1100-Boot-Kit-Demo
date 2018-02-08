@@ -312,7 +312,7 @@ int main(void)
 	XMC_GPIO_Init(UART_TX, &uart_tx);
   XMC_GPIO_Init(UART_RX, &uart_rx);
 	
-  printf ("Data Structure Study For XMC1100 Bootkit by zzr(zhanzr@foxmail.com) @%u Hz\n",
+  printf ("Data Structure Study For XMC1100 Bootkit by Automan @ Infineon BBS @%u Hz\n",
 	SystemCoreClock	);
 	
 	//RTC
@@ -371,7 +371,7 @@ int main(void)
 		}
 		
 		XMC_RTC_GetTime((XMC_RTC_TIME_t *)&now_rtc_time);
-		printf("%02d:%02d:%02d\n", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);
+//		printf("%02d:%02d:%02d\n", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);
 
 //    LED_Off(0);
 //    LED_Off(1);
