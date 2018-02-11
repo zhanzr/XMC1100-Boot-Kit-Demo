@@ -33,12 +33,6 @@ void SysTick_Handler(void)
 	g_Ticks++;
 }
 
-void SCU_0_IRQHandler(void)
-{
-	printf(__FUNCTION__);
-	while(1)
-	{;}
-}
 
 //RTC Alarm
 void SCU_1_IRQHandler(void)
