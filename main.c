@@ -534,7 +534,7 @@ int main(void)
 	LCD_Initialize();
 
 //	tmpTick = g_Ticks;
-//	for(uint16_t i=0; i<1; ++i)
+//	for(uint16_t i=0; i<100; ++i)
 //	{
 		LCD_displayL(0,0,line[0]);
 		LCD_displayL(1,0,line[1]);

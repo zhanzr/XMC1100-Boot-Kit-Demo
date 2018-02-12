@@ -111,6 +111,46 @@ static inline void D7_L(void)
 		XMC_GPIO_SetOutputLow(XMC_GPIO_PORT0, 7);	
 }
 
+static inline uint32_t ReadD0(void)
+{
+	return XMC_GPIO_GetInput(XMC_GPIO_PORT0, 3);
+}
+
+static inline uint32_t ReadD1(void)
+{
+	return XMC_GPIO_GetInput(XMC_GPIO_PORT0, 4);
+}
+
+static inline uint32_t ReadD2(void)
+{
+	return XMC_GPIO_GetInput(XMC_GPIO_PORT0, 12);
+}
+
+static inline uint32_t ReadD3(void)
+{
+	return XMC_GPIO_GetInput(XMC_GPIO_PORT0, 8);
+}
+
+static inline uint32_t ReadD4(void)
+{
+	return XMC_GPIO_GetInput(XMC_GPIO_PORT0, 9);
+}
+
+static inline uint32_t ReadD5(void)
+{
+	return XMC_GPIO_GetInput(XMC_GPIO_PORT1, 1);
+}
+
+static inline uint32_t ReadD6(void)
+{
+	return XMC_GPIO_GetInput(XMC_GPIO_PORT1, 0);
+}
+
+static inline uint32_t ReadD7(void)
+{
+	return XMC_GPIO_GetInput(XMC_GPIO_PORT0, 7);
+}
+
 static inline void DB8_Wr(uint8_t dat)
 {
 		(0==(dat&0x80))?D7_L():D7_H();
@@ -125,14 +165,15 @@ static inline void DB8_Wr(uint8_t dat)
 
 static inline uint8_t DB8_Rd( void)
 {
-	uint8_t ret = ((0==XMC_GPIO_GetInput(XMC_GPIO_PORT0, 7))?0:0x80) | 
-	((0==XMC_GPIO_GetInput(XMC_GPIO_PORT1, 0))?0:0x40) | 
-	((0==XMC_GPIO_GetInput(XMC_GPIO_PORT1, 1))?0:0x20) | 
-	((0==XMC_GPIO_GetInput(XMC_GPIO_PORT0, 9))?0:0x10) | 
-	((0==XMC_GPIO_GetInput(XMC_GPIO_PORT0, 8))?0:0x08) | 
-	((0==XMC_GPIO_GetInput(XMC_GPIO_PORT0, 12))?0:0x04) | 
-	((0==XMC_GPIO_GetInput(XMC_GPIO_PORT0, 4))?0:0x02) | 
-	((0==XMC_GPIO_GetInput(XMC_GPIO_PORT0, 3))?0:0x01);
+	uint8_t ret =
+	((0==ReadD7())?0:0x80) | 
+	((0==ReadD6())?0:0x40) | 
+	((0==ReadD5())?0:0x20) | 
+	((0==ReadD4())?0:0x10) | 
+	((0==ReadD3())?0:0x08) | 
+	((0==ReadD2())?0:0x04) | 
+	((0==ReadD1())?0:0x02) | 
+	((0==ReadD0())?0:0x01);
 	
 	return ret;
 }
@@ -141,57 +182,53 @@ void LCD_WaitAvail(void)
 {
 	DB8_Wr(0xff);
 
-	E_L();
 	RS_L(); 
 	RW_H();
 	E_H();
-	while((DB8_Rd()&0x80)==0x80)
+	while(0!=ReadD7())
 	{
 		__NOP();
 	}
-	E_L();
-	RS_H(); 
-	RW_L();   	
+	E_L();	
 }
 
 void LCD_WrCmd (uint8_t cmd)
 {
 	LCD_WaitAvail();
-	E_L();
 	RS_L(); 
 	RW_L();   	
 	DB8_Wr(cmd);
 	E_H();
 	E_L();
-	RS_H(); 
-	RW_H();
 }
 
 void LCD_WrDat (uint8_t dat)
 {
 	LCD_WaitAvail();
-	E_L();
 	RS_H(); 
 	RW_L();   	
 	DB8_Wr(dat);
 	E_H();
 	E_L();
-	RS_L(); 
-	RW_H();
 }
 
-const static uint8_t pos_tab[] = {0x80, 0xc0, 0x94, 0xd4};
 void LCD_SetPos (uint8_t x, uint8_t y)
 {	
+	const static uint8_t pos_tab[] = {0x80, 0xc0, 0x94, 0xd4};
+	
 	LCD_WrCmd(pos_tab[x] + y);	
 }
 
 void LCD_Initialize (void) 
 {
+	//RS
 	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 0, XMC_GPIO_MODE_OUTPUT_PUSH_PULL);
+	//RW
 	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 1, XMC_GPIO_MODE_OUTPUT_PUSH_PULL);
+	//E
 	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 2, XMC_GPIO_MODE_OUTPUT_PUSH_PULL);
 	
+	//DB0-DB7
 	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 3, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
 	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 4, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
 	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 12, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
@@ -201,13 +238,10 @@ void LCD_Initialize (void)
 	XMC_GPIO_SetMode(XMC_GPIO_PORT1, 0, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
 	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 7, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);	
 	
-	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 10, XMC_GPIO_MODE_OUTPUT_PUSH_PULL);
-	
-	LCD_WrCmd(0x38);                                                         //设置8位格式，2行，5x7
-	LCD_WrCmd(0x08);                                                         //Tune off screen                               
-	LCD_WrCmd(0x01);                                                         //设定输入方式，增量不移位
-	LCD_WrCmd(0x06);                                                         //整体显示，关光标，不闪烁
-	LCD_WrCmd(0x0c); 	
+	E_L();
+
+	//Software PWM for contrast output, For 5V operation, a 0.5V output will get good display effect
+	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 10, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
 }
 
 void LCD_displayL(uint8_t x,uint8_t y,uint8_t *s)
