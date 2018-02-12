@@ -485,9 +485,9 @@ void MemtestFunc(void)
 }
 
 uint8_t line[4][21]={
-	"D: Display ON/OFF ",
-	"No Operation",
-	"C: cursor ON/OFF con",
+	"XMC_AssertHandler",
+	"XMC_UART0_CH1",
+	"Reset_Handler",
 	"4Bit GPIO Mode Safe"};                               
 
 int main(void)
@@ -515,7 +515,7 @@ int main(void)
 	XMC_GPIO_Init(UART_TX, &uart_tx);
   XMC_GPIO_Init(UART_RX, &uart_rx);
 	
-  printf ("Flash ECC test For XMC1100 Bootkit by Automan @ Infineon BBS @%u Hz\n",
+  printf ("LCD2004 4bit driver For XMC1100 Bootkit by Automan @ Infineon BBS @%u Hz\n",
 	SystemCoreClock	);
 	
 	//RTC
