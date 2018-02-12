@@ -1,6 +1,7 @@
 #include <XMC1100.h>
 #include <xmc_scu.h>
 #include <xmc_rtc.h>
+#include <xmc_gpio.h>
 
 extern void printf(const char* str);
 
@@ -28,9 +29,29 @@ void PendSV_Handler(void)
 	{;}
 }
 
+//TODO: User a hardware PWM
+static inline void VCON_H(void)
+{
+		XMC_GPIO_SetOutputHigh(XMC_GPIO_PORT0, 10);	
+}
+
+static inline void VCON_L(void)
+{
+		XMC_GPIO_SetOutputLow(XMC_GPIO_PORT0, 10);	
+}
+
 void SysTick_Handler(void)
 {	
 	g_Ticks++;
+	
+	if(1 > (g_Ticks%4))
+	{
+		VCON_H();
+	}
+	else
+	{
+		VCON_L();
+	}
 }
 
 

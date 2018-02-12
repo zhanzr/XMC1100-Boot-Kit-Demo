@@ -13,7 +13,9 @@
 #include <xmc_uart.h>
 #include <xmc_gpio.h>
 #include <xmc_flash.h>
+
 #include "led.h"
+#include "lcd2004.h"
 
 #define UART_RX P1_3
 #define UART_TX P1_2
@@ -85,9 +87,7 @@ void XMC_AssertHandler(const char *const msg, const char *const file, uint32_t l
 
 	while(1)
 	{
-		LED_On(1);
-		SimpleDelay(100000);
-		LED_Off(1);
+		LED_Toggle(1);
 		SimpleDelay(100000);
 	}
 }
@@ -96,9 +96,7 @@ void FailSafePOR(void)
 {
 	while(1)
 	{
-		LED_On(0);
-		SimpleDelay(100000);
-		LED_Off(0);
+		LED_Toggle(0);
 		SimpleDelay(100000);
 	}
 }
@@ -486,6 +484,12 @@ void MemtestFunc(void)
 	Reset_Handler();
 }
 
+uint8_t line[4][21]={
+	"FLASH ECC Test Progr",
+	"For XMC1100 Boot Kit",
+	"XMC_UART_CH_Transmit",
+	"XMC_RTC_SetTime Safe"};                               
+
 int main(void)
 {
 	__IO uint32_t tmpTick;
@@ -511,7 +515,7 @@ int main(void)
 	XMC_GPIO_Init(UART_TX, &uart_tx);
   XMC_GPIO_Init(UART_RX, &uart_rx);
 	
-  printf ("RAM parity test For XMC1100 Bootkit by Automan @ Infineon BBS @%u Hz\n",
+  printf ("Flash ECC test For XMC1100 Bootkit by Automan @ Infineon BBS @%u Hz\n",
 	SystemCoreClock	);
 	
 	//RTC
@@ -526,6 +530,19 @@ int main(void)
   XMC_RTC_Start();
 	
 	LED_Initialize();
+	
+	LCD_Initialize();
+
+//	tmpTick = g_Ticks;
+//	for(uint16_t i=0; i<1; ++i)
+//	{
+		LCD_displayL(0,0,line[0]);
+		LCD_displayL(1,0,line[1]);
+		LCD_displayL(2,0,line[2]);
+		LCD_displayL(3,0,line[3]);
+//	}
+//	tmpTick = g_Ticks-tmpTick;
+//	printf("Ticks:%u\n", tmpTick);
 	
 	while (1)
   {				
