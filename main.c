@@ -485,10 +485,10 @@ void MemtestFunc(void)
 }
 
 uint8_t line[4][21]={
-	"FLASH ECC Test Progr",
-	"For XMC1100 Boot Kit",
-	"XMC_UART_CH_Transmit",
-	"XMC_RTC_SetTime Safe"};                               
+	"D: Display ON/OFF ",
+	"No Operation",
+	"C: cursor ON/OFF con",
+	"4Bit GPIO Mode Safe"};                               
 
 int main(void)
 {
