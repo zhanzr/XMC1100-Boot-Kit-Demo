@@ -485,10 +485,10 @@ void MemtestFunc(void)
 }
 
 uint8_t line[4][21]={
-	"XMC_AssertHandler",
-	"XMC_UART0_CH1",
-	"Reset_Handler",
-	"4Bit GPIO Mode Safe"};                               
+	"https://www.infineon",
+	"-autoeco.com",
+	"Happy Spring Festvl",
+	"by Automan"};                               
 
 int main(void)
 {
