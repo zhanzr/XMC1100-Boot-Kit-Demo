@@ -13,7 +13,10 @@
 #include <xmc_uart.h>
 #include <xmc_gpio.h>
 #include <xmc_flash.h>
+
 #include "led.h"
+#include "lcd2004.h"
+#include "flash_ecc.h"
 
 #define UART_RX P1_3
 #define UART_TX P1_2
@@ -266,14 +269,6 @@ ErrorStatus FullRamMarchC(void)
 #define RAM_TEST_PARITY_DATAP_PATTERN ((uint32_t) 0x20002000) /* Write to 32 byte locations with parity disabled */
 #define RAM_NEXT_RAM_PAGE             ((uint32_t) 0x04)       /* Next RAM Page */
 
-/*! generic type for ClassB functional results */
-typedef enum ClassB_EnumTestResultType
-{
-    ClassB_testFailed     = 0U,             /*!< test result failed replacement */
-    ClassB_testPassed     = 1U,             /*!< test result passed replacement */
-    ClassB_testInProgress = 2U              /*!< test is still in progress replacement */
-} ClassB_EnumTestResultType;
-
 __sectionClassB_Data__
 uint32_t ClassB_TrapMessage;
 
@@ -420,6 +415,436 @@ ClassB_EnumTestResultType ClassB_RAMTest_Parity(void)
     return(result);
 }
 
+#ifndef Null
+#define Null    (void *)0U
+#endif
+
+#define ClassB_FLASH_SIZE 0x00032000
+#define ClassB_FLASH_START 0x10001000
+#define ClassB_TEST_POST_FLASH_ECC 1
+#define ClassB_TEST_POST_FLASH_ECC_PAGE 0x10010000
+#define SIZE2K                          ((uint32_t) 0x00000500)  /*!< definition for 2k area */
+#define SIZE4K                          ((uint32_t) 0x00001000)  /*!< definition for 4k area */
+#define SIZE8K                          ((uint32_t) 0x00002000)  /*!< definition for 8k area */
+#define SIZE16K                         ((uint32_t) 0x00004000)  /*!< definition for 16k area */
+#define SIZE32K                         ((uint32_t) 0x00008000)  /*!< definition for 32k area */
+#define SIZE64K                         ((uint32_t) 0x00010000)  /*!< definition for 64k area */
+#define SIZE128K                        ((uint32_t) 0x00020000)  /*!< definition for 128k area */
+#define SIZE256K                        ((uint32_t) 0x00040000)  /*!< definition for 256k area */
+
+/** ECC pattern uses 4 blocks:
+*   1. Block to verify the content is available (2 DWords)
+*   2. Block no errors                          (8 DWords)
+*   3. Block to verify single bit correction    (10 DWords)
+*   4. Block to verify double bit detection     (14 DWord)
+*   orignal pattern from ECC Test on Infineon TriCore devices
+*/
+static const FLASH_StructEccPageType FLASH_ECC_pattern =
+{
+    .ExpOkay = 57U,                                        /* expected okay patterns     */
+    .ExpSingleBitErr = 6U,                                         /* expected single bit errors */
+    .ExpDoubleBitErr = 14U,                                        /* expected double bit errors */
+    .LimitToSBErr = 10U,                                        /* words without double-Bit errors */
+    .ExpLinitSBErr = 3U,                                         /* expected single bite errors in the initial word */
+    .WRInitValue_high = 0xA15E3F09U, .WRInitValue_low = 0x83D5A9C3U,                   /* initial first write value  */
+                                                /* Error Msk                       */
+    .PageData = 
+		{   /* second write values     expected readback values:      Nr  rd  nok SB DB */
+        {0xFFFFFFFFU, 0xFFFFFFFFU, 0xA15E3F09U, 0x83D5A9C3U }, /* #1,  2,  0, 0, 0 */
+        {0xFFFFFFFFU, 0xFFFFFFFFU, 0xA15E3F09U, 0x83D5A9C3U }, /* #2,  4,  0, 0, 0 */
+
+        {0xA1FFFFFFU, 0xFFFFFFFFU, 0x215E3F09U, 0x83D5A9C1U }, /* #3,  5,  2, 1, 0 */
+        {0x41FBFFFFU, 0xFFFFFFFFU, 0x015A3F09U, 0x83D5A9C1U }, /* #4,  5,  3, 1, 0 */
+        {0xC7FFFFFFU, 0xFFFFFFFFU, 0x815E3F09U, 0x83D5A9C1U }, /* #5,  6,  4, 1, 0 */
+        {0xBFFFFFFFU, 0x7FFFFFFFU, 0xA11E3F09U, 0x03D5A9C3U }, /* #6,  8,  4, 2, 0 */
+        {0x487FFFFFU, 0xFFFFFFFFU, 0x005E3F09U, 0x83D5A9C1U }, /* #7,  9,  4, 2, 0 */
+        {0xFFFFFFFFU, 0xFFFFFF7FU, 0xA15E3F09U, 0x83D5A945U }, /* #8,  10, 6, 2, 0 */
+        {0x137694A0U, 0x60775400U, 0x01561400U, 0x00550400U }, /* #9,  12, 6, 3, 0 */
+        {0xFEFFFF9FU, 0xFFFFFFFFU, 0xA05E3F08U, 0x83D5A9C3U }, /* #10, 13, 7, 3, 0 */
+        {0x1FF9FE00U, 0x2D7215A0U, 0x01583E00U, 0x01500180U }, /* #11, 15, 7, 3, 1 */
+        {0xFFBFFFFCU, 0xBFFFFFFFU, 0xA11E3F08U, 0x83D5A9C3U }, /* #12, 17, 7, 3, 3 */
+        {0x77B28F2CU, 0x4A1251B5U, 0x21120F28U, 0x02100181U }, /* #13, 19, 7, 4, 3 */
+        {0xFEA92400U, 0x07FFFFFFU, 0xA0082400U, 0x03D5A9C3U }, /* #14, 21, 7, 4, 3 */
+        {0xFBD7FFFFU, 0xFFFFFFFFU, 0xA1563F09U, 0x83D5A9C3U }, /* #15, 23, 7, 4, 3 */
+        {0xFFE4FFFFU, 0xFFFFFFFFU, 0xA1443F89U, 0x83D5A9C3U }, /* #16, 25, 7, 5, 3 */
+        {0xFFFC3FFFU, 0xFFFFFFFFU, 0xA15C3F09U, 0x83D5A9C3U }, /* #17, 27, 7, 5, 4 */
+        {0xEA9BFFFFU, 0xFFFFFFFFU, 0xA01A3F09U, 0x83D5A9C3U }, /* #18, 29, 7, 5, 5 */
+        {0xFFFEDCFFU, 0xDFFFF01FU, 0xA15E1C09U, 0x83D5A003U }, /* #19, 31, 7, 5, 6 */
+        {0xE0D3FC0DU, 0xB0FFFFFFU, 0xA0523C09U, 0x80D5A9C3U }, /* #20, 33, 7, 5, 7 */
+        {0xFFBF7FFFU, 0xFFFFFFFFU, 0xA11E3F09U, 0x83D5A9C3U }, /* #21, 35, 7, 5, 8 */
+        {0xEB8BFFFFU, 0xFFFFFFFFU, 0xA10A3F09U, 0x83D5A9C3U }, /* #22, 37, 7, 5, 9 */
+        {0xFFEE467FU, 0xFFFFFFFFU, 0xA14E0609U, 0x83D5A9C3U }, /* #23, 39, 7, 5, 10 */
+        {0xFFFE47BFU, 0xFFFFFFFFU, 0xA15E0709U, 0x83D5A9C3U }, /* #24, 41, 7, 5, 11 */
+        {0xFFEE7E7FU, 0xFFFFFFFFU, 0xA14E3E09U, 0x83D5A9C3U }, /* #25, 43, 7, 5, 12 */
+        {0xFFFE67F0U, 0x3FFFFFFFU, 0xA15E2700U, 0x03D5A9C3U }, /* #26, 45, 7, 5, 13 */
+        {0xFFF7F7FFU, 0xFFFFFFFFU, 0xA1563709U, 0x83D5A9C3U }, /* #27, 47, 7, 5, 13 */
+        {0xF6F7C0BFU, 0xFFFFFFFFU, 0xA0560009U, 0x83D5A9C3U }, /* #28, 49, 7, 5, 13 */
+        {0xF6D7FFBFU, 0xFFFFFFFFU, 0xA2563F09U, 0x83D5A9C3U }, /* #29, 51, 7, 6, 13 */
+        {0xEFE37FDDU, 0xFFFFFFFFU, 0xA1423F09U, 0x83D5A9C3U }, /* #30, 53, 7, 6, 13 */
+        {0xF6C7FFFFU, 0xFFFFFFFFU, 0xA0463F09U, 0x83D5A9C3U }, /* #31, 55, 7, 6, 13 */
+        {0xFEB77FFFU, 0xFFFFFFFFU, 0xA0163F09U, 0x83D5A9C3U }, /* #32, 57, 7, 6, 14 */
+    }
+};
+
+static ClassB_EnumTestResultType ClassB_FLASHECC_VerifyPage(void)
+{
+#ifdef TESSY
+	#undef	ClassB_TEST_POST_FLASH_ECC_PAGE
+	#define ClassB_TEST_POST_FLASH_ECC_PAGE	(unsigned long)TS_ClassB_TEST_POST_FLASH_ECC_PAGE
+#endif
+    /*lint -save -e923 -e946 MISRA Rule 11.4, 17.2 accepted */
+    register uint32_t* DataPtr = (uint32_t*)(ClassB_TEST_POST_FLASH_ECC_PAGE);
+    /*lint -restore */
+    return ((FLASH_ECC_pattern.WRInitValue_low  == DataPtr[FIRST_ARRAY_ELEMENT]) &&
+            (FLASH_ECC_pattern.WRInitValue_high == DataPtr[SECOND_ARRAY_ELEMENT]))
+            ?  ClassB_testPassed : ClassB_testFailed;
+}
+
+
+__sectionClassB__
+/*! @endcond */
+static ClassB_EnumTestResultType ClassB_FLASHECC_ClearStatus(void)
+{
+    ClassB_EnumTestResultType Result = ClassB_testFailed;
+
+    /* Input parameter check */
+    if ((NVM != Null) && (SCU_INTERRUPT != Null))
+    {
+        /* clear error status*/
+        /* reset ECC2READ,ECC1READ in NVMSTATUS */
+        SET_BIT(NVM->NVMPROG, NVM_NVMPROG_RSTECC_Pos);
+        /* reset Write protocol error in NVMSTATUS */
+        SET_BIT(NVM->NVMPROG, NVM_NVMPROG_RSTVERR_Pos);
+        /* clear Write protection in NVMSTATUS */
+        SET_BIT(NVM->NVMPROG, NVM_NVMSTATUS_WRPERR_Pos);
+        /* clear Verification Error in NVMSTATUS */
+        SET_BIT(NVM->NVMPROG, NVM_NVMPROG_RSTVERR_Pos);
+        /*lint -save -e923 MISRA Rule 11.1, 11.3 accepted */
+        /** clear interrupts */
+        SET_BIT(SCU_INTERRUPT->SRCLR, SCU_INTERRUPT_SRCLR_FLECC2I_Pos);
+
+        Result = ClassB_testPassed;
+    }
+    else
+    {
+        Result = ClassB_testFailed;
+    }
+    /*lint -restore */
+    return(Result);
+}
+
+__sectionClassB__
+/*! @endcond */
+static ClassB_EnumTestResultType ClassB_FLASHECC_ReadPage(uint8_t* CoutDBErr, FLASH_EnumEccTestModeType TestMode)
+{
+    uint32_t*                 lAddress;
+    uint32_t                  readback  = 0u;
+    uint32_t                  ECC_Index = 0u;
+    const                     FLASH_StructEccWordType* ECC_Word;
+    uint16_t*                 FlashStatus;
+    ClassB_EnumTestResultType result = ClassB_testPassed;
+    uint32_t                  lCount;
+    uint8_t                   lCntOK    = 0u;
+    uint8_t                   lCntSBErr = 0u;
+
+    if ((NVM != Null) && (CoutDBErr != Null))
+    {
+        /* reset values */
+        *CoutDBErr = 0u;
+        /*lint -save -e923 -e929 MISRA Rule 11.1, 11.4 accepted */
+        FlashStatus = (uint16_t*)&NVM->NVMSTATUS;
+        lAddress    = (uint32_t*)ClassB_TEST_POST_FLASH_ECC_PAGE;
+        lCount      = ((FLASH_PAGE_SIZE/FLASH_WORD_SIZE)/2u);
+        /* limit the read numbers to non double-bit error reads */
+        if (TestMode == FLASH_ECC_TestMode_Reduced)
+        {
+            lCount  = (uint32_t)FLASH_ECC_pattern.LimitToSBErr;
+        }
+        else
+        {
+            /** Do nothing */
+        }
+
+        /*lint -restore */
+        while ((lCount > 0u) && (result == ClassB_testPassed))
+        {
+            /* Reading the memory:
+               will cause a trap if ECC double bit-error is present.
+               Double-Bit Error interrupt is disabled so double-Bit errors are
+               counted by evaluating the trap flags.
+               One double bit error in a 32-Bit word will lead to one traps,
+               as we read two 32-Bit values for the single-bit error we just
+               look at the status bit after each read and check the proper
+               correction by comparing the values
+            */
+            ECC_Word = &FLASH_ECC_pattern.PageData[ECC_Index];
+            ECC_Index++;
+            /* read and prepare next address */
+            readback = *lAddress;
+            lAddress++;
+            /* compare */
+            if (readback == ECC_Word->data_low_RB)
+            {
+                lCntOK++;   /* correct data read may be corrected by single bit correction */
+            }
+            else
+            {
+                /** Do nothing */
+            }
+
+            /* reading and clearing the error status register */
+            lCntSBErr  += (*FlashStatus & NVM_NVMSTATUS_ECC1READ_Msk) >> NVM_NVMSTATUS_ECC1READ_Pos;
+            *CoutDBErr += (*FlashStatus & NVM_NVMSTATUS_ECC2READ_Msk) >> NVM_NVMSTATUS_ECC2READ_Pos;
+            result = ClassB_FLASHECC_ClearStatus();
+            if (result == ClassB_testPassed)
+            {
+                /* read and prepare next address */
+                readback = *lAddress;
+                lAddress++;
+                /* compare */
+                if (readback == ECC_Word->data_high_RB)
+                {
+                    lCntOK++;   /* correct data read may be corrected by single bit correction */
+                }
+                else
+                {
+                    /** Do nothing */
+                }
+
+                /* reading and clearing the error status register */
+                lCntSBErr  += (*FlashStatus & NVM_NVMSTATUS_ECC1READ_Msk) >> NVM_NVMSTATUS_ECC1READ_Pos;
+                *CoutDBErr += (*FlashStatus & NVM_NVMSTATUS_ECC2READ_Msk) >> NVM_NVMSTATUS_ECC2READ_Pos;
+                result = ClassB_FLASHECC_ClearStatus();
+            }
+            else
+            {
+                /** Do nothing */
+            }
+
+            lCount--;
+        }
+
+        if (result == ClassB_testPassed)
+        {
+            if (TestMode == FLASH_ECC_TestMode_Reduced)
+            {   /* runtime test will not check for double bit errors */
+                if (FLASH_ECC_pattern.ExpLinitSBErr != lCntSBErr)
+                {
+                    result = ClassB_testFailed;
+                }
+                else
+                {
+                    /** Do nothing */
+                }
+            }
+            else
+            {
+                if ((FLASH_ECC_pattern.ExpSingleBitErr != lCntSBErr) || (FLASH_ECC_pattern.ExpOkay != lCntOK))
+                {
+                    result = ClassB_testFailed;
+                }
+                else
+                {
+                    /** Do nothing */
+                }
+            }
+        }
+        else
+        {
+            /** Do nothing */
+        }
+    }
+    else
+    {
+        result     = ClassB_testFailed;
+    }
+
+    return (result);
+}
+
+static ClassB_EnumTestResultType ClassB_FLASHECC_ProgramPage(void)
+{
+    /*lint -save -e923 MISRA 2004 Advisory Rule 11.1 accepted */
+    uint32_t                   lContent[FLASH_PAGE_SIZE/FLASH_WORD_SIZE]; /* 256 bytes buffer */
+    uint32_t*                  lAddress   = (uint32_t*)ClassB_TEST_POST_FLASH_ECC_PAGE;
+    ClassB_EnumTestResultType  result     = ClassB_testPassed;
+    FLASH_EnumRomNvmStatusType lstatus;
+    uint8_t                    ProtectedSectors;
+    uint8_t                    ECCSector;
+    uint8_t                    lCount;
+    uint8_t                    lSCount;
+
+    if (NVM != Null)
+    {
+        /* Enabling flash Idle State*/
+        NVM->NVMPROG = FLASH_ECCVERRRST_IDLESET;
+        /* reset ECC2READ,ECC1READ in NVMSTATUS */
+        SET_BIT(NVM->NVMPROG, NVM_NVMPROG_RSTECC_Pos);
+        /* reset Write protocol error in NVMSTATUS */
+        SET_BIT(NVM->NVMPROG, NVM_NVMPROG_RSTVERR_Pos);
+
+        /* check write protection */
+        /* determine actual ECC test sector number */
+        ECCSector = ((uint8_t)(ClassB_TEST_POST_FLASH_ECC_PAGE - ClassB_FLASH_START) / SIZE4K);
+        /* check number of protected sectors */
+        ProtectedSectors = ((uint8_t)(NVM->NVMCONF & NVM_NVMCONF_SECPROT_Msk) >> NVM_NVMCONF_SECPROT_Pos);
+        /* check protection size exceeds test space */
+        if (ECCSector < ProtectedSectors)
+        {
+            result = ClassB_testFailed;
+        }
+        else
+        {
+            /** Do nothing */
+        }
+
+        if (result == ClassB_testPassed)
+        {
+            /*lint -save -e661 accepted */
+            /* prepare data */
+            for (lCount = 0u; lCount < ((uint8_t)(FLASH_PAGE_SIZE/sizeof(uint32_t))); lCount+=2)
+            {
+                lContent[lCount]      = FLASH_ECC_pattern.WRInitValue_low;
+                lContent[lCount + 1u] = FLASH_ECC_pattern.WRInitValue_high;
+            }
+            /*lint -restore */
+            /* save the data to Flash */
+            /*lint -save -e929 MISRA Rule 11.4 accepted */
+            /*lint -e961 MISRA 2004 Advisory Rule Rule 12.13 accepted */
+            lstatus = FLASH_ProgVerifyPage((uint32_t*)&lContent[0], lAddress);
+            /*lint -restore */
+
+            if (lstatus != FLASH_ROM_PASS)
+            {
+                result = ClassB_testFailed;
+            }
+            else    /* Flashing worked perfect and second flash content can be written */
+            {
+                lContent[4u] = ClassB_TEST_POST_FLASH_ECC_PAGE + FLASH_PAGE_SIZE;
+                /* write the secondary data */
+                lSCount = 0u;
+                do {
+                    /* get the data from the struct */
+                    lCount = FIRST_ARRAY_ELEMENT;
+                    lContent[FIRST_ARRAY_ELEMENT]  = FLASH_ECC_pattern.PageData[lSCount].data_low_SecondWR;
+                    lContent[SECOND_ARRAY_ELEMENT] = FLASH_ECC_pattern.PageData[lSCount].data_high_SecondWR;
+                    lSCount++;
+                    lContent[THIRD_ARRAY_ELEMENT]  = FLASH_ECC_pattern.PageData[lSCount].data_low_SecondWR;
+                    lContent[FOURTH_ARRAY_ELEMENT] = FLASH_ECC_pattern.PageData[lSCount].data_high_SecondWR;
+                    lSCount++;
+
+                    /* commit the write to the flash module */
+                    NVM->NVMPROG = ((NVM_NVMPROG_RSTECC_Msk | NVM_NVMPROG_RSTVERR_Msk) | FLASH_CMD_PROG_BLOCK);
+                    *lAddress = lContent[FIRST_ARRAY_ELEMENT];
+                    lAddress++;
+                    *lAddress = lContent[SECOND_ARRAY_ELEMENT];
+                    lAddress++;
+                    *lAddress = lContent[THIRD_ARRAY_ELEMENT];
+                    lAddress++;
+                    *lAddress = lContent[FOURTH_ARRAY_ELEMENT];
+                    lAddress++;
+
+                    while (NVM->NVMSTATUS & NVM_NVMSTATUS_BUSY_Msk)
+                    {
+                        TESSY_TESTCODE(&NVM->NVMSTATUS);
+                    }
+                    lContent[5u] = NVM->NVMSTATUS & NVM_NVMSTATUS_WRPERR_Msk;
+                /*lint -e946 MISRA Rule 11.4, 17.2 accepted */
+                } while ((lAddress < (uint32_t*)lContent[FIFTH_ARRAY_ELEMENT]) && (lContent[SIXTH_ARRAY_ELEMENT] == 0u));
+
+                /* check write protection errors */
+                if (NVM->NVMSTATUS & NVM_NVMSTATUS_WRPERR_Msk)
+                {
+                    result = ClassB_testFailed;
+                }
+                else
+                {
+                    /** Do nothing */
+                }
+                /* clear flags */
+                NVM->NVMPROG = 0u;
+                (void)ClassB_FLASHECC_ClearStatus();
+            }
+        }
+        else
+        {
+            /** Do nothing */
+        }
+    }
+    else
+    {
+        result     = ClassB_testFailed;
+    }
+
+    return (result);
+    /*lint -restore */
+}
+
+ClassB_EnumTestResultType ClassB_FLASHECC_Test_POST(void)
+{
+    ClassB_EnumTestResultType Result = ClassB_testPassed;
+    uint8_t             DBErrCount;
+
+    /* Input parameter check */
+    if ((NVM != Null) && (SCU_INTERRUPT != Null))
+    {
+        /*lint -save -e923 MISRA Rule 11.1, 11.3 accepted */
+        /** clear INT_ON flag */
+        CLR_BIT(NVM->NVMPROG, NVM_NVMCONF_INT_ON_Pos);
+        /** disable ECC trap */
+        CLR_BIT(SCU_INTERRUPT->SRMSK, SCU_INTERRUPT_SRMSK_FLECC2I_Pos);
+        /** clear interrupts */
+        SET_BIT(SCU_INTERRUPT->SRCLR, SCU_INTERRUPT_SRCLR_FLECC2I_Pos);
+
+        /* check page already programmed */
+        if (ClassB_FLASHECC_VerifyPage() == ClassB_testFailed)
+        {
+            /* programm with page reference */
+            Result = ClassB_FLASHECC_ProgramPage();
+        }
+        else
+        {
+            /** Do nothing */
+        }
+
+        /* continue if verifcation and programming passed successfully */
+        if (Result == ClassB_testPassed)
+        {
+            /* read the complete tested page and generate ECC errors */
+            Result = ClassB_FLASHECC_ReadPage(&DBErrCount, FLASH_ECC_TestMode_Full);
+        }
+        else
+        {
+            /** Do nothing */
+        }
+
+        /* check function return */
+        if (Result == ClassB_testPassed)
+        {
+            /* clear all errors */
+            Result = ClassB_FLASHECC_ClearStatus();
+            /** clear interrupt flags */
+            SET_BIT(SCU_INTERRUPT->SRCLR, SCU_INTERRUPT_SRCLR_FLECC2I_Pos);
+        }
+        else
+        {
+            /** Do nothing */
+        }
+    #if (ENABLE_FLASH_ECC_TRAP == ClassB_Enabled)
+        /** enable ECC trap */
+        SET_BIT(SCU_INTERRUPT->SRMSK, SCU_INTERRUPT_SRMSK_FLECC2I_Pos);
+    #endif  /* ENABLE_FLASH_ECC_TRAP */
+    /*lint -restore */
+    }
+    else
+    {
+        Result = ClassB_testFailed;
+    }
+
+    /* terminate test and restore trap function for runtime */
+    return(Result);
+}
+
 extern void Reset_Handler(void);
 //This test is destructive and will initialize the whole RAM to zero.
 void MemtestFunc(void)
@@ -461,6 +886,26 @@ void MemtestFunc(void)
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, '\n');
 	}
 		
+ /* test ECC logic on FLASH */
+
+	if (ClassB_testFailed == ClassB_FLASHECC_Test_POST())
+	{
+		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'F');
+		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'E');
+		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'F');
+		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'L');
+		XMC_UART_CH_Transmit(XMC_UART0_CH1, '\n');			
+		FailSafePOR();
+	}
+	else
+	{				
+		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'F');
+		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'E');
+		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'O');
+		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'K');
+		XMC_UART_CH_Transmit(XMC_UART0_CH1, '\n');
+	}
+		
 	//March C
   /* --------------------- Variable memory functional test -------------------*/
   /* WARNING: Stack is zero-initialized when exiting from this routine */
@@ -485,6 +930,13 @@ void MemtestFunc(void)
 	
 	Reset_Handler();
 }
+
+uint8_t line[4][21] = {
+	"Debug (printf) Viewer",
+	"ITM Stimulus Port",
+	"STDERR, components",
+	"through the ITM"
+};
 
 int main(void)
 {
@@ -511,7 +963,7 @@ int main(void)
 	XMC_GPIO_Init(UART_TX, &uart_tx);
   XMC_GPIO_Init(UART_RX, &uart_rx);
 	
-  printf ("RAM parity test For XMC1100 Bootkit by Automan @ Infineon BBS @%u Hz\n",
+  printf ("Flash ECC test For XMC1100 Bootkit by Automan @ Infineon BBS @%u Hz\n",
 	SystemCoreClock	);
 	
 	//RTC
@@ -526,6 +978,13 @@ int main(void)
   XMC_RTC_Start();
 	
 	LED_Initialize();
+	
+	LCD_Initialize();
+	
+	LCD_displayL(0, 0, line[0]);
+	LCD_displayL(1, 0, line[1]);
+	LCD_displayL(2, 0, line[2]);
+	LCD_displayL(3, 0, line[3]);
 	
 	while (1)
   {				
