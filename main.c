@@ -17,7 +17,10 @@
 #include "led.h"
 #include "lcd2004.h"
 #include "flash_ecc.h"
-#include "core_portme.h"
+
+#ifndef HZ
+#define	HZ	1000
+#endif
 
 #define UART_RX P1_3
 #define UART_TX P1_2
@@ -942,8 +945,45 @@ uint8_t line[4][21] = {
 	"through the ITM"
 };
 
-//int main(void)
-void original_main(void)
+#define ITERATION_NUM    200
+#define SIEVE_TEST_SIZE    8190
+
+void sieve_test( void )
+{       
+	int     i,prime,k,count,iter;
+	uint32_t Begin_Time,End_Time;
+	char flags[SIEVE_TEST_SIZE + 1];
+
+	printf( "%u iterations\n", ITERATION_NUM );
+
+	Begin_Time = g_Ticks;
+
+	for( iter = 1; iter <= ITERATION_NUM; iter++ )     /* do program 10 times  */
+	{
+					count = 0;                      /* prime counter        */
+					for( i = 0; i <= SIEVE_TEST_SIZE; i++ )    /* set all flags true   */
+									flags[i] = true;
+					for( i = 0; i <= SIEVE_TEST_SIZE; i++ )
+					{
+									if( flags[i] )          /* found a prime        */
+									{
+													prime = i + i + 3; /* twice index + 3   */
+													for(k=i+prime; k<=SIEVE_TEST_SIZE; k+=prime)
+																	flags[k] = false;
+																					/* kill all multiples   */
+													count++;        /* primes found         */
+									}
+					}
+	}
+
+	End_Time = g_Ticks;
+
+	printf( "%d primes.\n", count ); /* primes found on 10th pass   */
+
+	printf( "Time: %.3f sec.\n", (End_Time - Begin_Time)/(HZ*1.0) );
+}
+
+int main(void)
 {
 	__IO uint32_t tmpTick;
 	__IO uint32_t deltaTick;
@@ -952,6 +992,7 @@ void original_main(void)
 	__IO XMC_RTC_TIME_t now_rtc_time;
 
   /* System timer configuration */
+	g_Ticks = 0;	
   SysTick_Config(SystemCoreClock / HZ);
 	
   /*Initialize the UART driver */
@@ -968,7 +1009,7 @@ void original_main(void)
 	XMC_GPIO_Init(UART_TX, &uart_tx);
   XMC_GPIO_Init(UART_RX, &uart_rx);
 	
-  printf ("Coremark For XMC1100 Bootkit by Automan @ Infineon BBS @%u Hz\n",
+  printf ("Sieve For XMC1100 Bootkit by Automan @ Infineon BBS @%u Hz\n",
 	SystemCoreClock	);
 	
 	//RTC
@@ -991,27 +1032,29 @@ void original_main(void)
 //	LCD_displayL(2, 0, line[2]);
 //	LCD_displayL(3, 0, line[3]);
 			
-//	while (1)
-//  {				
-//    LED_On(4);
-//		
-//		tmpTick = g_Ticks;
-//		while((tmpTick+2000) > g_Ticks)
-//		{
-//			__NOP();
-//			__WFI();
-//		}
-//		
-//		XMC_RTC_GetTime((XMC_RTC_TIME_t *)&now_rtc_time);
-////		printf("%02d:%02d:%02d\n", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);
+	sieve_test();			
 
-//    LED_Off(4);
-//		
-//		tmpTick = g_Ticks;
-//		while((tmpTick+2000) > g_Ticks)
-//		{
-//			__NOP();
-//			__WFI();
-//		}		
-//  }
+	while (1)
+  {				
+    LED_On(4);
+		
+		tmpTick = g_Ticks;
+		while((tmpTick+2000) > g_Ticks)
+		{
+			__NOP();
+			__WFI();
+		}
+		
+		XMC_RTC_GetTime((XMC_RTC_TIME_t *)&now_rtc_time);
+//		printf("%02d:%02d:%02d\n", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);
+
+    LED_Off(4);
+		
+		tmpTick = g_Ticks;
+		while((tmpTick+2000) > g_Ticks)
+		{
+			__NOP();
+			__WFI();
+		}		
+  }
 }
