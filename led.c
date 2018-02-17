@@ -7,8 +7,7 @@ static const GPIO_PIN LED_PIN[] =
   { XMC_GPIO_PORT0, 7 },
   { XMC_GPIO_PORT0, 5 },
   { XMC_GPIO_PORT0, 6 },
-//  { XMC_GPIO_PORT1, 2 },
-//  { XMC_GPIO_PORT1, 3 },
+
   { XMC_GPIO_PORT1, 4 },
   { XMC_GPIO_PORT1, 5 }
 };
