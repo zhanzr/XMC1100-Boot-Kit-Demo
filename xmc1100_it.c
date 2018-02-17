@@ -3,10 +3,9 @@
 #include <xmc_rtc.h>
 #include <xmc_uart.h>
 
-extern void printf(const char* str);
+#include "cmsis_os.h"
 
-extern __IO uint32_t g_Ticks;
-extern char g_Buf[256];
+extern osThreadId g_RtcThread;
 
 void HardFault_Handler(void)
 {
@@ -16,35 +15,12 @@ void HardFault_Handler(void)
 	{;}
 }
 
-//void SVC_Handler(void)
-//{
-//	printf(__FUNCTION__);
-//	while(1)
-//	{;}
-//}
-
-//void PendSV_Handler(void)
-//{
-//	printf(__FUNCTION__);
-//	while(1)
-//	{;}
-//}
-
-//__WEAK void SysTick_Handler(void)
-//{	
-//	g_Ticks++;
-//}
-
-
 //RTC Alarm
 void SCU_1_IRQHandler(void)
 {
-	uint32_t lt = g_Ticks;
+	osSignalSet (g_RtcThread, 0x01);
 
-	XMC_RTC_ClearEvent(XMC_RTC_EVENT_PERIODIC_SECONDS);	
-  
-//	sprintf(g_Buf, "RTC ISR %08X\n", lt);
-//	printf(g_Buf);  
+	XMC_RTC_ClearEvent(XMC_RTC_EVENT_PERIODIC_MINUTES);	
 }
                  
 void SCU_2_IRQHandler(void)

@@ -35,7 +35,7 @@ Purpose:        Implementation of fast square root algorithm after Otto Peter's
 @param          uint32_t    integer number unsigned
 @return         square root
 ******************************************************************************/
-uint32_t sqrt_5(uint32_t x)
+static uint32_t sqrt_5(uint32_t x)
 {
     uint32_t xroot, m2, x2;
 
@@ -55,12 +55,6 @@ uint32_t sqrt_5(uint32_t x)
 
     return xroot;
 }
-
-
-
-#define MIN_TEMP_KELVIN      (233)
-#define MAX_TEMP_KELVIN      (398)
-#define ZERO_TEMP_KELVIN     (273)
 
 /**************************************************************************//**
 Purpose:        Implementation of CalcTemperature function

@@ -55,7 +55,7 @@
 //   <i> Defines default stack size for threads with osThreadDef stacksz = 0
 //   <i> Default: 200
 #ifndef OS_STKSIZE
- #define OS_STKSIZE     64      // this stack size value is in words
+ #define OS_STKSIZE     96      // this stack size value is in words
 #endif
  
 //   <o>Main Thread stack size [bytes] <64-32768:8><#/4>
@@ -222,12 +222,12 @@
 /*--------------------------- os_idle_demon ---------------------------------*/
 
 /// \brief The idle demon is running when no other thread is ready to run
-void os_idle_demon (void) {
- 
-  for (;;) {
-    /* HERE: include optional user code to be executed when no thread runs.*/
-  }
-}
+//__attribute__((weak)) void os_idle_demon (void) {
+// 
+//  for (;;) {
+//    /* HERE: include optional user code to be executed when no thread runs.*/
+//  }
+//}
  
 #if (OS_SYSTICK == 0)   // Functions for alternative timer as RTX kernel timer
  
@@ -268,37 +268,37 @@ void os_tick_irqack (void) {
  
 /*--------------------------- os_error --------------------------------------*/
  
-/* OS Error Codes */
-#define OS_ERROR_STACK_OVF      1
-#define OS_ERROR_FIFO_OVF       2
-#define OS_ERROR_MBX_OVF        3
-#define OS_ERROR_TIMER_OVF      4
+///* OS Error Codes */
+//#define OS_ERROR_STACK_OVF      1
+//#define OS_ERROR_FIFO_OVF       2
+//#define OS_ERROR_MBX_OVF        3
+//#define OS_ERROR_TIMER_OVF      4
+// 
+//extern osThreadId svcThreadGetId (void);
  
-extern osThreadId svcThreadGetId (void);
- 
-/// \brief Called when a runtime error is detected
-/// \param[in]   error_code   actual error code that has been detected
-void os_error (uint32_t error_code) {
- 
-  /* HERE: include optional code to be executed on runtime error. */
-	printf("%u\n", error_code);
-  switch (error_code) {
-    case OS_ERROR_STACK_OVF:
-      /* Stack overflow detected for the currently running task. */
-      /* Thread can be identified by calling svcThreadGetId().   */
-      break;
-    case OS_ERROR_FIFO_OVF:
-      /* ISR FIFO Queue buffer overflow detected. */
-      break;
-    case OS_ERROR_MBX_OVF:
-      /* Mailbox overflow detected. */
-      break;
-    case OS_ERROR_TIMER_OVF:
-      /* User Timer Callback Queue overflow detected. */
-      break;
-  }
-  for (;;);
-}
+///// \brief Called when a runtime error is detected
+///// \param[in]   error_code   actual error code that has been detected
+//void os_error (uint32_t error_code) {
+// 
+//  /* HERE: include optional code to be executed on runtime error. */
+//	printf("%u\n", error_code);
+//  switch (error_code) {
+//    case OS_ERROR_STACK_OVF:
+//      /* Stack overflow detected for the currently running task. */
+//      /* Thread can be identified by calling svcThreadGetId().   */
+//      break;
+//    case OS_ERROR_FIFO_OVF:
+//      /* ISR FIFO Queue buffer overflow detected. */
+//      break;
+//    case OS_ERROR_MBX_OVF:
+//      /* Mailbox overflow detected. */
+//      break;
+//    case OS_ERROR_TIMER_OVF:
+//      /* User Timer Callback Queue overflow detected. */
+//      break;
+//  }
+//  for (;;);
+//}
  
 
 /*----------------------------------------------------------------------------
