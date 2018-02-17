@@ -1,6 +1,7 @@
 #include <XMC1100.h>
 #include <xmc_scu.h>
 #include <xmc_rtc.h>
+#include <xmc_uart.h>
 
 extern void printf(const char* str);
 
@@ -9,29 +10,30 @@ extern char g_Buf[256];
 
 void HardFault_Handler(void)
 {
-	printf(__FUNCTION__);
+	XMC_UART_CH_Transmit(XMC_UART0_CH1, 'H');
+	XMC_UART_CH_Transmit(XMC_UART0_CH1, '\n');
 	while(1)
 	{;}
 }
 
-void SVC_Handler(void)
-{
-	printf(__FUNCTION__);
-	while(1)
-	{;}
-}
+//void SVC_Handler(void)
+//{
+//	printf(__FUNCTION__);
+//	while(1)
+//	{;}
+//}
 
-void PendSV_Handler(void)
-{
-	printf(__FUNCTION__);
-	while(1)
-	{;}
-}
+//void PendSV_Handler(void)
+//{
+//	printf(__FUNCTION__);
+//	while(1)
+//	{;}
+//}
 
-void SysTick_Handler(void)
-{	
-	g_Ticks++;
-}
+//__WEAK void SysTick_Handler(void)
+//{	
+//	g_Ticks++;
+//}
 
 
 //RTC Alarm

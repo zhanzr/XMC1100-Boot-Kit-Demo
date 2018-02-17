@@ -51,7 +51,7 @@
 ;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ; </h>
 
-Stack_Size      EQU     0x00003000
+Stack_Size      EQU     0x00000400
 
                 AREA    STACK, NOINIT, READWRITE, ALIGN=3
 Stack_Mem       SPACE   Stack_Size
@@ -127,12 +127,12 @@ CLK_VAL2_Val    EQU     0x80000000
                 EXPORT  __Vectors
                 EXPORT  __Vectors_End
                 EXPORT  __Vectors_Size
-				IMPORT	MemtestFunc
+;				IMPORT	MemtestFunc
 					
 
 __Vectors       DCD     __initial_sp              ; Top of Stack
-;                DCD     Reset_Handler             ; Reset Handler
-				DCD	MemtestFunc
+                DCD     Reset_Handler             ; Reset Handler
+;				DCD	MemtestFunc
                 DCD     0                         ; Reserved
                 DCD     0                         ; Reserved
                 DCD     CLK_VAL1_Val              ; CLK_VAL1

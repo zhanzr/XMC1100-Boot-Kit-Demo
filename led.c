@@ -93,3 +93,8 @@ void LED_Off (uint8_t num)
 		break;
 	}
 }
+
+void LED_Toggle (uint8_t num) 
+{
+		XMC_GPIO_ToggleOutput(LED_PIN[num].port, LED_PIN[num].pin);
+}
