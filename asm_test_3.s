@@ -7,7 +7,9 @@
 ;With carry 			SBCS Rd, Rd, Rm 		1
 ;Immediate from SP 		SUB SP, SP, #<imm> 		1
 ;Subtract Negate 		RSBS Rd, Rn, #0 		1
-
+        THUMB
+        REQUIRE8
+        PRESERVE8
 	AREA    |.text|, CODE, READONLY
 		
 ;8-bit immediate 

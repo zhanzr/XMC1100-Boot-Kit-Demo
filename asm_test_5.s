@@ -8,7 +8,9 @@
 ;Arithmetic shift right 			ASRS Rd, Rm, #<shift> 	1
 ;Arithmetic shift right by register ASRS Rd, Rd, Rs 		1
 ;Rotate right by register 			RORS Rd, Rd, Rs 		1
-
+        THUMB
+        REQUIRE8
+        PRESERVE8
 	AREA    |.text|, CODE, READONLY
 
 ;Logical shift left by register

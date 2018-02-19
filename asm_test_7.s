@@ -8,7 +8,9 @@
 ;Bytes in word 						REV Rd, Rm 				1
 ;Bytes in both halfwords 			REV16 Rd, Rm 			1
 ;Signed bottom half word 			REVSH Rd, Rm 			1
-
+        THUMB
+        REQUIRE8
+        PRESERVE8
 	AREA    |.text|, CODE, READONLY
 		
 ;Signed halfword to word 

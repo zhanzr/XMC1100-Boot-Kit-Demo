@@ -114,7 +114,7 @@ void XMC_AssertHandler(const char *const msg, const char *const file, uint32_t l
 
 	while(1)
 	{
-		LED_Toggle(1);
+//		LED_Toggle(1);
 		SimpleDelay(100000);
 //		SVCDelay(100000);
 	}
@@ -205,7 +205,20 @@ void thread1 (void const *argument)
 	
 	while(1)
 	{
-		osDelay(2000);
+		osDelay(1000);
+    LED_On(0);	
+    LED_On(1);	
+    LED_On(2);	
+    LED_On(3);	
+    LED_On(4);	
+		//delieberately inject an error
+    LED_On(5);			
+		osDelay(1000);
+    LED_Off(0);	
+    LED_Off(1);	
+    LED_Off(2);	
+    LED_Off(3);	
+    LED_Off(4);				
 		//rendezvous
 		osSemaphoreRelease(arrived1);
 		osSemaphoreWait(arrived2,osWaitForever);		
@@ -224,6 +237,11 @@ void thread1 (void const *argument)
 		result = osMessageGet(g_QTemp,osWaitForever);	
 
 		printf("CoreTemp:%d 'C\n", (int32_t)result.value.v);	
+//    LED_Toggle(0);	
+//    LED_Toggle(1);	
+//    LED_Toggle(2);	
+//    LED_Toggle(3);	
+//    LED_Toggle(4);			
 	}
 }
 
@@ -244,9 +262,9 @@ void thread2 (void const *argument)
 		
 		event = osMessageGet(g_QLED, osWaitForever);
 		received = (memory_block_t *)event.value.p;
-		(received->LED0&0x01)?LED_On(0):LED_Off(0);
-		(received->LED1&0x02)?LED_On(1):LED_Off(1);
-		(received->LED2&0x04)?LED_On(2):LED_Off(2);
+//		(received->LED0&0x01)?LED_On(0):LED_Off(0);
+//		(received->LED1&0x02)?LED_On(1):LED_Off(1);
+//		(received->LED2&0x04)?LED_On(2):LED_Off(2);
 		osPoolFree(led_pool,received);
 		
 		/* Calculate temperature of the chip in Kelvin */
@@ -282,8 +300,13 @@ void os_idle_demon (void) {
 	
 	while(1)
 	{
+		__WFI();
 //    LED_Toggle(0);	
-		SimpleDelay(1000);
+//    LED_Toggle(1);	
+//    LED_Toggle(2);	
+//    LED_Toggle(3);	
+//    LED_Toggle(4);	
+//		SimpleDelay(1000000);
 	}
 }
 

@@ -11,7 +11,9 @@
 ;Bit clear 				BICS Rd, Rd, Rm 		1
 ;Move NOT 				MVNS Rd, Rm 			1
 ;AND test 				TST Rn, Rm 				1
-
+        THUMB
+        REQUIRE8
+        PRESERVE8
 	AREA    |.text|, CODE, READONLY
 		
 ;Simple Multiply

@@ -25,7 +25,9 @@
 ;Push with link register 			PUSH {<loreglist>, LR} 	1+Nb
 ;Pop 								POP {<loreglist>} 		1+Nb
 ;Pop and return 					POP {<loreglist>, PC} 	4+Nc
-
+        THUMB
+        REQUIRE8
+        PRESERVE8
 	AREA    |.text|, CODE, READONLY
 		;According to the AAPCS:
 ;R0-R3, R12 

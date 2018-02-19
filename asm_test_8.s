@@ -6,7 +6,9 @@
 ;Enable interrupts 					CPSIE i 				1
 ;Read special register 				MRS Rd, <specreg> 		4
 ;Write special register 			MSR <specreg>, Rn 		4
-
+        THUMB
+        REQUIRE8
+        PRESERVE8
 	AREA    |.text|, CODE, READONLY
 		
 ;Supervisor Call

@@ -5,7 +5,10 @@
 ;Lo to Lo 				MOVS Rd, Rm 			1
 ;Any to Any 			MOV Rd, Rm 				1
 ;Any to PC 				MOV PC, Rm 				3
-
+        THUMB
+        REQUIRE8
+        PRESERVE8
+			
 	AREA    |.text|, CODE, READONLY
 
 ;Get an 8bit immediate number

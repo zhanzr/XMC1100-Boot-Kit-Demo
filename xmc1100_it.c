@@ -5,7 +5,7 @@
 
 #include "cmsis_os.h"
 
-//extern osThreadId g_RtcThread;
+extern osThreadId g_RtcThread;
 
 extern __IO uint32_t g_Ticks;
 
@@ -38,7 +38,7 @@ void HardFault_Handler(void)
 //RTC Alarm
 void SCU_1_IRQHandler(void)
 {
-//	osSignalSet (g_RtcThread, 0x01);
+	osSignalSet (g_RtcThread, 0x01);
 
 	XMC_RTC_ClearEvent(XMC_RTC_EVENT_PERIODIC_MINUTES);	
 }

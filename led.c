@@ -2,19 +2,7 @@
 #include <xmc_gpio.h>
 #include "led.h"
 
-/* LED GPIO Pins */
-static const GPIO_PIN LED_PIN[] = 
-{
-  { XMC_GPIO_PORT0, 7 },
-  { XMC_GPIO_PORT0, 5 },
-  { XMC_GPIO_PORT0, 6 },
-
-  { XMC_GPIO_PORT1, 4 },
-  { XMC_GPIO_PORT1, 5 }
-};
-
-#define LED_COUNT (sizeof(LED_PIN)/sizeof(GPIO_PIN))
-
+#define LED_COUNT 5
 
 /**
   \fn          int32_t LED_Initialize (void)
@@ -25,29 +13,12 @@ static const GPIO_PIN LED_PIN[] =
 */
 void LED_Initialize (void) 
 {
-	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 5, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
-	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 6, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
 	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 7, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
+	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 6, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
+	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 5, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
 
 	XMC_GPIO_SetMode(XMC_GPIO_PORT1, 4, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
 	XMC_GPIO_SetMode(XMC_GPIO_PORT1, 5, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
-}
-
-/**
-  \fn          int32_t LED_Uninitialize (void)
-  \brief       De-initialize LEDs
-  \returns
-   - \b  0: function succeeded
-   - \b -1: function failed
-*/
-void LED_Uninitialize (void) 
-{
-	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 5, XMC_GPIO_MODE_INPUT_TRISTATE);
-	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 6, XMC_GPIO_MODE_INPUT_TRISTATE);
-	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 7, XMC_GPIO_MODE_INPUT_TRISTATE);
-
-	XMC_GPIO_SetMode(XMC_GPIO_PORT1, 4, XMC_GPIO_MODE_INPUT_TRISTATE);
-	XMC_GPIO_SetMode(XMC_GPIO_PORT1, 5, XMC_GPIO_MODE_INPUT_TRISTATE);
 }
 
 /**
@@ -60,15 +31,30 @@ void LED_Uninitialize (void)
 */
 void LED_On (uint8_t num) 
 {
-	assert(num<LED_COUNT);
+//	assert(num<LED_COUNT);
 	switch(num)
 	{		
 		case 0:
-		XMC_GPIO_SetOutputHigh(LED_PIN[num].port, LED_PIN[num].pin);
+		XMC_GPIO_SetOutputHigh(XMC_GPIO_PORT0, 7);
 		break;
 		
+		case 1:
+		XMC_GPIO_SetOutputLow(XMC_GPIO_PORT0, 6);
+		break;
+		
+		case 2:
+		XMC_GPIO_SetOutputLow(XMC_GPIO_PORT0, 5);
+		break;		
+
+		case 3:
+		XMC_GPIO_SetOutputLow(XMC_GPIO_PORT1, 4);
+		break;
+		
+		case 4:
+		XMC_GPIO_SetOutputLow(XMC_GPIO_PORT1, 5);
+		break;		
+
 		default:
-		XMC_GPIO_SetOutputLow(LED_PIN[num].port, LED_PIN[num].pin);
 		break;
 	}
 }
@@ -83,22 +69,61 @@ void LED_On (uint8_t num)
 */
 void LED_Off (uint8_t num) 
 {
-	assert(num<LED_COUNT);
+//	assert(num<LED_COUNT);
 	switch(num)
 	{		
 		case 0:
-		XMC_GPIO_SetOutputLow(LED_PIN[num].port, LED_PIN[num].pin);
+		XMC_GPIO_SetOutputLow(XMC_GPIO_PORT0, 7);
 		break;
 		
+		case 1:
+		XMC_GPIO_SetOutputHigh(XMC_GPIO_PORT0, 6);
+		break;
+		
+		case 2:
+		XMC_GPIO_SetOutputHigh(XMC_GPIO_PORT0, 5);
+		break;		
+
+		case 3:
+		XMC_GPIO_SetOutputHigh(XMC_GPIO_PORT1, 4);
+		break;
+		
+		case 4:
+		XMC_GPIO_SetOutputHigh(XMC_GPIO_PORT1, 5);
+		break;		
+
 		default:
-		XMC_GPIO_SetOutputHigh(LED_PIN[num].port, LED_PIN[num].pin);
 		break;
 	}
 }
 
 void LED_Toggle (uint8_t num) 
 {
-	assert(num<LED_COUNT);
+//	assert(num<LED_COUNT);
 	
-	XMC_GPIO_ToggleOutput(LED_PIN[num].port, LED_PIN[num].pin);
+	switch(num)
+	{		
+		case 0:
+		XMC_GPIO_ToggleOutput(XMC_GPIO_PORT0, 7);
+		break;
+		
+		case 1:
+		XMC_GPIO_ToggleOutput(XMC_GPIO_PORT0, 6);
+		break;
+		
+		case 2:
+		XMC_GPIO_ToggleOutput(XMC_GPIO_PORT0, 5);
+		break;		
+
+		case 3:
+		XMC_GPIO_ToggleOutput(XMC_GPIO_PORT1, 4);
+		break;
+		
+		case 4:
+		XMC_GPIO_ToggleOutput(XMC_GPIO_PORT1, 5);
+		break;		
+
+		default:
+		break;
+	}
 }

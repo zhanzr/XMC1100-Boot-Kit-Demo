@@ -10,7 +10,9 @@
 ;Immediate to SP 		ADD SP, SP, #<imm> 		1
 ;Form address from SP 	ADD Rd, SP, #<imm> 		1
 ;Form address from PC 	ADR Rd, <label> 		1
-
+        THUMB
+        REQUIRE8
+        PRESERVE8
 	AREA    |.text|, CODE, READONLY
 
 ;Add 3bit immediate
