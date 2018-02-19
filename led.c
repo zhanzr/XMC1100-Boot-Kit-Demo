@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <xmc_gpio.h>
 #include "led.h"
 
@@ -59,6 +60,7 @@ void LED_Uninitialize (void)
 */
 void LED_On (uint8_t num) 
 {
+	assert(num<LED_COUNT);
 	switch(num)
 	{		
 		case 0:
@@ -81,6 +83,7 @@ void LED_On (uint8_t num)
 */
 void LED_Off (uint8_t num) 
 {
+	assert(num<LED_COUNT);
 	switch(num)
 	{		
 		case 0:
@@ -95,5 +98,7 @@ void LED_Off (uint8_t num)
 
 void LED_Toggle (uint8_t num) 
 {
-		XMC_GPIO_ToggleOutput(LED_PIN[num].port, LED_PIN[num].pin);
+	assert(num<LED_COUNT);
+	
+	XMC_GPIO_ToggleOutput(LED_PIN[num].port, LED_PIN[num].pin);
 }
