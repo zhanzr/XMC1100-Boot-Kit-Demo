@@ -282,13 +282,17 @@ void thread2 (void const *argument)
 void RtcISRThread (void const *argument)
 {
 	__IO XMC_RTC_TIME_t now_rtc_time;
+	char testBuf[21];
 	
 	while(1)
 	{
 		osSignalWait(0x01,osWaitForever);
 		
 		XMC_RTC_GetTime((XMC_RTC_TIME_t *)&now_rtc_time);
-		printf("%02d:%02d:%02d\n", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);	
+//		printf("%02d:%02d:%02d\n", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);	
+		sprintf(testBuf, "%02d:%02d:%02d", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);	
+		printf(testBuf);
+		LCD_displayL(0, 0, (uint8_t*)testBuf);
 	}
 }
 
@@ -481,6 +485,8 @@ int main(void)
 
 	arrived1 =osSemaphoreCreate(osSemaphore(arrived1),0);
 	arrived2 =osSemaphoreCreate(osSemaphore(arrived2),0);
+
+	LCD_Initialize();
 
 	osKernelStart();
 
