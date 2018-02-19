@@ -136,6 +136,12 @@ extern uint32_t asm_logic_right(uint32_t in, uint32_t key);
 extern int32_t asm_arithm_right(int32_t in, uint32_t key);
 extern uint32_t asm_rotate_right(uint32_t in, uint32_t key);
 
+uint32_t g_TestVar32;// __attribute__((at(0x20003FF8)));
+
+extern uint32_t asm_ldr32(uint32_t* addr);
+extern uint32_t asm_str32(uint32_t* addr, uint32_t v);
+extern uint32_t asm_test_push_pop(uint32_t i1, uint32_t i2);
+
 int main(void)
 {	
 //	osKernelInitialize();	
@@ -227,6 +233,12 @@ int main(void)
 	printf("ASM Test 18 Result:%08X\n", asm_arithm_right(0x80000001, 2));
 	printf("ASM Test 19 Result:%08X\n", asm_rotate_right(0x80000001, 2));
 
+	g_TestVar32 = 0x12345678;
+	printf("ASM Test 20 Result:%08X\n", asm_ldr32(&g_TestVar32));
+	asm_str32(&g_TestVar32, 0x78904563);	
+	printf("ASM Test 21 Result:%08X\n", asm_ldr32(&g_TestVar32));
+	printf("ASM Test 22 Result:%u\n", asm_test_push_pop(123, 456));
+	
 	while (1)
   {				
     LED_Toggle(4);
