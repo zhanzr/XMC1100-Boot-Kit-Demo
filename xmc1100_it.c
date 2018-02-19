@@ -3,30 +3,29 @@
 #include <xmc_rtc.h>
 #include <xmc_uart.h>
 
-//#include "cmsis_os.h"
+#include "cmsis_os.h"
 
 //extern osThreadId g_RtcThread;
 
 extern __IO uint32_t g_Ticks;
 
-void SVC_Handler(void)
-{
-	printf(__FUNCTION__);
-	while(1)
-	{;}
-}
+//void SVC_Handler(void)
+//{
+//	XMC_UART_CH_Transmit(XMC_UART0_CH1, 'S');
+//	XMC_UART_CH_Transmit(XMC_UART0_CH1, '\n');
+//}
 
-void PendSV_Handler(void)
-{
-	printf(__FUNCTION__);
-	while(1)
-	{;}
-}
+//void PendSV_Handler(void)
+//{
+//	printf(__FUNCTION__);
+//	while(1)
+//	{;}
+//}
 
-void SysTick_Handler(void)
-{	
-	g_Ticks++;
-}
+//void SysTick_Handler(void)
+//{	
+//	g_Ticks++;
+//}
 
 void HardFault_Handler(void)
 {

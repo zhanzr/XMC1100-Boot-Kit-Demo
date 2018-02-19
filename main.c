@@ -20,7 +20,7 @@
 #include "flash_ecc.h"
 #include "XMC1000_TSE.h"
 
-//#include "cmsis_os.h"
+#include "cmsis_os.h"
 
 #ifndef HZ
 #define	HZ	1000
@@ -66,10 +66,21 @@ uint32_t HAL_GetTick(void)
 	return g_Ticks;
 }
 
-//#define SEMA_PROTECT_UART	
+osMutexId g_uart_mutex;
+osMutexDef (g_uart_mutex);
+
+#define SEMA_PROTECT_UART	
 int stdout_putchar (int ch)
 {
+#ifdef SEMA_PROTECT_UART	
+	osMutexWait(g_uart_mutex, osWaitForever);	
+#endif
+	
 	XMC_UART_CH_Transmit(XMC_UART0_CH1, (uint8_t)ch);
+	
+#ifdef SEMA_PROTECT_UART	
+	osMutexRelease(g_uart_mutex);	
+#endif
 	
 	return ch;
 }
@@ -88,6 +99,8 @@ void __SVC_1 (uint32_t d)
 {
   __disable_irq();
 	uint32_t t = d;
+	printf("%s\n", __FUNCTION__);
+	
 	while(--t)
 	{
 		__NOP();
@@ -149,13 +162,170 @@ extern uint32_t asm_rev(uint32_t in);
 extern uint32_t asm_rev16(uint32_t in);
 extern uint32_t asm_revsh(uint32_t in);
 
+extern void asm_svc_1(uint32_t in);
+extern void asm_test_msr(uint32_t in);
+extern uint32_t asm_test_mrs(void);
+
+
+
+osThreadId g_Thread1;
+osThreadId g_Thread2;
+osThreadId g_RtcThread;
+
+osSemaphoreId arrived1,arrived2;
+osSemaphoreDef(arrived1);
+osSemaphoreDef(arrived2);
+
+typedef struct {
+uint8_t LED0;
+uint8_t LED1;
+uint8_t LED2;
+}memory_block_t;
+
+osMessageQId g_QTemp;
+osMessageQDef(g_QTemp,1,unsigned int);
+
+osMessageQId g_QLED;
+osMessageQDef(g_QLED,1,memory_block_t*);
+
+osPoolDef(led_pool, 2, memory_block_t);
+osPoolId( led_pool);
+
+void thread1 (void const *argument)
+{
+	osEvent result;
+	
+	uint32_t tmpKTick = osKernelSysTick();
+	g_QLED = osMessageCreate(osMessageQ(g_QLED),NULL);
+	
+	led_pool = osPoolCreate(osPool(led_pool));
+	
+	memory_block_t *led_data;
+	led_data = (memory_block_t *) osPoolAlloc(led_pool);
+	
+	while(1)
+	{
+		osDelay(2000);
+		//rendezvous
+		osSemaphoreRelease(arrived1);
+		osSemaphoreWait(arrived2,osWaitForever);		
+//    LED_Toggle(2);	
+		
+		led_data->LED0 = tmpKTick&0x01;
+		led_data->LED1 = tmpKTick&0x02;
+		led_data->LED2 = tmpKTick&0x04;
+
+		osMessagePut(g_QLED,(uint32_t)led_data,osWaitForever);
+		
+		printf("%u\n", osKernelSysTick()-tmpKTick);
+		osSignalSet (g_Thread2, 0x01);
+		tmpKTick = osKernelSysTick();		
+
+		result = osMessageGet(g_QTemp,osWaitForever);	
+
+		printf("CoreTemp:%d 'C\n", (int32_t)result.value.v);	
+	}
+}
+
+void thread2 (void const *argument)
+{
+	uint32_t temp_k;
+	int32_t temp_C;
+	osEvent event; memory_block_t * received;
+	
+	g_QTemp = osMessageCreate(osMessageQ(g_QTemp),NULL);
+
+	while(1)
+	{		
+		//rendezvous
+		osSemaphoreRelease(arrived2);
+		osSemaphoreWait(arrived1,osWaitForever);		
+//    LED_Toggle(1);	
+		
+		event = osMessageGet(g_QLED, osWaitForever);
+		received = (memory_block_t *)event.value.p;
+		(received->LED0&0x01)?LED_On(0):LED_Off(0);
+		(received->LED1&0x02)?LED_On(1):LED_Off(1);
+		(received->LED2&0x04)?LED_On(2):LED_Off(2);
+		osPoolFree(led_pool,received);
+		
+		/* Calculate temperature of the chip in Kelvin */
+		temp_k = XMC1000_CalcTemperature();
+		/* Convert temperature to Celcius */
+		temp_C = temp_k - ZERO_TEMP_KELVIN;		
+		
+		osMessagePut(g_QTemp,temp_C,osWaitForever);
+		//printf("CoreTemp:%d 'C\n", temp_C);	
+		
+		osSignalWait(0x01, osWaitForever);
+	}
+}
+
+void RtcISRThread (void const *argument)
+{
+	__IO XMC_RTC_TIME_t now_rtc_time;
+	
+	while(1)
+	{
+		osSignalWait(0x01,osWaitForever);
+		
+		XMC_RTC_GetTime((XMC_RTC_TIME_t *)&now_rtc_time);
+		printf("%02d:%02d:%02d\n", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);	
+	}
+}
+
+osThreadDef(thread1, osPriorityNormal, 1, 0); 
+osThreadDef(thread2, osPriorityNormal, 1, 0); 
+osThreadDef(RtcISRThread, osPriorityHigh, 1, 0); 
+
+void os_idle_demon (void) {
+	
+	while(1)
+	{
+//    LED_Toggle(0);	
+		SimpleDelay(1000);
+	}
+}
+
+/* OS Error Codes */
+#define OS_ERROR_STACK_OVF      1
+#define OS_ERROR_FIFO_OVF       2
+#define OS_ERROR_MBX_OVF        3
+#define OS_ERROR_TIMER_OVF      4
+ 
+extern osThreadId svcThreadGetId (void);
+/// \brief Called when a runtime error is detected
+/// \param[in]   error_code   actual error code that has been detected
+void os_error (uint32_t error_code) {
+ 
+	osThreadId oId = svcThreadGetId();
+	printf("[%08X]>\t%u\n", (uint32_t)oId, error_code);
+  switch (error_code) {
+    case OS_ERROR_STACK_OVF:
+      /* Stack overflow detected for the currently running task. */
+      /* Thread can be identified by calling svcThreadGetId().   */
+      break;
+    case OS_ERROR_FIFO_OVF:
+      /* ISR FIFO Queue buffer overflow detected. */
+      break;
+    case OS_ERROR_MBX_OVF:
+      /* Mailbox overflow detected. */
+      break;
+    case OS_ERROR_TIMER_OVF:
+      /* User Timer Callback Queue overflow detected. */
+      break;
+  }
+  for (;;);
+}
+
 int main(void)
 {	
 //	osKernelInitialize();	
 	uint32_t tmpTick;
 
+	osKernelInitialize(); 
   /* System timer configuration */
-	SysTick_Config(SystemCoreClock / HZ);	
+//	SysTick_Config(SystemCoreClock / HZ);	
 	
 	/* Enable DTS */
 	XMC_SCU_StartTempMeasurement();
@@ -223,19 +393,19 @@ int main(void)
 	//Test Addition/Mulitiplication Cycles
 #define	TEST_ADD_MUL_NUM	100000
 	//If the muliplication takes similar cycles, it is a single cycle multiplication implementation
-	tmpTick = HAL_GetTick();
+	tmpTick = osKernelSysTick();
 	for(uint32_t i=0; i<TEST_ADD_MUL_NUM; ++i)
 	{
 		asm_simple_add(i, 456);
 	}
-	tmpTick = HAL_GetTick()-tmpTick;
+	tmpTick = osKernelSysTick()-tmpTick;
 	printf("%u\n", tmpTick);
-	tmpTick = HAL_GetTick();
+	tmpTick = osKernelSysTick();
 	for(uint32_t i=0; i<TEST_ADD_MUL_NUM; ++i)
 	{
 		asm_simple_mul(i, 456);
 	}
-	tmpTick = HAL_GetTick()-tmpTick;
+	tmpTick = osKernelSysTick()-tmpTick;
 	printf("%u\n", tmpTick);
 	
 	printf("Part 5\n");
@@ -262,15 +432,44 @@ int main(void)
 	printf("ASM Test 27 Result:%08X\n", asm_rev16(0x123456C8));
 	printf("ASM Test 28 Result:%08X\n", asm_revsh(0x123456C8));
 	
-	while (1)
-  {				
-    LED_Toggle(4);
+	//Part 8: Test SVC, MSR, MRS
+	printf("Part 8\n");	
+	printf("ASM Test 29, Before SVC #1\n");
+	asm_svc_1(1000);
+	printf("After SVC #1\n");
+	
+	printf("ASM Test 30 Result:%08X\n", asm_test_mrs());
+	printf("ASM Test 31 Tick:%u\n", SysTick->VAL);
+	asm_test_msr(0x00000001);
+	uint32_t p1 = asm_test_mrs();
+	asm_test_msr(0x00000000);
+	uint32_t p2 = asm_test_mrs();
+	printf("%08X\t%08X\n", p1, p2);
 		
-		tmpTick = HAL_GetTick();
-		while((tmpTick+2000) > HAL_GetTick())
-		{
-			__NOP();
-			__WFI();
-		}		
-  }
+	g_Thread1 = osThreadCreate(osThread(thread1), NULL);
+	g_Thread2 = osThreadCreate(osThread(thread2), NULL);
+	g_RtcThread = osThreadCreate(osThread(RtcISRThread), NULL);
+	printf("%08X,%08X,%08X\n", 
+	(uint32_t)g_Thread1,
+	(uint32_t)g_Thread2,
+	(uint32_t)g_RtcThread);
+	
+	g_uart_mutex = osMutexCreate(osMutex(g_uart_mutex));
+
+	arrived1 =osSemaphoreCreate(osSemaphore(arrived1),0);
+	arrived2 =osSemaphoreCreate(osSemaphore(arrived2),0);
+
+	osKernelStart();
+
+//	while (1)
+//  {				
+//    LED_Toggle(4);
+//		
+//		tmpTick = osKernelSysTick();
+//		while((tmpTick+osKernelSysTickMicroSec(2000)) > osKernelSysTick())
+//		{
+//			__NOP();
+//			__WFI();
+//		}		
+//  }
 }
