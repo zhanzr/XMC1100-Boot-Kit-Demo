@@ -120,6 +120,10 @@ extern uint32_t asm_add2(uint32_t in);
 extern uint32_t asm_simple_add(uint32_t i1, uint32_t i2);
 extern uint32_t asm_pc_add(void);
 
+extern int32_t asm_sub20(int32_t in);
+extern int32_t asm_simple_sub(int32_t i1, int32_t i2);
+extern int32_t asm_get_neg(int32_t in);
+
 int main(void)
 {	
 //	osKernelInitialize();	
@@ -162,18 +166,23 @@ int main(void)
 	LED_Initialize();
 	
 	//Part 1: Move
-	printf("ASM Test 1, Result:%u\n", asm_get_8bit_number());
-	printf("ASM Test 2, Result:%08X\n", asm_get_xor(0x12345678, 0x34567890));
-	printf("ASM Test 3, Direct Jump\n");
+	printf("ASM Test 1 Result:%u\n", asm_get_8bit_number());
+	printf("ASM Test 2 Result:%08X\n", asm_get_xor(0x12345678, 0x34567890));
+	printf("ASM Test 3 Direct Jump\n");
 	printf("Before Jump.%08X\n", __get_MSP());
 	asm_direct_jump(TestFunct);
 	printf("Jump over.%08X\n", __get_MSP());
 	
 	//Part 2: Add
-	printf("ASM Test 4, Result:%u\n", asm_add2(34));
+	printf("ASM Test 4 Result:%u\n", asm_add2(34));
 	printf("ASM Test 5 Result:%u\n", asm_simple_add(123, 456));
 	printf("ASM Test 6 Result:%u\n", asm_pc_add());
 	
+	//Part 3: Sub
+	printf("ASM Test 7 Result:%d\n", asm_sub20(34));
+	printf("ASM Test 8 Result:%d\n", asm_simple_sub(123, 456));
+	printf("ASM Test 9 Result:%d\n", asm_get_neg(1024));
+
 	while (1)
   {				
     LED_Toggle(4);
