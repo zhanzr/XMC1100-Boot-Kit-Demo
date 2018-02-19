@@ -124,6 +124,14 @@ extern int32_t asm_sub20(int32_t in);
 extern int32_t asm_simple_sub(int32_t i1, int32_t i2);
 extern int32_t asm_get_neg(int32_t in);
 
+extern uint32_t asm_simple_mul(uint32_t i1, uint32_t i2);
+extern uint32_t asm_test_cmp(uint32_t i1, uint32_t i2);
+extern uint32_t asm_test_cmn(uint32_t i1, uint32_t i2);
+extern uint32_t asm_get_and(uint32_t in, uint32_t key);
+extern uint32_t asm_get_or(uint32_t in, uint32_t key);
+extern int32_t asm_get_not(int32_t in);
+		  
+
 int main(void)
 {	
 //	osKernelInitialize();	
@@ -182,6 +190,14 @@ int main(void)
 	printf("ASM Test 7 Result:%d\n", asm_sub20(34));
 	printf("ASM Test 8 Result:%d\n", asm_simple_sub(123, 456));
 	printf("ASM Test 9 Result:%d\n", asm_get_neg(1024));
+
+	//Part 4: Multiply, Compare, Logic
+	printf("ASM Test 10 Result:%u\n", asm_simple_mul(123, 456));
+	printf("ASM Test 11 Result:%u\n", asm_test_cmp(123, 456));
+	printf("ASM Test 12 Result:%u\n", asm_test_cmn(123, 456));
+	printf("ASM Test 13 Result:%08X\n", asm_get_and(0x12345678, 0x34567890));
+	printf("ASM Test 14 Result:%08X\n", asm_get_or(0x12345678, 0x34567890));
+	printf("ASM Test 13 Result:%08X\n", asm_get_not(0x12345678));
 
 	while (1)
   {				
