@@ -116,6 +116,10 @@ extern uint32_t asm_get_8bit_number(void);
 extern uint32_t asm_get_xor(uint32_t in, uint32_t key);
 extern void asm_direct_jump(void(*fptr)(void));
 
+extern uint32_t asm_add2(uint32_t in);
+extern uint32_t asm_simple_add(uint32_t i1, uint32_t i2);
+extern uint32_t asm_pc_add(void);
+
 int main(void)
 {	
 //	osKernelInitialize();	
@@ -157,12 +161,18 @@ int main(void)
 	
 	LED_Initialize();
 	
+	//Part 1: Move
 	printf("ASM Test 1, Result:%u\n", asm_get_8bit_number());
 	printf("ASM Test 2, Result:%08X\n", asm_get_xor(0x12345678, 0x34567890));
 	printf("ASM Test 3, Direct Jump\n");
 	printf("Before Jump.%08X\n", __get_MSP());
 	asm_direct_jump(TestFunct);
 	printf("Jump over.%08X\n", __get_MSP());
+	
+	//Part 2: Add
+	printf("ASM Test 4, Result:%u\n", asm_add2(34));
+	printf("ASM Test 5 Result:%u\n", asm_simple_add(123, 456));
+	printf("ASM Test 6 Result:%u\n", asm_pc_add());
 	
 	while (1)
   {				
