@@ -1,4 +1,4 @@
-;Description: Instruction Test 3
+;Description: Instruction Test 4
 ;Multiply, Compare, Logical
 ;Operation				Description Assembler	Cycles
 ;Multiply 				MULS Rd, Rm, Rd 		1 or 32(depends on implementation)

@@ -131,6 +131,10 @@ extern uint32_t asm_get_and(uint32_t in, uint32_t key);
 extern uint32_t asm_get_or(uint32_t in, uint32_t key);
 extern int32_t asm_get_not(int32_t in);
 		  
+extern uint32_t asm_logic_left(uint32_t in, uint32_t key);
+extern uint32_t asm_logic_right(uint32_t in, uint32_t key);
+extern int32_t asm_arithm_right(int32_t in, uint32_t key);
+extern uint32_t asm_rotate_right(uint32_t in, uint32_t key);
 
 int main(void)
 {	
@@ -197,7 +201,31 @@ int main(void)
 	printf("ASM Test 12 Result:%u\n", asm_test_cmn(123, 456));
 	printf("ASM Test 13 Result:%08X\n", asm_get_and(0x12345678, 0x34567890));
 	printf("ASM Test 14 Result:%08X\n", asm_get_or(0x12345678, 0x34567890));
-	printf("ASM Test 13 Result:%08X\n", asm_get_not(0x12345678));
+	printf("ASM Test 15 Result:%08X\n", asm_get_not(0x12345678));
+
+	//Test Addition/Mulitiplication Cycles
+#define	TEST_ADD_MUL_NUM	100000
+	//If the muliplication takes similar cycles, it is a single cycle multiplication implementation
+	tmpTick = HAL_GetTick();
+	for(uint32_t i=0; i<TEST_ADD_MUL_NUM; ++i)
+	{
+		asm_simple_add(i, 456);
+	}
+	tmpTick = HAL_GetTick()-tmpTick;
+	printf("%u\n", tmpTick);
+	tmpTick = HAL_GetTick();
+	for(uint32_t i=0; i<TEST_ADD_MUL_NUM; ++i)
+	{
+		asm_simple_mul(i, 456);
+	}
+	tmpTick = HAL_GetTick()-tmpTick;
+	printf("%u\n", tmpTick);
+	
+	//Part 5: Shift, Rotate
+	printf("ASM Test 16 Result:%08X\n", asm_logic_left(0x80000001, 2));
+	printf("ASM Test 17 Result:%08X\n", asm_logic_right(0x80000001, 2));
+	printf("ASM Test 18 Result:%08X\n", asm_arithm_right(0x80000001, 2));
+	printf("ASM Test 19 Result:%08X\n", asm_rotate_right(0x80000001, 2));
 
 	while (1)
   {				
