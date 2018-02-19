@@ -142,6 +142,13 @@ extern uint32_t asm_ldr32(uint32_t* addr);
 extern uint32_t asm_str32(uint32_t* addr, uint32_t v);
 extern uint32_t asm_test_push_pop(uint32_t i1, uint32_t i2);
 
+extern int32_t asm_s16ext(int16_t in);
+extern int32_t asm_s8ext(int8_t in);
+extern int32_t asm_u16ext(uint16_t in);
+extern uint32_t asm_rev(uint32_t in);
+extern uint32_t asm_rev16(uint32_t in);
+extern uint32_t asm_revsh(uint32_t in);
+
 int main(void)
 {	
 //	osKernelInitialize();	
@@ -184,6 +191,7 @@ int main(void)
 	LED_Initialize();
 	
 	//Part 1: Move
+	printf("Part 1\n");
 	printf("ASM Test 1 Result:%u\n", asm_get_8bit_number());
 	printf("ASM Test 2 Result:%08X\n", asm_get_xor(0x12345678, 0x34567890));
 	printf("ASM Test 3 Direct Jump\n");
@@ -192,16 +200,19 @@ int main(void)
 	printf("Jump over.%08X\n", __get_MSP());
 	
 	//Part 2: Add
+	printf("Part 2\n");
 	printf("ASM Test 4 Result:%u\n", asm_add2(34));
 	printf("ASM Test 5 Result:%u\n", asm_simple_add(123, 456));
 	printf("ASM Test 6 Result:%u\n", asm_pc_add());
 	
 	//Part 3: Sub
+	printf("Part 3\n");
 	printf("ASM Test 7 Result:%d\n", asm_sub20(34));
 	printf("ASM Test 8 Result:%d\n", asm_simple_sub(123, 456));
 	printf("ASM Test 9 Result:%d\n", asm_get_neg(1024));
 
 	//Part 4: Multiply, Compare, Logic
+	printf("Part 4\n");
 	printf("ASM Test 10 Result:%u\n", asm_simple_mul(123, 456));
 	printf("ASM Test 11 Result:%u\n", asm_test_cmp(123, 456));
 	printf("ASM Test 12 Result:%u\n", asm_test_cmn(123, 456));
@@ -227,17 +238,29 @@ int main(void)
 	tmpTick = HAL_GetTick()-tmpTick;
 	printf("%u\n", tmpTick);
 	
+	printf("Part 5\n");
 	//Part 5: Shift, Rotate
 	printf("ASM Test 16 Result:%08X\n", asm_logic_left(0x80000001, 2));
 	printf("ASM Test 17 Result:%08X\n", asm_logic_right(0x80000001, 2));
 	printf("ASM Test 18 Result:%08X\n", asm_arithm_right(0x80000001, 2));
 	printf("ASM Test 19 Result:%08X\n", asm_rotate_right(0x80000001, 2));
 
+	//Part 6: Test Load, Store
+	printf("Part 6\n");
 	g_TestVar32 = 0x12345678;
 	printf("ASM Test 20 Result:%08X\n", asm_ldr32(&g_TestVar32));
 	asm_str32(&g_TestVar32, 0x78904563);	
 	printf("ASM Test 21 Result:%08X\n", asm_ldr32(&g_TestVar32));
 	printf("ASM Test 22 Result:%u\n", asm_test_push_pop(123, 456));
+
+	//Part 7: Test Extend, Reverse
+	printf("Part 7\n");
+	printf("ASM Test 23 Result:%08X\n", asm_s16ext((int16_t)0x8001));
+	printf("ASM Test 24 Result:%08X\n", asm_s8ext((int8_t)0xC4));
+	printf("ASM Test 25 Result:%08X\n", asm_u16ext((uint16_t)0x8001));
+	printf("ASM Test 26 Result:%08X\n", asm_rev(0x123456C8));
+	printf("ASM Test 27 Result:%08X\n", asm_rev16(0x123456C8));
+	printf("ASM Test 28 Result:%08X\n", asm_revsh(0x123456C8));
 	
 	while (1)
   {				
