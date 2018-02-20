@@ -290,23 +290,20 @@ XMC_GPIO_PORT1 DCD      PORT1_BASE
 LCD_displayL PROC
         EXPORT LCD_displayL [CODE]
 			
-        PUSH     {r4-r6,lr}
-        MOV      r5,r0
-        MOV      r6,r1
-        MOV      r4,r2
-        MOV      r1,r6
-        MOV      r0,r5
+        PUSH     {lr}
+
+        MOV      r3,r2
         BL       LCD_SetPos
+		
         B        LCD_Display_Label2
 LCD_Display_Label1
-        LDRB     r0,[r4,#0]
         BL       LCD_WrDat_4
-        ADDS     r4,r4,#1
+        ADDS     r3,r3,#1
 LCD_Display_Label2
-        LDRB     r0,[r4,#0]
+        LDRB     r0,[r3,#0]
         CMP      r0,#0
         BNE      LCD_Display_Label1
-        POP      {r4-r6,pc}
+        POP      {pc}
         ENDP
 
 XMC_GPIO_SetOutputHigh PROC

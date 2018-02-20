@@ -55,7 +55,7 @@ XMC_RTC_TIME_t init_rtc_time =
 	.daysofweek = XMC_RTC_WEEKDAY_TUESDAY,
 	.days = 20,
 	.hours = 15,
-	.minutes = 31,
+	.minutes = 32,
 	.seconds = 59	
 };
 
