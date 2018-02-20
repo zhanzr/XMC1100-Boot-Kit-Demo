@@ -15,7 +15,7 @@
 ;8-bit immediate 
 	ALIGN
 asm_sub20  FUNCTION    
-	EXPORT asm_sub20
+	EXPORT asm_sub20 [CODE]
 	
 	SUBS r0, r0, #20
 
@@ -26,7 +26,7 @@ asm_sub20  FUNCTION
 ;Simple Sub
 	ALIGN
 asm_simple_sub  FUNCTION    
-	EXPORT asm_simple_sub
+	EXPORT asm_simple_sub [CODE]
 	
 	SUBS r0, r0, r1
 
@@ -37,7 +37,7 @@ asm_simple_sub  FUNCTION
 ;Subtract Negate
 	ALIGN
 asm_get_neg   FUNCTION    
-	EXPORT asm_get_neg
+	EXPORT asm_get_neg [CODE]
 		
 	RSBS r1, r0, #0
 	

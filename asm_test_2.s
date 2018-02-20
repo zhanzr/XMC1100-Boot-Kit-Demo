@@ -18,7 +18,7 @@
 ;Add 3bit immediate
 	ALIGN
 asm_add2  FUNCTION    
-	EXPORT asm_add2
+	EXPORT asm_add2 [CODE]
 	
 	ADDS r0, r0, #2
 
@@ -29,7 +29,7 @@ asm_add2  FUNCTION
 ;Simple Add
 	ALIGN
 asm_simple_add  FUNCTION    
-	EXPORT asm_simple_add
+	EXPORT asm_simple_add [CODE]
 	
 	ADDS r0, r0, r1
 
@@ -41,7 +41,7 @@ asm_simple_add  FUNCTION
 ;PC Add
 	ALIGN
 asm_pc_add  FUNCTION    
-	EXPORT asm_pc_add
+	EXPORT asm_pc_add [CODE]
 	
 	MOVS r0, #6
 	;Cortex M0 has 3 levels of pipeline, when this instruction is to be executed, the PC points to test_label

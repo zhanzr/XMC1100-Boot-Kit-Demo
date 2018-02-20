@@ -2,45 +2,49 @@
         REQUIRE8
         PRESERVE8
 
-        AREA ||i.LED_Initialize||, CODE, READONLY, ALIGN=2
+        AREA    |.text|, CODE, READONLY, ALIGN=2
 
 LED_COUNT	EQU	5
 XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN	EQU 0xC0
 PORT0_BASE EQU      0x40040000
 PORT1_BASE EQU      0x40040100	
+LED0_PIN EQU      7	
+LED1_PIN EQU      6	
+LED2_PIN EQU      5	
+LED3_PIN EQU      4	
+LED4_PIN EQU      5	
 	
 LED_Initialize PROC
+        EXPORT LED_Initialize [CODE]
+
 		PUSH     {lr}
         MOVS     r2,#XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN
-        MOVS     r1,#7
-        LDR      r0, XMC_GPIO_PORT0_INIT
+        MOVS     r1,#LED0_PIN
+        LDR      r0, XMC_GPIO_PORT0_ON_OFF
         BL       XMC_GPIO_SetMode
         MOVS     r2,#XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN
-        MOVS     r1,#6
-        LDR      r0, XMC_GPIO_PORT0_INIT
+        MOVS     r1,#LED1_PIN
+        LDR      r0, XMC_GPIO_PORT0_ON_OFF
         BL       XMC_GPIO_SetMode
         MOVS     r2,#XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN
-        MOVS     r1,#5
-        LDR      r0, XMC_GPIO_PORT0_INIT
+        MOVS     r1,#LED2_PIN
+        LDR      r0, XMC_GPIO_PORT0_ON_OFF
         BL       XMC_GPIO_SetMode
         MOVS     r2,#XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN
-        MOVS     r1,#4
-        LDR      r0, XMC_GPIO_PORT1_INIT
+        MOVS     r1,#LED3_PIN
+        LDR      r0, XMC_GPIO_PORT1_ON_OFF
         BL       XMC_GPIO_SetMode
         MOVS     r2,#XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN
-        MOVS     r1,#5
-        LDR      r0, XMC_GPIO_PORT1_INIT
+        MOVS     r1,#LED4_PIN
+        LDR      r0, XMC_GPIO_PORT1_ON_OFF
         BL       XMC_GPIO_SetMode
         POP      {pc}
         ENDP
-;Added 2 bytes of padding
-;	DCW      0x0000
-XMC_GPIO_PORT0_INIT DCD      PORT0_BASE
-XMC_GPIO_PORT1_INIT DCD      PORT1_BASE	
 	
-        AREA ||i.LED_Off||, CODE, READONLY, ALIGN=2
-
+;
 LED_Off PROC
+        EXPORT LED_Off [CODE]
+	
         PUSH     {lr}
         MOV      r3,r0
         BL       __ARM_common_switch8_modify
@@ -52,39 +56,38 @@ LED_Off PROC
         DCB      0x1c
 		//Padding
 		DCB		 0x00
-        MOVS     r1,#7
-        LDR      r0, XMC_GPIO_PORT0_OFF
+        MOVS     r1,#LED0_PIN
+        LDR      r0, XMC_GPIO_PORT0_ON_OFF
         BL       XMC_GPIO_SetOutputLow
         B        led_off_exit
 		
-        MOVS     r1,#6
-        LDR      r0,XMC_GPIO_PORT0_OFF
+        MOVS     r1,#LED1_PIN
+        LDR      r0,XMC_GPIO_PORT0_ON_OFF
         BL       XMC_GPIO_SetOutputHigh
         B        led_off_exit
 		
-        MOVS     r1,#5
-        LDR      r0,XMC_GPIO_PORT0_OFF
+        MOVS     r1,#LED2_PIN
+        LDR      r0,XMC_GPIO_PORT0_ON_OFF
         BL       XMC_GPIO_SetOutputHigh
         B        led_off_exit
 		
-        MOVS     r1,#4
-        LDR      r0, XMC_GPIO_PORT1_OFF
+        MOVS     r1,#LED3_PIN
+        LDR      r0, XMC_GPIO_PORT1_ON_OFF
         BL       XMC_GPIO_SetOutputHigh
         B        led_off_exit
 		
-        MOVS     r1,#5
-        LDR      r0, XMC_GPIO_PORT1_OFF
+        MOVS     r1,#LED4_PIN
+        LDR      r0, XMC_GPIO_PORT1_ON_OFF
         BL       XMC_GPIO_SetOutputHigh
  
 led_off_exit   
         POP      {pc}
         ENDP
-XMC_GPIO_PORT0_OFF DCD      PORT0_BASE
-XMC_GPIO_PORT1_OFF DCD      PORT1_BASE	
 
-        AREA ||i.LED_On||, CODE, READONLY, ALIGN=2
-
+;
 LED_On PROC
+        EXPORT LED_On [CODE]
+			
         PUSH     {lr}
         MOV      r3,r0
         BL       __ARM_common_switch8_modify
@@ -96,39 +99,38 @@ LED_On PROC
         DCB      0x1c
 		//Padding
 		DCB		 0x00
-        MOVS     r1,#7
-        LDR      r0,XMC_GPIO_PORT0_ON
+        MOVS     r1,#LED0_PIN
+        LDR      r0,XMC_GPIO_PORT0_ON_OFF
         BL       XMC_GPIO_SetOutputHigh
         B        led_on_exit
 		
-        MOVS     r1,#6
-        LDR      r0,XMC_GPIO_PORT0_ON
+        MOVS     r1,#LED1_PIN
+        LDR      r0,XMC_GPIO_PORT0_ON_OFF
         BL       XMC_GPIO_SetOutputLow
         B        led_on_exit
 		
-        MOVS     r1,#5
-        LDR      r0,XMC_GPIO_PORT0_ON
+        MOVS     r1,#LED2_PIN
+        LDR      r0,XMC_GPIO_PORT0_ON_OFF
         BL       XMC_GPIO_SetOutputLow
         B        led_on_exit
 		
-        MOVS     r1,#4
-        LDR      r0,XMC_GPIO_PORT1_ON
+        MOVS     r1,#LED3_PIN
+        LDR      r0,XMC_GPIO_PORT1_ON_OFF
         BL       XMC_GPIO_SetOutputLow
         B        led_on_exit
 		
-        MOVS     r1,#5
-        LDR      r0,XMC_GPIO_PORT1_ON
+        MOVS     r1,#LED4_PIN
+        LDR      r0,XMC_GPIO_PORT1_ON_OFF
         BL       XMC_GPIO_SetOutputLow
 		
 led_on_exit
         POP      {pc}
         ENDP
-XMC_GPIO_PORT0_ON DCD      PORT0_BASE
-XMC_GPIO_PORT1_ON DCD      PORT1_BASE	
 
-        AREA ||i.LED_Toggle||, CODE, READONLY, ALIGN=2
-
+;
 LED_Toggle PROC
+        EXPORT LED_Toggle [CODE]
+			
         PUSH     {lr}
         MOV      r3,r0
         BL       __ARM_common_switch8_modify
@@ -140,38 +142,39 @@ LED_Toggle PROC
         DCB      0x1c
 		//Padding
 		DCB		 0x00
-        MOVS     r1,#7
-        LDR      r0,XMC_GPIO_PORT0_TOGGLE
+        MOVS     r1,#LED0_PIN
+        LDR      r0,XMC_GPIO_PORT0_ON_OFF
         BL       XMC_GPIO_ToggleOutput
         B        led_toggle_exit
 		
-        MOVS     r1,#6
-        LDR      r0,XMC_GPIO_PORT0_TOGGLE
+        MOVS     r1,#LED1_PIN
+        LDR      r0,XMC_GPIO_PORT0_ON_OFF
         BL       XMC_GPIO_ToggleOutput
         B        led_toggle_exit
 		
-        MOVS     r1,#5
-        LDR      r0,XMC_GPIO_PORT0_TOGGLE
+        MOVS     r1,#LED2_PIN
+        LDR      r0,XMC_GPIO_PORT0_ON_OFF
         BL       XMC_GPIO_ToggleOutput
         B        led_toggle_exit
 		
-        MOVS     r1,#4
-        LDR      r0,XMC_GPIO_PORT1_TOGGLE
+        MOVS     r1,#LED3_PIN
+        LDR      r0,XMC_GPIO_PORT1_ON_OFF
         BL       XMC_GPIO_ToggleOutput
         B        led_toggle_exit
 		
-        MOVS     r1,#5
-        LDR      r0,XMC_GPIO_PORT1_TOGGLE
+        MOVS     r1,#LED4_PIN
+        LDR      r0,XMC_GPIO_PORT1_ON_OFF
         BL       XMC_GPIO_ToggleOutput
     
 led_toggle_exit
         POP      {pc}
         ENDP
+			
+XMC_GPIO_PORT0_ON_OFF DCD      PORT0_BASE
+XMC_GPIO_PORT1_ON_OFF DCD      PORT1_BASE	
 
-XMC_GPIO_PORT0_TOGGLE DCD      PORT0_BASE
-XMC_GPIO_PORT1_TOGGLE DCD      PORT1_BASE	
 
-        AREA ||i.XMC_GPIO_SetOutputHigh||, CODE, READONLY, ALIGN=1
+        AREA    |.text|, CODE, READONLY, ALIGN=1
 
 XMC_GPIO_SetOutputHigh PROC
         MOVS     r2,#1
@@ -180,9 +183,6 @@ XMC_GPIO_SetOutputHigh PROC
         BX       lr
         ENDP
 
-
-        AREA ||i.XMC_GPIO_SetOutputLow||, CODE, READONLY, ALIGN=1
-
 XMC_GPIO_SetOutputLow PROC
         MOVS     r2,#1
         LSLS     r2,r2,#16
@@ -190,9 +190,6 @@ XMC_GPIO_SetOutputLow PROC
         STR      r2,[r0,#4]
         BX       lr
         ENDP
-
-
-        AREA ||i.XMC_GPIO_ToggleOutput||, CODE, READONLY, ALIGN=2
 
 XMC_GPIO_ToggleOutput PROC
         LDR      r2, TOGGLE_VAL
@@ -207,7 +204,7 @@ TOGGLE_VAL        DCD      0x00010001
 
         DCD      0x00000000
 
-        AREA ||i.__ARM_common_switch8_modify||, COMGROUP=__ARM_common_switch8_modify, CODE, READONLY, ALIGN=1
+        AREA    |.text|, COMGROUP=__ARM_common_switch8_modify, CODE, READONLY, ALIGN=1
 
 ;Choice in r3, LR stores the return address(jump table)
 ;The target address to branch also stores in r3
@@ -229,10 +226,7 @@ switch_label2
         B        switch_label1
         ENDP
 
-        EXPORT LED_Initialize [CODE]
-        EXPORT LED_Off [CODE]
-        EXPORT LED_On [CODE]
-        EXPORT LED_Toggle [CODE]
+;
         EXPORT __ARM_common_switch8_modify [CODE]
 
         IMPORT ||Lib$$Request$$armlib|| [CODE,WEAK]

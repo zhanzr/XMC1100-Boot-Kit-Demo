@@ -51,7 +51,7 @@
 ;load a 32bit
 	ALIGN
 asm_ldr32 FUNCTION    
-	EXPORT asm_ldr32
+	EXPORT asm_ldr32 [CODE]
 	
 	mov r1,r0
 	LDR r0, [r1, #0]
@@ -62,7 +62,7 @@ asm_ldr32 FUNCTION
 ;store a 32bit
 	ALIGN
 asm_str32 FUNCTION    
-	EXPORT asm_str32
+	EXPORT asm_str32 [CODE]
 	
 	STR r1, [r0, #0]
 	bx lr
@@ -72,7 +72,7 @@ asm_str32 FUNCTION
 ;push & pop
 	ALIGN
 asm_test_push_pop FUNCTION    
-	EXPORT asm_test_push_pop
+	EXPORT asm_test_push_pop [CODE]
 	
 	push {r0,r1}
 	

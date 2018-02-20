@@ -14,7 +14,7 @@
 ;Get an 8bit immediate number
 	ALIGN        ; Ensures alignment.
 asm_get_8bit_number   FUNCTION     ; Without the ALIGN directive this might not be word-aligned.
-	EXPORT asm_get_8bit_number
+	EXPORT asm_get_8bit_number [CODE]
 		
 	MOVS r0, #234
 	bx lr
@@ -24,7 +24,7 @@ asm_get_8bit_number   FUNCTION     ; Without the ALIGN directive this might not 
 ;Get the XOR result
 	ALIGN
 asm_get_xor   FUNCTION    
-	EXPORT asm_get_xor
+	EXPORT asm_get_xor [CODE]
 
 	eors r1, r0, r1
 	movs r0, r1
@@ -36,7 +36,7 @@ asm_get_xor   FUNCTION
 ;Direct Jump Test
 	ALIGN
 asm_direct_jump   FUNCTION    
-	EXPORT asm_direct_jump
+	EXPORT asm_direct_jump [CODE]
 
 	;mov PC,r0
 ;asm_test_1.s(42): warning: A1608W: MOV pc,<rn> instruction used, but BX <rn> is preferred

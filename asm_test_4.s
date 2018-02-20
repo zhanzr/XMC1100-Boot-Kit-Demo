@@ -19,7 +19,7 @@
 ;Simple Multiply
 	ALIGN
 asm_simple_mul FUNCTION    
-	EXPORT asm_simple_mul
+	EXPORT asm_simple_mul [CODE]
 	
 	MULS r0, r1, r0
 
@@ -34,7 +34,7 @@ asm_simple_mul FUNCTION
 ;Test Compare
 	ALIGN
 asm_test_cmp FUNCTION    
-	EXPORT asm_test_cmp
+	EXPORT asm_test_cmp [CODE]
 	
 	CMP r0, r1
 ;	CMP r0, #0x00001000
@@ -51,7 +51,7 @@ cmp_low
 ;Test Compare Negative
 	ALIGN
 asm_test_cmn FUNCTION    
-	EXPORT asm_test_cmn
+	EXPORT asm_test_cmn [CODE]
 	
 	CMN r0, r1
 	BLT	cmn_low
@@ -67,7 +67,7 @@ cmn_low
 ;Get the AND result
 	ALIGN
 asm_get_and  FUNCTION    
-	EXPORT asm_get_and
+	EXPORT asm_get_and [CODE]
 
 	ANDS r1, r0, r1
 	movs r0, r1
@@ -79,7 +79,7 @@ asm_get_and  FUNCTION
 ;Get the OR result
 	ALIGN
 asm_get_or   FUNCTION    
-	EXPORT asm_get_or
+	EXPORT asm_get_or [CODE]
 
 	orrs r1, r0, r1
 	movs r0, r1
@@ -91,7 +91,7 @@ asm_get_or   FUNCTION
 ;Get the NOT result
 	ALIGN
 asm_get_not   FUNCTION    
-	EXPORT asm_get_not
+	EXPORT asm_get_not [CODE]
 
 	MVNS r1, r0
 	movs r0, r1

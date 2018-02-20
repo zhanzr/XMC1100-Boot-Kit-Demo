@@ -16,7 +16,7 @@
 ;Signed halfword to word 
 	ALIGN
 asm_s16ext FUNCTION    
-	EXPORT asm_s16ext
+	EXPORT asm_s16ext [CODE]
 	
 	SXTH r0, r0
 	bx lr
@@ -26,7 +26,7 @@ asm_s16ext FUNCTION
 ;Signed byte to word 
 	ALIGN
 asm_s8ext FUNCTION    
-	EXPORT asm_s8ext
+	EXPORT asm_s8ext [CODE]
 	
 	SXTB r0, r0
 	bx lr
@@ -36,7 +36,7 @@ asm_s8ext FUNCTION
 ;Unsigned halfword to word 
 	ALIGN
 asm_u16ext FUNCTION    
-	EXPORT asm_u16ext
+	EXPORT asm_u16ext [CODE]
 	
 	UXTH r0, r0
 	bx lr
@@ -46,7 +46,7 @@ asm_u16ext FUNCTION
 ;Unsigned byte to word 
 	ALIGN
 asm_u8ext FUNCTION    
-	EXPORT asm_u8ext
+	EXPORT asm_u8ext [CODE]
 	
 	UXTB r0, r0
 	bx lr
@@ -56,7 +56,7 @@ asm_u8ext FUNCTION
 ;Reverse Bytes in word 
 	ALIGN
 asm_rev FUNCTION    
-	EXPORT asm_rev
+	EXPORT asm_rev [CODE]
 	
 	REV r0, r0
 	bx lr
@@ -66,7 +66,7 @@ asm_rev FUNCTION
 ;Reverse Bytes in both halfwords
 	ALIGN
 asm_rev16 FUNCTION    
-	EXPORT asm_rev16
+	EXPORT asm_rev16 [CODE]
 	
 	REV16 r0, r0
 	bx lr
@@ -76,7 +76,7 @@ asm_rev16 FUNCTION
 ;Reverse Signed bottom half word
 	ALIGN
 asm_revsh FUNCTION    
-	EXPORT asm_revsh
+	EXPORT asm_revsh [CODE]
 	
 	REVSH r0, r0
 	bx lr

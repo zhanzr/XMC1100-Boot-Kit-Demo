@@ -14,7 +14,7 @@
 ;Supervisor Call
 	ALIGN
 asm_svc_1 FUNCTION    
-	EXPORT asm_svc_1
+	EXPORT asm_svc_1 [CODE]
 	
 	SVC #1
 	
@@ -27,7 +27,7 @@ asm_svc_1 FUNCTION
 ;EAPSR, PSR, MSP, PSP, PRIMASK, or CONTROL.
 	ALIGN
 asm_test_msr FUNCTION    
-	EXPORT asm_test_msr
+	EXPORT asm_test_msr [CODE]
 	;Write 0x00000001 to disable all exceptions with configurable priority
 	;Write 0x00000000 to enable all exceptions with configurable priority
 	MSR PRIMASK,r0
@@ -41,7 +41,7 @@ asm_test_msr FUNCTION
 ;EAPSR, PSR, MSP, PSP, PRIMASK, or CONTROL.
 	ALIGN
 asm_test_mrs FUNCTION    
-	EXPORT asm_test_mrs
+	EXPORT asm_test_mrs [CODE]
 	
 	MRS r0, PRIMASK
 	

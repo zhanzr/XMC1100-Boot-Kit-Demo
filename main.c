@@ -51,12 +51,12 @@ XMC_RTC_CONFIG_t rtc_config =
 XMC_RTC_TIME_t init_rtc_time = 
 {
 	.year = 2018,
-	.month = XMC_RTC_MONTH_JANUARY,
+	.month = XMC_RTC_MONTH_FEBRUARY,
 	.daysofweek = XMC_RTC_WEEKDAY_TUESDAY,
-	.days = 27,
+	.days = 20,
 	.hours = 15,
-	.minutes = 40,
-	.seconds = 55	
+	.minutes = 31,
+	.seconds = 59	
 };
 
 __IO uint32_t g_Ticks;
@@ -292,7 +292,7 @@ void RtcISRThread (void const *argument)
 //		printf("%02d:%02d:%02d\n", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);	
 		sprintf(testBuf, "%02d:%02d:%02d", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);	
 		printf(testBuf);
-		LCD_displayL(0, 0, (uint8_t*)testBuf);
+		LCD_displayL(0, 1, (uint8_t*)testBuf);
 	}
 }
 

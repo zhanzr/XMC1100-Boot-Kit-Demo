@@ -16,7 +16,7 @@
 ;Logical shift left by register
 	ALIGN
 asm_logic_left  FUNCTION    
-	EXPORT asm_logic_left
+	EXPORT asm_logic_left [CODE]
 	
 	LSLS r0, r0, r1
 
@@ -27,7 +27,7 @@ asm_logic_left  FUNCTION
 ;Logical shift right by register
 	ALIGN
 asm_logic_right  FUNCTION    
-	EXPORT asm_logic_right
+	EXPORT asm_logic_right [CODE]
 	
 	LSRS r0, r0, r1
 
@@ -38,7 +38,7 @@ asm_logic_right  FUNCTION
 ;Arithmetic shift right by register
 	ALIGN
 asm_arithm_right  FUNCTION    
-	EXPORT asm_arithm_right
+	EXPORT asm_arithm_right [CODE]
 	
 	ASRS r0, r0, r1
 
@@ -49,7 +49,7 @@ asm_arithm_right  FUNCTION
 ;Rotate right by register
 	ALIGN
 asm_rotate_right  FUNCTION    
-	EXPORT asm_rotate_right
+	EXPORT asm_rotate_right [CODE]
 	
 	RORS r0, r0, r1
 
