@@ -17,6 +17,10 @@
 #include "led.h"
 #include "lcd2004.h"
 
+#ifndef HZ
+#define	HZ	1000
+#endif
+
 #define UART_RX P1_3
 #define UART_TX P1_2
 
@@ -50,12 +54,6 @@ XMC_RTC_TIME_t init_rtc_time =
 	.minutes = 40,
 	.seconds = 55	
 };
-
-int stdout_putchar (int ch)
-{
-	XMC_UART_CH_Transmit(XMC_UART0_CH1, (uint8_t)ch);
-	return ch;
-}
 
 void SystemCoreClockSetup(void)
 {
@@ -499,7 +497,7 @@ int main(void)
 	__IO XMC_RTC_TIME_t now_rtc_time;
 
   /* System timer configuration */
-  SysTick_Config(SystemCoreClock / 1000);
+  SysTick_Config(SystemCoreClock / HZ);
 	
   /*Initialize the UART driver */
 	uart_tx.mode = XMC_GPIO_MODE_OUTPUT_PUSH_PULL_ALT7;
@@ -515,12 +513,12 @@ int main(void)
 	XMC_GPIO_Init(UART_TX, &uart_tx);
   XMC_GPIO_Init(UART_RX, &uart_rx);
 	
-  printf ("LCD2004 4bit driver For XMC1100 Bootkit by Automan @ Infineon BBS @%u Hz\n",
-	SystemCoreClock	);
-	
+  printf("LCD2004 4bit driver For XMC1100 Bootkit. Cortex M0 Rev:%u, @%u Hz\n",
+	__CM0_REV,
+	SystemCoreClock);
+	printf("CPUID:%08X, MPU:%u\n", SCB->CPUID, __MPU_PRESENT);
 	//RTC
   XMC_RTC_Init(&rtc_config);
-	
 	XMC_RTC_SetTime(&init_rtc_time);
 	
 //  XMC_RTC_EnableEvent(XMC_RTC_EVENT_PERIODIC_SECONDS);
