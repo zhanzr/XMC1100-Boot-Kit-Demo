@@ -1,4 +1,9 @@
-#pragma once
+#ifndef __LCD_PWM_VO_H__
+#define __LCD_PWM_VO_H__
+
+#ifdef __cplusplus
+ extern "C" {
+#endif
 
 #include <XMC1100.h>
 #include <xmc_gpio.h>
@@ -207,3 +212,8 @@ void PWM_CCU4_lInit_Interrupt(PWM_CCU4_t* handle_ptr);
 void PWM_CCU4_lConfigure_Events(PWM_CCU4_t* handle_ptr);
 
 void LCD_PWM_VO_Init(void);
+
+#ifdef __cplusplus
+}
+#endif
+#endif /*__HAL_H__ */

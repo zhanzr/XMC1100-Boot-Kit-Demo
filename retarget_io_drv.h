@@ -14,10 +14,13 @@
 #include <xmc_uart.h>
 #include <xmc_gpio.h>
 
+
 #ifdef __cplusplus
  extern "C" {
 #endif
-	 
+
+void uart_init(void);
+
 #if defined(__ARMCC_VERSION)
 int stdout_putchar (int ch);
 #else

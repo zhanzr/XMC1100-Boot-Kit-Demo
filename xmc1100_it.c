@@ -3,10 +3,10 @@
 #include <xmc_rtc.h>
 #include <xmc_gpio.h>
 
-extern void printf(const char* str);
+#include <stdio.h>
+#include <stdint.h>
 
 extern __IO uint32_t g_Ticks;
-extern char g_Buf[256];
 
 void HardFault_Handler(void)
 {

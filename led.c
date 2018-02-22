@@ -34,23 +34,6 @@ void LED_Initialize (void)
 }
 
 /**
-  \fn          int32_t LED_Uninitialize (void)
-  \brief       De-initialize LEDs
-  \returns
-   - \b  0: function succeeded
-   - \b -1: function failed
-*/
-void LED_Uninitialize (void) 
-{
-	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 5, XMC_GPIO_MODE_INPUT_TRISTATE);
-	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 6, XMC_GPIO_MODE_INPUT_TRISTATE);
-	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 7, XMC_GPIO_MODE_INPUT_TRISTATE);
-
-	XMC_GPIO_SetMode(XMC_GPIO_PORT1, 4, XMC_GPIO_MODE_INPUT_TRISTATE);
-	XMC_GPIO_SetMode(XMC_GPIO_PORT1, 5, XMC_GPIO_MODE_INPUT_TRISTATE);
-}
-
-/**
   \fn          int32_t LED_On (uint32_t num)
   \brief       Turn on requested LED
   \param[in]   num  LED number
@@ -96,14 +79,5 @@ void LED_Off (uint8_t num)
 
 void LED_Toggle (uint8_t num) 
 {
-	switch(num)
-	{		
-		case 0:
-		XMC_GPIO_ToggleOutput(LED_PIN[num].port, LED_PIN[num].pin);
-		break;
-		
-		default:
-		XMC_GPIO_ToggleOutput(LED_PIN[num].port, LED_PIN[num].pin);
-		break;
-	}
+	XMC_GPIO_ToggleOutput(LED_PIN[num].port, LED_PIN[num].pin);
 }

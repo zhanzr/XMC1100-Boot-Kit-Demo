@@ -62,7 +62,7 @@ __initial_sp
 ;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ; </h>
 
-Heap_Size       EQU     0x00000200
+Heap_Size       EQU     0x00000A00
 
                 AREA    HEAP, NOINIT, READWRITE, ALIGN=3
 __heap_base
@@ -127,12 +127,12 @@ CLK_VAL2_Val    EQU     0x80000000
                 EXPORT  __Vectors
                 EXPORT  __Vectors_End
                 EXPORT  __Vectors_Size
-				IMPORT	MemtestFunc
+				;IMPORT	MemtestFunc
 					
 
 __Vectors       DCD     __initial_sp              ; Top of Stack
-;                DCD     Reset_Handler             ; Reset Handler
-				DCD	MemtestFunc
+                DCD     Reset_Handler             ; Reset Handler
+;				DCD	MemtestFunc
                 DCD     0                         ; Reserved
                 DCD     0                         ; Reserved
                 DCD     CLK_VAL1_Val              ; CLK_VAL1

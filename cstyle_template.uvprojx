@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>lcm2004_4bit</TargetName>
+      <TargetName>lcm2004_4bit_cpp</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>5060422::V5.06 update 4 (build 422)::ARMCC</pCCUsed>
@@ -381,7 +381,7 @@
           <Files>
             <File>
               <FileName>main.c</FileName>
-              <FileType>1</FileType>
+              <FileType>8</FileType>
               <FilePath>.\main.c</FilePath>
             </File>
             <File>
@@ -395,9 +395,29 @@
               <FilePath>.\xmc1100_it.c</FilePath>
             </File>
             <File>
-              <FileName>lcd2004.c</FileName>
+              <FileName>lcd_pwm_vo.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\lcd2004.c</FilePath>
+              <FilePath>.\lcd_pwm_vo.c</FilePath>
+            </File>
+            <File>
+              <FileName>retarget_io_drv.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\retarget_io_drv.c</FilePath>
+            </File>
+            <File>
+              <FileName>LiquidCrystal.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>.\LiquidCrystal.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>hal.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\hal.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\rtc.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -430,55 +450,55 @@
       <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="5.0.2" condition="ARMv6_7_8-M Device">
         <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="5.2.0"/>
         <targetInfos>
-          <targetInfo name="lcm2004_4bit"/>
+          <targetInfo name="lcm2004_4bit_cpp"/>
         </targetInfos>
       </component>
       <component Cclass="Device" Cgroup="Startup" Cvendor="Infineon" Cversion="2.0.0" condition="XMC1 CMSIS">
         <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.7.0"/>
         <targetInfos>
-          <targetInfo name="lcm2004_4bit"/>
+          <targetInfo name="lcm2004_4bit_cpp"/>
         </targetInfos>
       </component>
       <component Cclass="Device" Cgroup="XMClib" Csub="CCU4" Cvendor="Infineon" Cversion="2.1.16" condition="XMC1 CMSIS SCU">
         <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.7.1"/>
         <targetInfos>
-          <targetInfo name="lcm2004_4bit"/>
+          <targetInfo name="lcm2004_4bit_cpp"/>
         </targetInfos>
       </component>
       <component Cclass="Device" Cgroup="XMClib" Csub="FLASH" Cvendor="Infineon" Cversion="2.1.16" condition="XMC1 CMSIS">
         <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.7.1"/>
         <targetInfos>
-          <targetInfo name="lcm2004_4bit"/>
+          <targetInfo name="lcm2004_4bit_cpp"/>
         </targetInfos>
       </component>
       <component Cclass="Device" Cgroup="XMClib" Csub="GPIO" Cvendor="Infineon" Cversion="2.1.16" condition="XMC1 CMSIS">
         <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.7.1"/>
         <targetInfos>
-          <targetInfo name="lcm2004_4bit"/>
+          <targetInfo name="lcm2004_4bit_cpp"/>
         </targetInfos>
       </component>
       <component Cclass="Device" Cgroup="XMClib" Csub="RTC" Cvendor="Infineon" Cversion="2.1.16" condition="XMC1 CMSIS SCU">
         <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.7.1"/>
         <targetInfos>
-          <targetInfo name="lcm2004_4bit"/>
+          <targetInfo name="lcm2004_4bit_cpp"/>
         </targetInfos>
       </component>
       <component Cclass="Device" Cgroup="XMClib" Csub="SCU" Cvendor="Infineon" Cversion="2.1.16" condition="XMC1 CMSIS">
         <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.7.1"/>
         <targetInfos>
-          <targetInfo name="lcm2004_4bit"/>
+          <targetInfo name="lcm2004_4bit_cpp"/>
         </targetInfos>
       </component>
       <component Cclass="Device" Cgroup="XMClib" Csub="UART" Cvendor="Infineon" Cversion="2.1.16" condition="XMC1 CMSIS SCU">
         <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.7.1"/>
         <targetInfos>
-          <targetInfo name="lcm2004_4bit"/>
+          <targetInfo name="lcm2004_4bit_cpp"/>
         </targetInfos>
       </component>
       <component Cbundle="ARM Compiler" Cclass="Compiler" Cgroup="I/O" Csub="STDOUT" Cvariant="User" Cvendor="Keil" Cversion="1.2.1" condition="ARMCC Cortex-M">
         <package name="ARM_Compiler" schemaVersion="1.4.9" url="http://www.keil.com/pack/" vendor="Keil" version="1.3.3"/>
         <targetInfos>
-          <targetInfo name="lcm2004_4bit"/>
+          <targetInfo name="lcm2004_4bit_cpp"/>
         </targetInfos>
       </component>
     </components>
@@ -518,7 +538,7 @@
         <component Cclass="Device" Cgroup="Startup" Cvendor="Infineon" Cversion="2.0.0" condition="XMC1 CMSIS"/>
         <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.7.1"/>
         <targetInfos>
-          <targetInfo name="lcm2004_4bit"/>
+          <targetInfo name="lcm2004_4bit_cpp"/>
         </targetInfos>
       </file>
       <file attr="config" category="source" condition="XMC11xx" name="Device\XMC1100_series\Source\system_XMC1100.c" version="0.0.0">
@@ -526,7 +546,7 @@
         <component Cclass="Device" Cgroup="Startup" Cvendor="Infineon" Cversion="2.0.0" condition="XMC1 CMSIS"/>
         <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.7.1"/>
         <targetInfos>
-          <targetInfo name="lcm2004_4bit"/>
+          <targetInfo name="lcm2004_4bit_cpp"/>
         </targetInfos>
       </file>
       <file attr="config" category="header" condition="XMC1200_T38" name="RTE_Driver\Config\XMC1200_T38\RTE_Device.h" version="1.0.0">
