@@ -43,5 +43,7 @@
 #define LCD_5x10DOTS 0x04
 #define LCD_5x8DOTS 0x00
 
+#define	WAIT_AVAIL_DLY	5100
+
 void LCD_Initialize (void);
 void LCD_displayL(uint8_t x,uint8_t y,uint8_t *s);

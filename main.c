@@ -483,8 +483,8 @@ void MemtestFunc(void)
 }
 
 uint8_t line[4][21]={
-	"https://www.infineon",
-	"-autoeco.com",
+	__DATE__,
+	__TIME__,
 	"Happy Spring Festvl",
 	"by Automan"};                               
 
