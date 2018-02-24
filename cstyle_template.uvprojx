@@ -399,6 +399,16 @@
               <FileType>1</FileType>
               <FilePath>.\lcd2004.c</FilePath>
             </File>
+            <File>
+              <FileName>lcd_pwm_vo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\lcd_pwm_vo.c</FilePath>
+            </File>
+            <File>
+              <FileName>retarget_io_drv.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\retarget_io_drv.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
