@@ -25,9 +25,9 @@
 #define	HZ	1000
 #endif
 
-using namespace std;
-
 __IO uint32_t g_Ticks;
+
+using namespace std;
 
 //Re-implement any functions that require re-implementation.
 namespace std {
