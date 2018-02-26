@@ -19,7 +19,7 @@
 #include "flash_ecc.h"
 
 //The value of the content
-#define ClassB_Ref_ChkSum 0xD2237CF4
+#define ClassB_Ref_ChkSum 0xEAE3F110
 
 #define UART_RX P1_3
 #define UART_TX P1_2
@@ -944,7 +944,8 @@ static const uint32_t crc_table[FLASH_CRC_TABLE_SIZE]  =
                                     (uint32_t)__ETEXT,          /* End Address from linker  */  \
                                      FLASH_CRC_Valid }          /* Status */          
 
-ClassB_StructFlashSignType const ClassB_Flash_CRC_REF __sectionClassB_CRCREF = ClassB_FLASH_CRC_REFERENCE;
+//ClassB_StructFlashSignType const ClassB_Flash_CRC_REF __sectionClassB_CRCREF = ClassB_FLASH_CRC_REFERENCE;
+ClassB_StructFlashSignType const ClassB_Flash_CRC_REF __attribute__((at(0x10001018))) = ClassB_FLASH_CRC_REFERENCE;
 
 static ClassB_EnumTestResultType ClassB_FLASHcrc32(uint32_t * crc32, uint32_t ** const pp_src, uint32_t len)
 {
