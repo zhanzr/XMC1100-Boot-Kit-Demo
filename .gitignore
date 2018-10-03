@@ -1,0 +1,16 @@
+
+*.un~
+*.lst
+*.map
+*.d
+*.o
+*.crf
+*.dep
+*.axf
+*.htm
+*.lnp
+*.iex
+*.Bak
+*.md~
+*.Administrator
+*.dbgconf

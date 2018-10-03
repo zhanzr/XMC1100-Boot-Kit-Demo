@@ -10,12 +10,13 @@
       <TargetName>cmsis_rtos_test</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060422::V5.06 update 4 (build 422)::ARMCC</pCCUsed>
+      <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
+      <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>XMC1100-T038x0064</Device>
           <Vendor>Infineon</Vendor>
-          <PackID>Infineon.XMC1000_DFP.2.7.1</PackID>
+          <PackID>Infineon.XMC1000_DFP.2.8.0</PackID>
           <PackURL>http://dave.infineon.com/Libraries/CMSIS_PACK/</PackURL>
           <Cpu>IRAM(0x20000000,0x3FFC) IROM(0x10001000,0x10000) CPUTYPE("Cortex-M0") CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -323,6 +324,7 @@
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <uC99>1</uC99>
+            <uGnu>0</uGnu>
             <useXO>0</useXO>
             <v6Lang>0</v6Lang>
             <v6LangP>0</v6LangP>
@@ -422,6 +424,51 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>asm_src</GroupName>
+          <Files>
+            <File>
+              <FileName>asm_test_1.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\asm_test_1.s</FilePath>
+            </File>
+            <File>
+              <FileName>asm_test_2.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\asm_test_2.s</FilePath>
+            </File>
+            <File>
+              <FileName>asm_test_3.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\asm_test_3.s</FilePath>
+            </File>
+            <File>
+              <FileName>asm_test_4.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\asm_test_4.s</FilePath>
+            </File>
+            <File>
+              <FileName>asm_test_5.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\asm_test_5.s</FilePath>
+            </File>
+            <File>
+              <FileName>asm_test_6.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\asm_test_6.s</FilePath>
+            </File>
+            <File>
+              <FileName>asm_test_7.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\asm_test_7.s</FilePath>
+            </File>
+            <File>
+              <FileName>asm_test_8.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\asm_test_8.s</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>::CMSIS</GroupName>
         </Group>
         <Group>
@@ -509,7 +556,7 @@
       <file attr="config" category="source" name="CMSIS\RTOS\RTX\Templates\RTX_Conf_CM.c" version="4.70.1">
         <instance index="0">RTE\CMSIS\RTX_Conf_CM.c</instance>
         <component Capiversion="1.0.0" Cclass="CMSIS" Cgroup="RTOS" Csub="Keil RTX" Cvendor="ARM" Cversion="4.81.1" condition="RTOS RTX" isDefaultVariant="1"/>
-        <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="5.2.0"/>
+        <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="5.4.0"/>
         <targetInfos>
           <targetInfo name="cmsis_rtos_test"/>
         </targetInfos>
@@ -540,16 +587,16 @@
       </file>
       <file attr="config" category="source" condition="XMC11xx ARM" name="Device\XMC1100_series\Source\ARM\startup_XMC1100.s" version="0.0.0">
         <instance index="0">RTE\Device\XMC1100-T038x0064\startup_XMC1100.s</instance>
-        <component Cclass="Device" Cgroup="Startup" Cvendor="Infineon" Cversion="2.0.0" condition="XMC1 CMSIS"/>
-        <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.7.1"/>
+        <component Cclass="Device" Cgroup="Startup" Cvendor="Infineon" Cversion="2.1.0" condition="XMC1 CMSIS"/>
+        <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.8.0"/>
         <targetInfos>
           <targetInfo name="cmsis_rtos_test"/>
         </targetInfos>
       </file>
       <file attr="config" category="source" condition="XMC11xx" name="Device\XMC1100_series\Source\system_XMC1100.c" version="0.0.0">
         <instance index="0">RTE\Device\XMC1100-T038x0064\system_XMC1100.c</instance>
-        <component Cclass="Device" Cgroup="Startup" Cvendor="Infineon" Cversion="2.0.0" condition="XMC1 CMSIS"/>
-        <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.7.1"/>
+        <component Cclass="Device" Cgroup="Startup" Cvendor="Infineon" Cversion="2.1.0" condition="XMC1 CMSIS"/>
+        <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.8.0"/>
         <targetInfos>
           <targetInfo name="cmsis_rtos_test"/>
         </targetInfos>
