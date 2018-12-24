@@ -1,4 +1,3 @@
-#include <xmc_gpio.h>
 #include "led.h"
 
 /* LED GPIO Pins */
@@ -92,4 +91,9 @@ void LED_Off (uint8_t num)
 		XMC_GPIO_SetOutputHigh(LED_PIN[num].port, LED_PIN[num].pin);
 		break;
 	}
+}
+
+void LED_Toogle (uint8_t num) 
+{
+	XMC_GPIO_ToggleOutput(LED_PIN[num].port, LED_PIN[num].pin);
 }

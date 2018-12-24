@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 
 #include <XMC1100.h>
 #include <xmc_scu.h>
@@ -15,9 +16,10 @@
 #include <xmc_flash.h>
 
 #include "led.h"
-#include "dhry.h"
 
-#define RUN_NUMBER	300000
+#include "cmsis_os.h"
+
+#define	HZ	(1000)
 
 #define UART_RX P1_3
 #define UART_TX P1_2
@@ -26,6 +28,9 @@ XMC_GPIO_CONFIG_t uart_tx;
 XMC_GPIO_CONFIG_t uart_rx;
 
 __IO uint32_t g_Ticks;
+
+extern bool g_uart_rx_flag;
+extern uint8_t g_uart_rx_ch;
 
 /* UART configuration */
 const XMC_UART_CH_CONFIG_t uart_config = 
@@ -58,6 +63,18 @@ int stdout_putchar (int ch)
 	return ch;
 }
 
+int SER_GetChar (void) {
+	if(g_uart_rx_flag)
+	{
+		g_uart_rx_flag = false;
+		return (int)g_uart_rx_ch;
+	}
+	else
+	{
+		return (int)XMC_UART_CH_GetReceivedData(XMC_UART0_CH1);
+	}	
+}
+
 void SystemCoreClockSetup(void)
 {
 	XMC_SCU_CLOCK_CONFIG_t clock_config =
@@ -73,139 +90,81 @@ void SystemCoreClockSetup(void)
 //  SystemCoreClockUpdate();
 }
 
-/* Global Variables: */
+#define RED     0                     /* I/O Pin:  RED    lamp output        */
+#define YELLOW  1                     /* I/O Pin:  YELLOW lamp output        */
+#define GREEN   2                     /* I/O Pin:  GREEN  lamp output        */
+//#define STOP    4                     /* I/O Pin:  STOP   lamp output        */
+//#define WALK    5                     /* I/O Pin:  WALK   lamp output        */
 
-Rec_Pointer     Ptr_Glob,
-                Next_Ptr_Glob;
-int             Int_Glob;
-Boolean         Bool_Glob;
-char            Ch_1_Glob,
-                Ch_2_Glob;
-int             Arr_1_Glob [50];
-int             Arr_2_Glob [50] [50];
-
-#define REG	register
-	
-#ifndef REG
-        Boolean Reg = false;
-#define REG
-        /* REG becomes defined as empty */
-        /* i.e. no register variables   */
-#else
-        Boolean Reg = true;
-#endif
-
-/* variables for time measurement: */
-
-#ifdef TIMES
-struct tms      time_info;
-extern  int     times (void);
-                /* see library function "times" */
-#define Too_Small_Time (2*HZ)
-                /* Measurements should last at least about 2 seconds */
-#endif
-#ifdef TIME
-extern long     time(long *);
-                /* see library function "time"  */
-#define Too_Small_Time 2
-                /* Measurements should last at least 2 seconds */
-#endif
-#ifdef MSC_CLOCK
-//extern clock_t clock(void);
-#define Too_Small_Time (2*HZ)
-#endif
-
-long            Begin_Time,
-                End_Time,
-                User_Time;
-float           Microseconds,
-                Dhrystones_Per_Second;
-
-/* end of variables for time measurement */
+const char menu[] = 
+  "\r\n"
+  "+********* TRAFFIC LIGHT CONTROLLER using RTX kernel *********+\r\n"
+  "| This program is a simple Traffic Light Controller. Between  |\r\n"
+  "| start time and end time the system controls a traffic light |\r\n"
+  "| with pedestrian self-service.  Outside of this time range   |\r\n"
+  "| the YELLOW caution lamp is blinking.                        |\r\n"
+  "+ command -+ syntax -----+ function --------------------------+\r\n"
+  "| Display  | D           | display times                      |\r\n"
+  "| Time     | T hh:mm:ss  | set clock time                     |\r\n"
+  "| Start    | S hh:mm:ss  | set start time                     |\r\n"
+  "| End      | E hh:mm:ss  | set end time                       |\r\n"
+  "+----------+-------------+------------------------------------+\r\n";
 
 
-void Proc_1 (Rec_Pointer Ptr_Val_Par)
-/******************/
-    /* executed once */
-{
-  REG Rec_Pointer Next_Record = Ptr_Val_Par->Ptr_Comp;
-                                        /* == Ptr_Glob_Next */
-  /* Local variable, initialized with Ptr_Val_Par->Ptr_Comp,    */
-  /* corresponds to "rename" in Ada, "with" in Pascal           */
+extern void getline (char *, int);    /* external function:  input line      */
 
-  structassign (*Ptr_Val_Par->Ptr_Comp, *Ptr_Glob);
-  Ptr_Val_Par->variant.var_1.Int_Comp = 5;
-  Next_Record->variant.var_1.Int_Comp = Ptr_Val_Par->variant.var_1.Int_Comp;
-  Next_Record->Ptr_Comp = Ptr_Val_Par->Ptr_Comp;
-  Proc_3 (&Next_Record->Ptr_Comp);
-    /* Ptr_Val_Par->Ptr_Comp->Ptr_Comp == Ptr_Glob->Ptr_Comp */
-  if (Next_Record->Discr == Ident_1)
-    /* then, executed */
-  {
-    Next_Record->variant.var_1.Int_Comp = 6;
-    Proc_6 (Ptr_Val_Par->variant.var_1.Enum_Comp,
-           &Next_Record->variant.var_1.Enum_Comp);
-    Next_Record->Ptr_Comp = Ptr_Glob->Ptr_Comp;
-    Proc_7 (Next_Record->variant.var_1.Int_Comp, 10,
-           &Next_Record->variant.var_1.Int_Comp);
+osThreadId tid_command;               /* Thread id of thread: command        */
+osThreadId tid_blinking;              /* Thread id of thread: blinking       */
+osThreadId tid_lights;                /* Thread id of thread: lights         */
+osThreadId tid_getesc;                /* Thread id of thread: getesc         */
+  
+struct time  {                        /* structure of the time record        */
+  uint8_t hour;                       /* hour                                */
+  uint8_t min;                        /* minute                              */
+  uint8_t sec;                        /* second                              */
+};
+
+struct time c_time = { 12,  0,  0 };   /* storage for clock time values       */
+struct time stime = {  7, 30,  0 };   /* storage for start time values       */
+struct time etime = { 18, 30,  0 };   /* storage for end   time values       */
+
+char cmdline[16];                     /* storage for command input line      */
+struct time rtime;                    /* temporary storage for entry time    */
+bool display_time = false;            /* flag signal cmd state display_time  */
+bool escape;                          /* flag: mark ESCAPE character enteRED */
+
+#define ESC  0x1B                     /* ESCAPE character code               */
+
+void init (void const *argument);     /* Function prototypes                 */
+void c_clock (void const *argument) ;
+void get_escape (void const *argument);
+void command (void const *argument);
+void blinking (void const *argument);
+void lights (void const *argument);
+
+osThreadDef(command,    osPriorityNormal, 1, 2000);
+osThreadDef(blinking,   osPriorityNormal, 1, 0);
+osThreadDef(lights,     osPriorityNormal, 1, 0);
+osThreadDef(get_escape, osPriorityNormal, 1, 0);
+
+osTimerDef(clock1s, c_clock);
+osTimerId  clock1s;
+
+
+/*---------------------------------------------------------------------------
+  Set Lights function
+  controls LEDs and LCD display
+ *---------------------------------------------------------------------------*/
+void SetLights (uint32_t light, uint32_t on) {		
+	printf("%d->%d\n", light, on);
+
+  if (on == 0) {
+    LED_Off (light);
   }
-  else /* not executed */
-    structassign (*Ptr_Val_Par, *Ptr_Val_Par->Ptr_Comp);
-} /* Proc_1 */
-
-
-void Proc_2 (One_Fifty *Int_Par_Ref)
-/******************/
-    /* executed once */
-    /* *Int_Par_Ref == 1, becomes 4 */
-{
-  One_Fifty  Int_Loc;
-  Enumeration   Enum_Loc;
-
-  Int_Loc = *Int_Par_Ref + 10;
-  do /* executed once */
-    if (Ch_1_Glob == 'A')
-      /* then, executed */
-    {
-      Int_Loc -= 1;
-      *Int_Par_Ref = Int_Loc - Int_Glob;
-      Enum_Loc = Ident_1;
-    } /* if */
-    while (Enum_Loc != Ident_1); /* true */
-} /* Proc_2 */
-
-
-void Proc_3 (Rec_Pointer *Ptr_Ref_Par)
-/******************/
-    /* executed once */
-    /* Ptr_Ref_Par becomes Ptr_Glob */
-{
-  if (Ptr_Glob != Null)
-    /* then, executed */
-    *Ptr_Ref_Par = Ptr_Glob->Ptr_Comp;
-  Proc_7 (10, Int_Glob, &Ptr_Glob->variant.var_1.Int_Comp);
-} /* Proc_3 */
-
-
-void Proc_4 (void) /* without parameters */
-/*******/
-    /* executed once */
-{
-  Boolean Bool_Loc;
-
-  Bool_Loc = Ch_1_Glob == 'A';
-  Bool_Glob = Bool_Loc | Bool_Glob;
-  Ch_2_Glob = 'B';
-} /* Proc_4 */
-
-
-void Proc_5 (void) /* without parameters */
-/*******/
-    /* executed once */
-{
-  Ch_1_Glob = 'A';
-  Bool_Glob = false;
-} /* Proc_5 */
+  else {
+    LED_On (light);
+  }
+}
 
 int main(void)
 {
@@ -225,6 +184,59 @@ int main(void)
   XMC_UART_CH_Init(XMC_UART0_CH1, &uart_config);
   XMC_UART_CH_SetInputSource(XMC_UART0_CH1, XMC_UART_CH_INPUT_RXD,USIC0_C1_DX0_P1_3);
   
+//	XMC_UART_CH_SelectInterruptNodePointer(XMC_UART0_CH1,
+//	XMC_UART_CH_INTERRUPT_NODE_POINTER_RECEIVE,
+//	0);																															
+//	XMC_UART_CH_SelectInterruptNodePointer(XMC_UART0_CH1,
+//	XMC_UART_CH_INTERRUPT_NODE_POINTER_RECEIVE,
+//	1);	
+//	XMC_UART_CH_SelectInterruptNodePointer(XMC_UART0_CH1,
+//	XMC_UART_CH_INTERRUPT_NODE_POINTER_RECEIVE,
+//	2);
+//	XMC_UART_CH_SelectInterruptNodePointer(XMC_UART0_CH1,
+//	XMC_UART_CH_INTERRUPT_NODE_POINTER_RECEIVE,
+//	3);
+//	XMC_UART_CH_SelectInterruptNodePointer(XMC_UART0_CH1,
+//	XMC_UART_CH_INTERRUPT_NODE_POINTER_RECEIVE,
+//	4);
+//	XMC_UART_CH_SelectInterruptNodePointer(XMC_UART0_CH1,
+//	XMC_UART_CH_INTERRUPT_NODE_POINTER_RECEIVE,
+//	5);	
+//	
+//	XMC_UART_CH_SelectInterruptNodePointer(XMC_UART0_CH1,
+//	XMC_UART_CH_INTERRUPT_NODE_POINTER_ALTERNATE_RECEIVE,
+//	0);																															
+//	XMC_UART_CH_SelectInterruptNodePointer(XMC_UART0_CH1,
+//	XMC_UART_CH_INTERRUPT_NODE_POINTER_ALTERNATE_RECEIVE,
+//	1);	
+//	XMC_UART_CH_SelectInterruptNodePointer(XMC_UART0_CH1,
+//	XMC_UART_CH_INTERRUPT_NODE_POINTER_ALTERNATE_RECEIVE,
+//	2);
+//	XMC_UART_CH_SelectInterruptNodePointer(XMC_UART0_CH1,
+//	XMC_UART_CH_INTERRUPT_NODE_POINTER_ALTERNATE_RECEIVE,
+//	3);
+//	XMC_UART_CH_SelectInterruptNodePointer(XMC_UART0_CH1,
+//	XMC_UART_CH_INTERRUPT_NODE_POINTER_ALTERNATE_RECEIVE,
+//	4);
+//	XMC_UART_CH_SelectInterruptNodePointer(XMC_UART0_CH1,
+//	XMC_UART_CH_INTERRUPT_NODE_POINTER_ALTERNATE_RECEIVE,
+//	5);	
+	
+	XMC_UART_CH_EnableEvent(XMC_UART0_CH1, XMC_UART_CH_EVENT_RECEIVE_START);
+
+  NVIC_SetPriority(USIC0_0_IRQn, 3);
+  NVIC_EnableIRQ(USIC0_0_IRQn);
+  NVIC_SetPriority(USIC0_1_IRQn, 3);
+  NVIC_EnableIRQ(USIC0_1_IRQn);
+  NVIC_SetPriority(USIC0_2_IRQn, 3);
+  NVIC_EnableIRQ(USIC0_2_IRQn);
+  NVIC_SetPriority(USIC0_3_IRQn, 3);
+  NVIC_EnableIRQ(USIC0_3_IRQn);
+  NVIC_SetPriority(USIC0_4_IRQn, 3);
+  NVIC_EnableIRQ(USIC0_4_IRQn);	
+  NVIC_SetPriority(USIC0_5_IRQn, 3);
+  NVIC_EnableIRQ(USIC0_5_IRQn);	
+	
 	/* Start UART channel */
   XMC_UART_CH_Start(XMC_UART0_CH1);
 
@@ -232,7 +244,7 @@ int main(void)
 	XMC_GPIO_Init(UART_TX, &uart_tx);
   XMC_GPIO_Init(UART_RX, &uart_rx);
 	
-  printf ("Dhrystone For XMC1100 Bootkit by Automan @ Infineon BBS @%u Hz\n",
+  printf ("Interactive For XMC1100 Bootkit by Automan @ Infineon BBS @%u Hz\n",
 	SystemCoreClock	);
 	
 	//RTC
@@ -248,213 +260,17 @@ int main(void)
 	
 	LED_Initialize();
 	
-  One_Fifty       Int_1_Loc;
-  REG One_Fifty   Int_2_Loc;
-  One_Fifty       Int_3_Loc;
-  REG char        Ch_Index;
-  Enumeration     Enum_Loc;
-  Str_30          Str_1_Loc;
-  Str_30          Str_2_Loc;
-  REG int         Run_Index;
-  REG int         Number_Of_Runs;
-	
-  /* Initializations */
-  Next_Ptr_Glob = (Rec_Pointer) malloc (sizeof (Rec_Type));
-  Ptr_Glob = (Rec_Pointer) malloc (sizeof (Rec_Type));
+	clock1s = osTimerCreate(osTimer(clock1s), osTimerPeriodic, NULL);                                          
+  if (clock1s) osTimerStart(clock1s, 1000);                                          
 
-  Ptr_Glob->Ptr_Comp                    = Next_Ptr_Glob;
-  Ptr_Glob->Discr                       = Ident_1;
-  Ptr_Glob->variant.var_1.Enum_Comp     = Ident_3;
-  Ptr_Glob->variant.var_1.Int_Comp      = 40;
-  strcpy (Ptr_Glob->variant.var_1.Str_Comp,
-          "DHRYSTONE PROGRAM, SOME STRING");
-  strcpy (Str_1_Loc, "DHRYSTONE PROGRAM, 1'ST STRING");
+  osDelay(500);
+                                          /* start command thread            */
+  tid_command = osThreadCreate(osThread(command), NULL);
+                                          /* start lights thread             */
+  tid_lights  = osThreadCreate(osThread(lights), NULL);
+                                          /* start keyread thread            */							
+	osDelay(osWaitForever);
 
-  Arr_2_Glob [8][7] = 10;
-        /* Was missing in published program. Without this statement,    */
-        /* Arr_2_Glob [8][7] would have an undefined value.             */
-        /* Warning: With 16-Bit processors and Number_Of_Runs > 32000,  */
-        /* overflow may occur for this array element.                   */
-
-  printf ("\n");
-  printf ("Dhrystone Benchmark, Version 2.1 (Language: C)\n");
-  printf ("\n");
-  if (Reg)
-  {
-    printf ("Program compiled with 'register' attribute\n");
-    printf ("\n");
-  }
-  else
-  {
-    printf ("Program compiled without 'register' attribute\n");
-    printf ("\n");
-  }
-  printf ("Please give the number of runs through the benchmark: ");
-  {
-//    int n = 100000;
-//    scanf ("%d", &n);
-    Number_Of_Runs = RUN_NUMBER;
-  }
-  printf ("\n");
-
-  printf("Execution starts, %d runs through Dhrystone\n", Number_Of_Runs);
-  /***************/
-  /* Start timer */
-  /***************/
-
-#ifdef TIMES
-  times (&time_info);
-  Begin_Time = (long) time_info.tms_utime;
-#endif
-#ifdef TIME
-  Begin_Time = time ( (long *) 0);
-#endif
-#ifdef MSC_CLOCK
-  Begin_Time = g_Ticks;
-#endif
-
-  for (Run_Index = 1; Run_Index <= Number_Of_Runs; ++Run_Index)
-  {
-
-    Proc_5();
-    Proc_4();
-      /* Ch_1_Glob == 'A', Ch_2_Glob == 'B', Bool_Glob == true */
-    Int_1_Loc = 2;
-    Int_2_Loc = 3;
-    strcpy (Str_2_Loc, "DHRYSTONE PROGRAM, 2'ND STRING");
-    Enum_Loc = Ident_2;
-    Bool_Glob = ! Func_2 (Str_1_Loc, Str_2_Loc);
-      /* Bool_Glob == 1 */
-    while (Int_1_Loc < Int_2_Loc)  /* loop body executed once */
-    {
-      Int_3_Loc = 5 * Int_1_Loc - Int_2_Loc;
-        /* Int_3_Loc == 7 */
-      Proc_7 (Int_1_Loc, Int_2_Loc, &Int_3_Loc);
-        /* Int_3_Loc == 7 */
-      Int_1_Loc += 1;
-    } /* while */
-      /* Int_1_Loc == 3, Int_2_Loc == 3, Int_3_Loc == 7 */
-    Proc_8 (Arr_1_Glob, Arr_2_Glob, Int_1_Loc, Int_3_Loc);
-      /* Int_Glob == 5 */
-    Proc_1 (Ptr_Glob);
-    for (Ch_Index = 'A'; Ch_Index <= Ch_2_Glob; ++Ch_Index)
-                             /* loop body executed twice */
-    {
-      if (Enum_Loc == Func_1 (Ch_Index, 'C'))
-         /* then, not executed */
-      {
-        Proc_6 (Ident_1, &Enum_Loc);
-        strcpy (Str_2_Loc, "DHRYSTONE PROGRAM, 3'RD STRING");
-        Int_2_Loc = Run_Index;
-        Int_Glob = Run_Index;
-      }
-    }
-      /* Int_1_Loc == 3, Int_2_Loc == 3, Int_3_Loc == 7 */
-    Int_2_Loc = Int_2_Loc * Int_1_Loc;
-    Int_1_Loc = Int_2_Loc / Int_3_Loc;
-    Int_2_Loc = 7 * (Int_2_Loc - Int_3_Loc) - Int_1_Loc;
-      /* Int_1_Loc == 1, Int_2_Loc == 13, Int_3_Loc == 7 */
-    Proc_2 (&Int_1_Loc);
-      /* Int_1_Loc == 5 */
-
-  } /* loop "for Run_Index" */
-
-  /**************/
-  /* Stop timer */
-  /**************/
-
-#ifdef TIMES
-  times (&time_info);
-  End_Time = (long) time_info.tms_utime;
-#endif
-#ifdef TIME
-  End_Time = time ( (long *) 0);
-#endif
-#ifdef MSC_CLOCK
-  End_Time = g_Ticks;
-#endif
-
-  printf ("Execution ends\n");
-  printf ("\n");
-  printf ("Final values of the variables used in the benchmark:\n");
-  printf ("\n");
-  printf( "Int_Glob:            %d\n", Int_Glob);
-	printf("        should be:   %d\n", 5);
-	printf( "Bool_Glob:           %d\n", Bool_Glob);
-	printf( "        should be:   %d\n", 1);
-	printf("Ch_1_Glob:           %c\n", Ch_1_Glob);
-	printf("        should be:   %c\n", 'A');	
-  printf("Ch_2_Glob:           %c\n", Ch_2_Glob);	
-  printf("        should be:   %c\n", 'B');	
-  printf("Arr_1_Glob[8]:       %d\n", Arr_1_Glob[8]);	
-  printf("        should be:   %d\n", 7);	
-  printf("Arr_2_Glob[8][7]:    %d\n", Arr_2_Glob[8][7]);	
-  printf ("        should be:   Number_Of_Runs + 10\n");
-  printf ("Ptr_Glob->\n");
-  printf("  Ptr_Comp:          %d\n", (int) Ptr_Glob->Ptr_Comp);	
-  printf ("        should be:   (implementation-dependent)\n");
-  printf("  Discr:             %d\n", Ptr_Glob->Discr);	
-	printf("        should be:   %d\n", 0);	
-  printf("  Enum_Comp:         %d\n", Ptr_Glob->variant.var_1.Enum_Comp);	
-	printf("        should be:   %d\n", 2);	
-  printf("  Int_Comp:          %d\n", Ptr_Glob->variant.var_1.Int_Comp);	
-  printf("        should be:   %d\n", 17);	
-  printf("  Str_Comp:          %s\n", Ptr_Glob->variant.var_1.Str_Comp);	
-  printf ("        should be:   DHRYSTONE PROGRAM, SOME STRING\n");
-  printf ("Next_Ptr_Glob->\n");
-  printf("  Ptr_Comp:          %d\n", (int) Next_Ptr_Glob->Ptr_Comp);	
-  printf ("        should be:   (implementation-dependent), same as above\n");
-	printf("  Discr:             %d\n", Next_Ptr_Glob->Discr);	
-  printf("        should be:   %d\n", 0);	
-  printf("  Enum_Comp:         %d\n", Next_Ptr_Glob->variant.var_1.Enum_Comp);	
-  printf("        should be:   %d\n", 1);	
-  printf("  Int_Comp:          %d\n", Next_Ptr_Glob->variant.var_1.Int_Comp);	
-  printf("        should be:   %d\n", 18);
-  printf("  Str_Comp:          %s\n",
-                                Next_Ptr_Glob->variant.var_1.Str_Comp);	
-  printf ("        should be:   DHRYSTONE PROGRAM, SOME STRING\n");
-  printf("Int_1_Loc:           %d\n", Int_1_Loc);	
-  printf("        should be:   %d\n", 5);	
-  printf("Int_2_Loc:           %d\n", Int_2_Loc);	
-  printf("        should be:   %d\n", 13);	
-  printf("Int_3_Loc:           %d\n", Int_3_Loc);	
-  printf("        should be:   %d\n", 7);	
-  printf("Enum_Loc:            %d\n", Enum_Loc);	
-  printf("        should be:   %d\n", 1);	
-  printf("Str_1_Loc:           %s\n", Str_1_Loc);	
-  printf ("        should be:   DHRYSTONE PROGRAM, 1'ST STRING\n");
-  printf("Str_2_Loc:           %s\n", Str_2_Loc);	
-  printf ("        should be:   DHRYSTONE PROGRAM, 2'ND STRING\n");
-  printf ("\n");
-
-  User_Time = End_Time - Begin_Time;
-
-  if (User_Time < Too_Small_Time)
-  {
-		printf( "Measured time too small to obtain meaningful results %u-%u\n", Begin_Time, End_Time);
-    printf ("Please increase number of runs\n");
-  }
-  else
-  {
-#ifdef TIME
-    Microseconds = (float) User_Time * Mic_secs_Per_Second
-                        / (float) Number_Of_Runs;
-    Dhrystones_Per_Second = (float) Number_Of_Runs / (float) User_Time;
-#else
-    Microseconds = (float) User_Time * (float)Mic_secs_Per_Second
-                        / ((float) HZ * ((float) Number_Of_Runs));
-    Dhrystones_Per_Second = ((float) HZ * (float) Number_Of_Runs)
-                        / (float) User_Time;
-#endif
-		printf("Microseconds for one run through Dhrystone[%u-%u]:  ", Begin_Time, End_Time);
-
-    printf("%6.1f \n", Microseconds);
-	
-    printf ("Dhrystones per Second:                      ");
-    printf("%6.1f \n", Dhrystones_Per_Second);
-	
-  }
-			
 	while (1)
   {				
 //    LED_On(0);
@@ -485,5 +301,221 @@ int main(void)
 			__NOP();
 			__WFI();
 		}		
+  }
+}
+
+
+/*----------------------------------------------------------------------------
+  c_clock: Periodic 1s Timer Callback
+ *---------------------------------------------------------------------------*/
+void c_clock (void const *argument) {
+
+  if (++c_time.sec == 60) {            /* calculate the second                */
+    c_time.sec = 0;
+    if (++c_time.min == 60) {          /* calculate the minute                */
+      c_time.min = 0;
+      if (++c_time.hour == 24) {       /* calculate the hour                  */
+        c_time.hour = 0;
+      }
+    }
+  }
+  if (display_time) {                 /* if command_status == display_time   */
+                                      /* signal time changed to command      */
+    osSignalSet(tid_command, 0x0001);
+  }
+}
+
+/*----------------------------------------------------------------------------
+  readtime: convert line input to time values & store in rtime
+ *---------------------------------------------------------------------------*/
+char readtime (char *buffer) {
+  int args;                                    /* number of arguments        */
+  int hour,min,sec;
+
+  rtime.sec = 0;                               /* preset second              */
+  args = sscanf (buffer, "%d:%d:%d",           /* scan input line for        */
+                         &hour, &min, &sec);   /* hour, minute and second    */
+  
+  if (hour > 23  ||  min > 59  ||              /* check for valid inputs     */
+      sec > 59   ||  args < 2        ) {
+     printf ("\r\n*** ERROR: INVALID TIME FORMAT\r\n");
+     return (0);
+  }
+  rtime.hour = hour;                           /* setting a new time: hour   */
+  rtime.min  = min;                            /* setting a new time: min    */
+  rtime.sec  = sec;                            /* setting a new time: sec    */
+  return (1);
+}
+
+/*----------------------------------------------------------------------------
+  Thread 5 'get_escape': check if ESC (escape character) was entered
+ *---------------------------------------------------------------------------*/
+void get_escape (void const *argument) {
+  while (1)  {                                /* endless loop                */
+    if (SER_GetChar () == ESC) {              /* If ESC entered, set flag    */ 
+      escape = true;                          /* 'escape', set event flag of */
+      osSignalSet(tid_command, 0x0002);       /* thread 'command'            */
+    }
+  }
+}
+
+/*----------------------------------------------------------------------------
+  Thread 1 'command': command processor
+ *---------------------------------------------------------------------------*/
+void command (void const *argument) {
+  int i;
+
+  printf (menu);                              /* display command menu        */
+  while (1) {                                 /* endless loop                */
+    printf ("\r\nCommand: ");                 /* display prompt              */
+    #ifdef __USE_FFLUSH
+    fflush (stdout); 
+    #endif
+    getline (cmdline, sizeof (cmdline));      /* get command line input      */
+
+    for (i = 0; cmdline[i] != 0; i++) {       /* convert to uppercase        */
+      cmdline[i] = (char) toupper((int)cmdline[i]);
+    }
+
+    for (i = 0; cmdline[i] == ' '; i++);      /* skip blanks                 */
+
+    switch (cmdline[i]) {                     /* proceed to command function */
+      case 'D':                               /* Display Time Command        */
+        printf ("Start Time: %02d:%02d:%02d    "
+                "End Time: %02d:%02d:%02d\r\n",
+                 stime.hour, stime.min, stime.sec,
+                 etime.hour, etime.min, etime.sec);
+        printf ("                        type ESC to abort\r");
+        #ifdef __USE_FFLUSH
+        fflush (stdout);
+        #endif
+
+        tid_getesc = osThreadCreate(osThread(get_escape), NULL);
+                                              /* ESC check in display loop   */
+        escape = false;                       /* clear escape flag           */
+        display_time = true;                  /* set display time flag       */
+        osSignalClear(tid_command, 0x0003);
+                                              /* clear pending signals       */
+        while (!escape) {                     /* while no ESC enteRED        */
+          printf ("Clock Time: %02d:%02d:%02d\r",   /* display time          */
+                   c_time.hour, c_time.min, c_time.sec);
+          #ifdef __USE_FFLUSH
+          fflush (stdout);
+          #endif
+          osSignalWait(0, osWaitForever);     /* wait for time change or ESC */
+        }
+
+        osThreadTerminate(tid_getesc);        /* terminate 'get_escape'      */
+        display_time = false;                 /* clear display time flag     */
+        printf ("\r\n\r\n");
+        break;
+
+      case 'T':                               /* Set Time Command            */
+        if (readtime (&cmdline[i+1])) {       /* read time input and         */
+          c_time.hour = rtime.hour;            /* store in 'c_time'            */
+          c_time.min  = rtime.min;
+          c_time.sec  = rtime.sec;
+        }
+        break;
+
+      case 'E':                               /* Set End Time Command        */
+        if (readtime (&cmdline[i+1]))  {      /* read time input and         */
+          etime.hour = rtime.hour;              /* store in 'end'              */
+          etime.min  = rtime.min;
+          etime.sec  = rtime.sec;
+        }
+        break;
+
+      case 'S':                               /* Set Start Time Command      */
+        if (readtime (&cmdline[i+1]))  {      /* read time input and         */
+          stime.hour = rtime.hour;            /* store in 'start'            */
+          stime.min  = rtime.min;
+          stime.sec  = rtime.sec;
+        }
+        break;
+
+      default:                                /* Error Handling              */
+        printf (menu);                        /* display command menu        */
+        break;
+    }   
+  }
+}
+
+/*----------------------------------------------------------------------------
+  signalon: check if c_clock time is between start and end
+ *---------------------------------------------------------------------------*/
+char signalon (void) {
+  if (memcmp (&stime, &etime, sizeof (struct time)) < 0)  {
+    if (memcmp (&stime, &c_time, sizeof (struct time)) < 0  &&
+        memcmp (&c_time, &etime, sizeof (struct time)) < 0) {
+      return (1);
+    }
+  }
+  else { 
+    if (memcmp (&etime, &c_time, sizeof (stime)) > 0  &&
+        memcmp (&c_time, &stime, sizeof (stime)) > 0) {
+      return (1);
+    }
+  }
+  return (0);                                 /* signal off, blinking on     */
+}
+
+/*----------------------------------------------------------------------------
+  Thread 2 'blinking': runs if current time is outside start & end time 
+ *---------------------------------------------------------------------------*/
+void blinking (void const *argument) {        /* blink YELLOW light          */
+  SetLights (RED, 0);                         /* all lights off              */
+  SetLights (YELLOW, 0);
+  SetLights (GREEN, 0);
+//  SetLights (STOP, 0);
+//  SetLights (WALK, 0);
+  while (1) {                                 /* endless loop                */
+    SetLights (YELLOW, 1);                    /* YELLOW light on             */
+    osDelay(300);                             /* wait for timeout: 300ms     */
+    SetLights (YELLOW, 0);                    /* YELLOW light off            */
+    osDelay(300);                             /* wait for timeout: 300ms     */
+    if (signalon ()) {                        /* if blinking time over       */
+      tid_lights = osThreadCreate(osThread(lights), NULL);
+                                              /* start lights                */
+      return;                                 /* and STOP blinking           */
+    }
+  }
+}
+
+/*----------------------------------------------------------------------------
+  Thread 3 'lights': executes if current time is between start & end time
+ *---------------------------------------------------------------------------*/
+void lights (void const *argument) {          /* traffic light operation     */
+  SetLights (RED, 1);                         /* RED & STOP lights on        */
+//  SetLights (STOP, 1);
+  SetLights (YELLOW, 0);
+  SetLights (GREEN, 0);
+//  SetLights (WALK, 0);
+  while (1) {                                 /* endless loop                */
+    osDelay(500);                             /* wait for timeout: 500ms     */
+    if (!signalon ()) {                       /* if traffic signal time over */
+      tid_blinking = osThreadCreate(osThread(blinking), NULL);
+                                              /* start blinking              */
+      return;                                 /* STOP lights                 */
+    }
+    SetLights (YELLOW, 1);
+    osDelay(500);                             /* wait for timeout: 500ms     */
+    SetLights (RED, 0);                       /* GREEN light for cars        */
+    SetLights (YELLOW, 0);
+    SetLights (GREEN, 1);
+    osSignalClear(tid_lights, 0x0010);
+    osDelay(500);                             /* wait for timeout: 500ms     */
+    osSignalWait(0x0010, 7500);               /* wait for event with timeout */
+    SetLights (YELLOW, 1);                    /* timeout value: 7.5s         */
+    SetLights (GREEN, 0);
+    osDelay(500);                             /* wait for timeout: 500ms     */
+    SetLights (RED, 1);                       /* RED light for cars          */
+    SetLights (YELLOW, 0);
+    osDelay(500);                             /* wait for timeout: 500ms     */
+//    SetLights (STOP, 0);                      /* GREEN light for WALKers     */    
+//    SetLights (WALK, 1);
+//    osDelay(2500);                            /* wait for timeout: 2.5s      */
+//    SetLights (STOP, 1);                      /* RED light for WALKers       */        
+//    SetLights (WALK, 0);
   }
 }

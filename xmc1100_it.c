@@ -1,11 +1,16 @@
+#include <stdio.h>
+
 #include <XMC1100.h>
 #include <xmc_scu.h>
 #include <xmc_rtc.h>
+#include <xmc_uart.h>
 
-extern void printf(const char* str);
+#include "led.h"
 
 extern __IO uint32_t g_Ticks;
-extern char g_Buf[256];
+
+bool g_uart_rx_flag;
+uint8_t g_uart_rx_ch;
 
 void HardFault_Handler(void)
 {
@@ -14,24 +19,24 @@ void HardFault_Handler(void)
 	{;}
 }
 
-void SVC_Handler(void)
-{
-	printf(__FUNCTION__);
-	while(1)
-	{;}
-}
+//void SVC_Handler(void)
+//{
+//	printf(__FUNCTION__);
+//	while(1)
+//	{;}
+//}
 
-void PendSV_Handler(void)
-{
-	printf(__FUNCTION__);
-	while(1)
-	{;}
-}
+//void PendSV_Handler(void)
+//{
+//	printf(__FUNCTION__);
+//	while(1)
+//	{;}
+//}
 
-void SysTick_Handler(void)
-{	
-	g_Ticks++;
-}
+//void SysTick_Handler(void)
+//{	
+//	g_Ticks++;
+//}
 
 
 //RTC Alarm
@@ -74,6 +79,7 @@ void ERU0_2_IRQHandler(void)
 
 void ERU0_3_IRQHandler(void)
 {
+	LED_Toogle(4);
 	printf(__FUNCTION__);
 	while(1)
 	{;}
@@ -81,44 +87,54 @@ void ERU0_3_IRQHandler(void)
 
 void USIC0_0_IRQHandler(void)
 {
-	printf(__FUNCTION__);
-	while(1)
-	{;}
+	LED_Toogle(4);
+
+	g_uart_rx_flag = true;
+  g_uart_rx_ch = (uint8_t)XMC_UART_CH_GetReceivedData(XMC_UART0_CH1);
+	
+	XMC_UART_CH_Transmit(XMC_UART0_CH1, g_uart_rx_ch);
+
+	XMC_UART_CH_ClearStatusFlag(XMC_UART0_CH1, XMC_UART_CH_EVENT_RECEIVE_START);
 }        
        
 void USIC0_1_IRQHandler(void)
 {
-	printf(__FUNCTION__);
-	while(1)
-	{;}
+	LED_Toogle(4);
+	XMC_UART_CH_Transmit(XMC_UART0_CH1, (uint8_t)'B');
+
+//	XMC_UART_CH_ClearStatusFlag(XMC_UART0_CH1, XMC_UART_CH_EVENT_RECEIVE_START);
 }
 
 void USIC0_2_IRQHandler(void)
 {
-	printf(__FUNCTION__);
-	while(1)
-	{;}
+	LED_Toogle(4);
+	XMC_UART_CH_Transmit(XMC_UART0_CH1, (uint8_t)'C');
+
+//	XMC_UART_CH_ClearStatusFlag(XMC_UART0_CH1, XMC_UART_CH_EVENT_RECEIVE_START);
 }
 
 void USIC0_3_IRQHandler(void)
 {
-	printf(__FUNCTION__);
-	while(1)
-	{;}
+	LED_Toogle(4);
+	XMC_UART_CH_Transmit(XMC_UART0_CH1, (uint8_t)'C');
+
+//	XMC_UART_CH_ClearStatusFlag(XMC_UART0_CH1, XMC_UART_CH_EVENT_RECEIVE_START);
 }        
        
 void USIC0_4_IRQHandler(void)
 {
-	printf(__FUNCTION__);
-	while(1)
-	{;}
+	LED_Toogle(4);
+	XMC_UART_CH_Transmit(XMC_UART0_CH1, (uint8_t)'D');
+
+//	XMC_UART_CH_ClearStatusFlag(XMC_UART0_CH1, XMC_UART_CH_EVENT_RECEIVE_START);
 }
 
 void USIC0_5_IRQHandler(void)
 {
-	printf(__FUNCTION__);
-	while(1)
-	{;}
+	LED_Toogle(4);
+	XMC_UART_CH_Transmit(XMC_UART0_CH1, (uint8_t)'E');
+
+//	XMC_UART_CH_ClearStatusFlag(XMC_UART0_CH1, XMC_UART_CH_EVENT_RECEIVE_START);
 }
 
 void VADC0_C0_0_IRQHandler(void)
