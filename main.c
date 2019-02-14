@@ -32,8 +32,6 @@
 XMC_GPIO_CONFIG_t uart_tx;
 XMC_GPIO_CONFIG_t uart_rx;
 
-__IO uint32_t g_Ticks;
-
 /* UART configuration */
 const XMC_UART_CH_CONFIG_t uart_config = 
 {	
