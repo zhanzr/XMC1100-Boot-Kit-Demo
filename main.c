@@ -97,7 +97,7 @@ void __SVC_1 (uint32_t d)
 {
   __disable_irq();
 	uint32_t t = d;
-	printf("%s\n", __FUNCTION__);
+	printf("%s\n", __func__);
 	
 	while(--t)
 	{
@@ -451,7 +451,7 @@ int main(void)
 	(uint32_t)g_Thread1,
 	(uint32_t)g_Thread2,
 	(uint32_t)g_RtcThread);
-	
+
 	g_uart_mutex = osMutexCreate(osMutex(g_uart_mutex));
 
 	arrived1 =osSemaphoreCreate(osSemaphore(arrived1),0);

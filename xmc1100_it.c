@@ -1,3 +1,9 @@
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <assert.h>
+
 #include <XMC1100.h>
 #include <xmc_scu.h>
 #include <xmc_rtc.h>
