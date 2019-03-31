@@ -278,33 +278,29 @@ __sectionClassB_Data__
 uint32_t ClassB_TrapMessage;
 
 
-void SCU_0_IRQHandler(void)
-{
+void SCU_0_IRQHandler(void) {
     /* check Fault reason */
     uint32_t IrqStatus;
     /* read the interrupt status Register */
     IrqStatus = SCU_INTERRUPT->SRRAW;
     /* SCU Interrupts */
     /* check parity error */
-    if (SCU_INTERRUPT_SRRAW_PESRAMI_Msk == (IrqStatus & SCU_INTERRUPT_SRRAW_PESRAMI_Msk))
-    {
+    if (SCU_INTERRUPT_SRRAW_PESRAMI_Msk == (IrqStatus & SCU_INTERRUPT_SRRAW_PESRAMI_Msk)) {
         SCU_INTERRUPT->SRMSK &= ~((uint32_t) SCU_INTERRUPT_SRMSK_PESRAMI_Msk);
         SCU_INTERRUPT->SRCLR  = ((uint32_t) SCU_INTERRUPT_SRCLR_PESRAMI_Msk);
         
         /* check parity error test enabled */
-        if ( ClassB_Status_ParityTest_Msk == (ClassB_TrapMessage & ClassB_Status_ParityTest_Msk))
-        {
-            /* state the trap recognized for parity test function */
-            ClassB_TrapMessage |= ((uint32_t) ClassB_Status_ParityReturn_Msk);
-        }
-        else
-        {
-            /* user code here */
+        if ( ClassB_Status_ParityTest_Msk == (ClassB_TrapMessage & ClassB_Status_ParityTest_Msk)) {
+          /* state the trap recognized for parity test function */
+					ClassB_TrapMessage |= ((uint32_t) ClassB_Status_ParityReturn_Msk);								
+					XMC_UART_CH_Transmit(XMC_UART0_CH1, '$');
+        } else {
+          /* user code here */
+					XMC_UART_CH_Transmit(XMC_UART0_CH1, '*');
         }
     }
     /* Loss of clock */
-    if (SCU_INTERRUPT_SRRAW_LOCI_Msk == ((uint32_t) (IrqStatus & SCU_INTERRUPT_SRRAW_LOCI_Msk)))
-    {
+    if (SCU_INTERRUPT_SRRAW_LOCI_Msk == ((uint32_t) (IrqStatus & SCU_INTERRUPT_SRRAW_LOCI_Msk))) {
         /* clear the interrupt and mask */
         SCU_INTERRUPT->SRCLR  = ((uint32_t) SCU_INTERRUPT_SRCLR_LOCI_Msk);
         SCU_INTERRUPT->SRMSK &= ~((uint32_t) SCU_INTERRUPT_SRMSK_LOCI_Msk);
@@ -313,23 +309,15 @@ void SCU_0_IRQHandler(void)
 }
 
 extern void SCU_0_IRQHandler(void);
-    #define OPCODE_ADDR ((uint32_t)0x20000040)
-    #define TARGET_ADDR ((uint32_t)0x200000d0)
-    #define TARGET      SCU_0_IRQHandler
-void ClassB_setup_SCU_0_vector(void)
-{
-    uint32_t * pdestaddr = (uint32_t *)OPCODE_ADDR;
 
+void ClassB_setup_SCU_0_vector(void) {
     /* copy the code */
-    *pdestaddr = (uint32_t)OPCODE;
+    *((uint32_t *)0x20000040) = (uint32_t)OPCODE;
     /* copy the vector */
-    pdestaddr  = (uint32_t *)TARGET_ADDR;
-    *pdestaddr = (uint32_t)TARGET;
+    *((uint32_t *)0x200000d0) = (uint32_t)SCU_0_IRQHandler;
 }
 
-ClassB_EnumTestResultType ClassB_RAMTest_Parity(void)
-{
-    volatile uint32_t * TestParityDataPtr;
+ClassB_EnumTestResultType ClassB_RAMTest_Parity(void) {
     volatile uint32_t   TimeoutCtr;
     volatile uint32_t   Temp __UNUSED = 0U;
     uint32_t            TestParityDataBackup;
@@ -345,10 +333,8 @@ ClassB_EnumTestResultType ClassB_RAMTest_Parity(void)
     /* clear result flag that will be used by the parity trap */
     ClassB_TrapMessage &= ~((uint32_t) ClassB_Status_ParityReturn_Msk);
 
-    /* Point to test area */
-    TestParityDataPtr = (volatile uint32_t *)PARITY_DSRAM1_TEST_ADDR;
     /* Store existing contents */
-    TestParityDataBackup = *TestParityDataPtr;
+    TestParityDataBackup = *(volatile uint32_t *)PARITY_DSRAM1_TEST_ADDR;
 
     /* enable SCU0 interrupt */
     /* clear and mask the parity test interrupt */
@@ -358,16 +344,16 @@ ClassB_EnumTestResultType ClassB_RAMTest_Parity(void)
     /* make sure the interrupt vector is available */
     ClassB_setup_SCU_0_vector();
     __enable_irq();
-    /*lint -restore */
+		
+		XMC_UART_CH_Transmit(XMC_UART0_CH1, '>');
     /* enable the NVIC vector */
     NVIC_EnableIRQ(SCU_0_IRQn);
     
     /* Enable inverted parity for next SRAM write */
     SCU_GENERAL->PMTSR |= SCU_GENERAL_PMTSR_MTENS_Msk;
 
-    /*lint -save -e2 Unclosed Quote MISRA 2004 Rule 1.2 accepted */
     /* Write to 32 bit locations with parity inverted */
-    *TestParityDataPtr = RAM_TEST_PARITY_DATAP_PATTERN;
+    *(volatile uint32_t *)PARITY_DSRAM1_TEST_ADDR = RAM_TEST_PARITY_DATAP_PATTERN;
     /*lint -restore */
 
     /* disable Parity test */
@@ -375,30 +361,27 @@ ClassB_EnumTestResultType ClassB_RAMTest_Parity(void)
 
     /*lint -save -e838 not used variable accepted */
     /* Create parity error by reading location */
-    Temp = *TestParityDataPtr;
+    Temp = *(volatile uint32_t *)PARITY_DSRAM1_TEST_ADDR;
     /*lint -restore */
 
     /* Check whether parity trap has occurred (before timeout expires) */
-    do
-    {
-        /* Insert TESSY test code for simulating status from the exception on Parity tests */
-        TESSY_TESTCODE(&ClassB_TrapMessage);
-        /* See whether parity trap has occurred */
-        ReturnFlag = ((uint32_t) (ClassB_TrapMessage & ClassB_Status_ParityReturn_Msk));
+    do {
+			/* Insert TESSY test code for simulating status from the exception on Parity tests */
+			TESSY_TESTCODE(&ClassB_TrapMessage);
+			/* See whether parity trap has occurred */
+			ReturnFlag = ((uint32_t) (ClassB_TrapMessage & ClassB_Status_ParityReturn_Msk));
 
-        /* Decrement counter */
-        TimeoutCtr--;
+			/* Decrement counter */
+			TimeoutCtr--;
+			XMC_UART_CH_Transmit(XMC_UART0_CH1, '.');
     } while ((TimeoutCtr > 0U) && (ReturnFlag == 0U));  /* Not timed out? && Parity trap not occurred? */
     
     /*lint -save -e522 MISRA 2004 Rule 14.2 accepted */
     /* Has parity DSRAM1 check passed? */
     /* Has data error occurred? */
-    if (TimeoutCtr == 0U) /* Timed out? */
-    {
+    if (TimeoutCtr == 0U) {
         result = ClassB_testFailed;
-    }
-    else
-    {
+    } else {
         /* The parity trap has occurred (ReturnFlag != 0), i.e. check passed */
     }
     /*lint -restore */
@@ -409,7 +392,7 @@ ClassB_EnumTestResultType ClassB_RAMTest_Parity(void)
     CLR_BIT(SCU_INTERRUPT->SRMSK, SCU_INTERRUPT_SRMSK_PESRAMI_Pos);
     
     /* Restore existing contents */
-    *TestParityDataPtr = TestParityDataBackup;
+    *(volatile uint32_t *)PARITY_DSRAM1_TEST_ADDR = TestParityDataBackup;
 
     /* Exit critical section */
     ExitCriticalSection();
@@ -422,8 +405,7 @@ ClassB_EnumTestResultType ClassB_RAMTest_Parity(void)
 
 extern void Reset_Handler(void);
 //This test is destructive and will initialize the whole RAM to zero.
-void MemtestFunc(void)
-{
+void MemtestFunc(void) {
 	//It seems not necessary to call this function as we only use the default clock setting
 //	SystemInit();
 	
@@ -442,18 +424,14 @@ void MemtestFunc(void)
 	LED_Initialize();
 
 	//Parity Test
-
-	if (ClassB_testFailed == ClassB_RAMTest_Parity())
-	{
+	if (ClassB_testFailed == ClassB_RAMTest_Parity()) {
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'R');
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'P');
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'F');
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'L');
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, '\n');			
 		FailSafePOR();
-	}
-	else
-	{				
+	} else {				
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'R');
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'P');
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'O');
