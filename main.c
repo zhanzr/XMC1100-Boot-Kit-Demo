@@ -14,13 +14,14 @@
 #include <xmc_uart.h>
 #include <xmc_gpio.h>
 #include <xmc_flash.h>
+#include <xmc_spi.h>
 
 #include "led.h"
 #include "lcd2004.h"
 #include "flash_ecc.h"
 #include "XMC1000_TSE.h"
 
-#include "cmsis_os.h"
+//#include "cmsis_os.h"
 
 #ifndef HZ
 #define	HZ	1000
@@ -64,10 +65,12 @@ uint32_t HAL_GetTick(void)
 	return g_Ticks;
 }
 
+#ifdef SEMA_PROTECT_UART	
 osMutexId g_uart_mutex;
 osMutexDef (g_uart_mutex);
+#endif
 
-#define SEMA_PROTECT_UART	
+//#define SEMA_PROTECT_UART	
 int stdout_putchar (int ch)
 {
 #ifdef SEMA_PROTECT_UART	
@@ -166,13 +169,13 @@ extern uint32_t asm_test_mrs(void);
 
 
 
-osThreadId g_Thread1;
-osThreadId g_Thread2;
-osThreadId g_RtcThread;
+//osThreadId g_Thread1;
+//osThreadId g_Thread2;
+//osThreadId g_RtcThread;
 
-osSemaphoreId arrived1,arrived2;
-osSemaphoreDef(arrived1);
-osSemaphoreDef(arrived2);
+//osSemaphoreId arrived1,arrived2;
+//osSemaphoreDef(arrived1);
+//osSemaphoreDef(arrived2);
 
 typedef struct {
 uint8_t LED0;
@@ -180,150 +183,150 @@ uint8_t LED1;
 uint8_t LED2;
 }memory_block_t;
 
-osMessageQId g_QTemp;
-osMessageQDef(g_QTemp,1,unsigned int);
+//osMessageQId g_QTemp;
+//osMessageQDef(g_QTemp,1,unsigned int);
 
-osMessageQId g_QLED;
-osMessageQDef(g_QLED,1,memory_block_t*);
+//osMessageQId g_QLED;
+//osMessageQDef(g_QLED,1,memory_block_t*);
 
-osPoolDef(led_pool, 2, memory_block_t);
-osPoolId( led_pool);
+//osPoolDef(led_pool, 2, memory_block_t);
+//osPoolId( led_pool);
 
-void thread1 (void const *argument)
-{
-	osEvent result;
-	
-	uint32_t tmpKTick = osKernelSysTick();
-	g_QLED = osMessageCreate(osMessageQ(g_QLED),NULL);
-	
-	led_pool = osPoolCreate(osPool(led_pool));
-	
-	memory_block_t *led_data;
-	led_data = (memory_block_t *) osPoolAlloc(led_pool);
-	
-	while(1)
-	{
-		osDelay(2000);
-		//rendezvous
-		osSemaphoreRelease(arrived1);
-		osSemaphoreWait(arrived2,osWaitForever);		
-//    LED_Toggle(2);	
-		
-		led_data->LED0 = tmpKTick&0x01;
-		led_data->LED1 = tmpKTick&0x02;
-		led_data->LED2 = tmpKTick&0x04;
+//void thread1 (void const *argument)
+//{
+//	osEvent result;
+//	
+//	uint32_t tmpKTick = osKernelSysTick();
+//	g_QLED = osMessageCreate(osMessageQ(g_QLED),NULL);
+//	
+//	led_pool = osPoolCreate(osPool(led_pool));
+//	
+//	memory_block_t *led_data;
+//	led_data = (memory_block_t *) osPoolAlloc(led_pool);
+//	
+//	while(1)
+//	{
+//		osDelay(2000);
+//		//rendezvous
+//		osSemaphoreRelease(arrived1);
+//		osSemaphoreWait(arrived2,osWaitForever);		
+////    LED_Toggle(2);	
+//		
+//		led_data->LED0 = tmpKTick&0x01;
+//		led_data->LED1 = tmpKTick&0x02;
+//		led_data->LED2 = tmpKTick&0x04;
 
-		osMessagePut(g_QLED,(uint32_t)led_data,osWaitForever);
-		
-		printf("%u\n", osKernelSysTick()-tmpKTick);
-		osSignalSet (g_Thread2, 0x01);
-		tmpKTick = osKernelSysTick();		
+//		osMessagePut(g_QLED,(uint32_t)led_data,osWaitForever);
+//		
+//		printf("%u\n", osKernelSysTick()-tmpKTick);
+//		osSignalSet (g_Thread2, 0x01);
+//		tmpKTick = osKernelSysTick();		
 
-		result = osMessageGet(g_QTemp,osWaitForever);	
+//		result = osMessageGet(g_QTemp,osWaitForever);	
 
-		printf("CoreTemp:%d 'C\n", (int32_t)result.value.v);	
-	}
-}
+//		printf("CoreTemp:%d 'C\n", (int32_t)result.value.v);	
+//	}
+//}
 
-void thread2 (void const *argument)
-{
-	uint32_t temp_k;
-	int32_t temp_C;
-	osEvent event; memory_block_t * received;
-	
-	g_QTemp = osMessageCreate(osMessageQ(g_QTemp),NULL);
+//void thread2 (void const *argument)
+//{
+//	uint32_t temp_k;
+//	int32_t temp_C;
+//	osEvent event; memory_block_t * received;
+//	
+//	g_QTemp = osMessageCreate(osMessageQ(g_QTemp),NULL);
 
-	while(1)
-	{		
-		//rendezvous
-		osSemaphoreRelease(arrived2);
-		osSemaphoreWait(arrived1,osWaitForever);		
-//    LED_Toggle(1);	
-		
-		event = osMessageGet(g_QLED, osWaitForever);
-		received = (memory_block_t *)event.value.p;
-		(received->LED0&0x01)?LED_On(0):LED_Off(0);
-		(received->LED1&0x02)?LED_On(1):LED_Off(1);
-		(received->LED2&0x04)?LED_On(2):LED_Off(2);
-		osPoolFree(led_pool,received);
-		
-		/* Calculate temperature of the chip in Kelvin */
-		temp_k = XMC1000_CalcTemperature();
-		/* Convert temperature to Celcius */
-		temp_C = temp_k - ZERO_TEMP_KELVIN;		
-		
-		osMessagePut(g_QTemp,temp_C,osWaitForever);
-		//printf("CoreTemp:%d 'C\n", temp_C);	
-		
-		osSignalWait(0x01, osWaitForever);
-	}
-}
+//	while(1)
+//	{		
+//		//rendezvous
+//		osSemaphoreRelease(arrived2);
+//		osSemaphoreWait(arrived1,osWaitForever);		
+////    LED_Toggle(1);	
+//		
+//		event = osMessageGet(g_QLED, osWaitForever);
+//		received = (memory_block_t *)event.value.p;
+//		(received->LED0&0x01)?LED_On(0):LED_Off(0);
+//		(received->LED1&0x02)?LED_On(1):LED_Off(1);
+//		(received->LED2&0x04)?LED_On(2):LED_Off(2);
+//		osPoolFree(led_pool,received);
+//		
+//		/* Calculate temperature of the chip in Kelvin */
+//		temp_k = XMC1000_CalcTemperature();
+//		/* Convert temperature to Celcius */
+//		temp_C = temp_k - ZERO_TEMP_KELVIN;		
+//		
+//		osMessagePut(g_QTemp,temp_C,osWaitForever);
+//		//printf("CoreTemp:%d 'C\n", temp_C);	
+//		
+//		osSignalWait(0x01, osWaitForever);
+//	}
+//}
 
-void RtcISRThread (void const *argument)
-{
-	__IO XMC_RTC_TIME_t now_rtc_time;
-	
-	while(1)
-	{
-		osSignalWait(0x01,osWaitForever);
-		
-		XMC_RTC_GetTime((XMC_RTC_TIME_t *)&now_rtc_time);
-		printf("%02d:%02d:%02d\n", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);	
-	}
-}
+//void RtcISRThread (void const *argument)
+//{
+//	__IO XMC_RTC_TIME_t now_rtc_time;
+//	
+//	while(1)
+//	{
+//		osSignalWait(0x01,osWaitForever);
+//		
+//		XMC_RTC_GetTime((XMC_RTC_TIME_t *)&now_rtc_time);
+//		printf("%02d:%02d:%02d\n", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);	
+//	}
+//}
 
-osThreadDef(thread1, osPriorityNormal, 1, 0); 
-osThreadDef(thread2, osPriorityNormal, 1, 0); 
-osThreadDef(RtcISRThread, osPriorityHigh, 1, 0); 
+//osThreadDef(thread1, osPriorityNormal, 1, 0); 
+//osThreadDef(thread2, osPriorityNormal, 1, 0); 
+//osThreadDef(RtcISRThread, osPriorityHigh, 1, 0); 
 
-void os_idle_demon (void) {
-	
-	while(1)
-	{
-//    LED_Toggle(0);	
-		SimpleDelay(1000);
-	}
-}
+//void os_idle_demon (void) {
+//	
+//	while(1)
+//	{
+////    LED_Toggle(0);	
+//		SimpleDelay(1000);
+//	}
+//}
 
-/* OS Error Codes */
-#define OS_ERROR_STACK_OVF      1
-#define OS_ERROR_FIFO_OVF       2
-#define OS_ERROR_MBX_OVF        3
-#define OS_ERROR_TIMER_OVF      4
- 
-extern osThreadId svcThreadGetId (void);
-/// \brief Called when a runtime error is detected
-/// \param[in]   error_code   actual error code that has been detected
-void os_error (uint32_t error_code) {
- 
-	osThreadId oId = svcThreadGetId();
-	printf("[%08X]>\t%u\n", (uint32_t)oId, error_code);
-  switch (error_code) {
-    case OS_ERROR_STACK_OVF:
-      /* Stack overflow detected for the currently running task. */
-      /* Thread can be identified by calling svcThreadGetId().   */
-      break;
-    case OS_ERROR_FIFO_OVF:
-      /* ISR FIFO Queue buffer overflow detected. */
-      break;
-    case OS_ERROR_MBX_OVF:
-      /* Mailbox overflow detected. */
-      break;
-    case OS_ERROR_TIMER_OVF:
-      /* User Timer Callback Queue overflow detected. */
-      break;
-  }
-  for (;;);
-}
+///* OS Error Codes */
+//#define OS_ERROR_STACK_OVF      1
+//#define OS_ERROR_FIFO_OVF       2
+//#define OS_ERROR_MBX_OVF        3
+//#define OS_ERROR_TIMER_OVF      4
+// 
+//extern osThreadId svcThreadGetId (void);
+///// \brief Called when a runtime error is detected
+///// \param[in]   error_code   actual error code that has been detected
+//void os_error (uint32_t error_code) {
+// 
+//	osThreadId oId = svcThreadGetId();
+//	printf("[%08X]>\t%u\n", (uint32_t)oId, error_code);
+//  switch (error_code) {
+//    case OS_ERROR_STACK_OVF:
+//      /* Stack overflow detected for the currently running task. */
+//      /* Thread can be identified by calling svcThreadGetId().   */
+//      break;
+//    case OS_ERROR_FIFO_OVF:
+//      /* ISR FIFO Queue buffer overflow detected. */
+//      break;
+//    case OS_ERROR_MBX_OVF:
+//      /* Mailbox overflow detected. */
+//      break;
+//    case OS_ERROR_TIMER_OVF:
+//      /* User Timer Callback Queue overflow detected. */
+//      break;
+//  }
+//  for (;;);
+//}
 
 int main(void)
 {	
 //	osKernelInitialize();	
 	uint32_t tmpTick;
 
-	osKernelInitialize(); 
+//	osKernelInitialize(); 
   /* System timer configuration */
-//	SysTick_Config(SystemCoreClock / HZ);	
+	SysTick_Config(SystemCoreClock / HZ);	
 	
 	/* Enable DTS */
 	XMC_SCU_StartTempMeasurement();
@@ -391,19 +394,19 @@ int main(void)
 	//Test Addition/Mulitiplication Cycles
 #define	TEST_ADD_MUL_NUM	100000
 	//If the muliplication takes similar cycles, it is a single cycle multiplication implementation
-	tmpTick = osKernelSysTick();
+	tmpTick = g_Ticks;
 	for(uint32_t i=0; i<TEST_ADD_MUL_NUM; ++i)
 	{
 		asm_simple_add(i, 456);
 	}
-	tmpTick = osKernelSysTick()-tmpTick;
+	tmpTick = g_Ticks-tmpTick;
 	printf("%u\n", tmpTick);
-	tmpTick = osKernelSysTick();
+	tmpTick = g_Ticks;
 	for(uint32_t i=0; i<TEST_ADD_MUL_NUM; ++i)
 	{
 		asm_simple_mul(i, 456);
 	}
-	tmpTick = osKernelSysTick()-tmpTick;
+	tmpTick = g_Ticks-tmpTick;
 	printf("%u\n", tmpTick);
 	
 	printf("Part 5\n");
@@ -444,30 +447,69 @@ int main(void)
 	uint32_t p2 = asm_test_mrs();
 	printf("%08X\t%08X\n", p1, p2);
 		
-	g_Thread1 = osThreadCreate(osThread(thread1), NULL);
-	g_Thread2 = osThreadCreate(osThread(thread2), NULL);
-	g_RtcThread = osThreadCreate(osThread(RtcISRThread), NULL);
-	printf("%08X,%08X,%08X\n", 
-	(uint32_t)g_Thread1,
-	(uint32_t)g_Thread2,
-	(uint32_t)g_RtcThread);
+//	g_Thread1 = osThreadCreate(osThread(thread1), NULL);
+//	g_Thread2 = osThreadCreate(osThread(thread2), NULL);
+//	g_RtcThread = osThreadCreate(osThread(RtcISRThread), NULL);
+//	printf("%08X,%08X,%08X\n", 
+//	(uint32_t)g_Thread1,
+//	(uint32_t)g_Thread2,
+//	(uint32_t)g_RtcThread);
 
-	g_uart_mutex = osMutexCreate(osMutex(g_uart_mutex));
+//	g_uart_mutex = osMutexCreate(osMutex(g_uart_mutex));
 
-	arrived1 =osSemaphoreCreate(osSemaphore(arrived1),0);
-	arrived2 =osSemaphoreCreate(osSemaphore(arrived2),0);
+//	arrived1 =osSemaphoreCreate(osSemaphore(arrived1),0);
+//	arrived2 =osSemaphoreCreate(osSemaphore(arrived2),0);
 
-	osKernelStart();
+//	osKernelStart();
 
-//	while (1)
-//  {				
+	soft_spi_init();
+
+	const uint8_t test_data[] = {0x12,0x34,0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0};
+
+	while (1)
+  {				
 //    LED_Toggle(4);
+
+//		CS_H();
+
+//		 SCLK_H();
 //		
-//		tmpTick = osKernelSysTick();
-//		while((tmpTick+osKernelSysTickMicroSec(2000)) > osKernelSysTick())
-//		{
-//			__NOP();
-//			__WFI();
-//		}		
-//  }
+//		 MOSI_H();
+
+//		 MISO_H();
+//		 MISO_L();
+//		
+//		 MOSI_L();
+//		
+//		 SCLK_L();
+//		
+//		CS_L();
+
+		tmpTick = g_Ticks;
+		while((tmpTick+2000) > g_Ticks){
+			/*Enable Slave Select line 0*/
+			XMC_SPI_CH_EnableSlaveSelect(XMC_SPI0_CH0, XMC_SPI_CH_SLAVE_SELECT_0);
+
+			/*Sending a byte*/
+			XMC_SPI_CH_Transmit(XMC_SPI0_CH0, test_data[0], XMC_SPI_CH_MODE_STANDARD);
+			//uint16_t XMC_SPI_CH_GetReceivedData(XMC_USIC_CH_t *const channel);
+			/*Wait till the byte has been transmitted*/
+			while((XMC_SPI_CH_GetStatusFlag(XMC_SPI0_CH0) & XMC_SPI_CH_STATUS_FLAG_TRANSMIT_SHIFT_INDICATION) == 0U);
+			XMC_SPI_CH_ClearStatusFlag(XMC_SPI0_CH0, XMC_SPI_CH_STATUS_FLAG_TRANSMIT_SHIFT_INDICATION);
+
+			/*Disable Slave Select line */
+			XMC_SPI_CH_DisableSlaveSelect(XMC_SPI0_CH0);
+
+			/*Enable Slave Select line 0*/
+			XMC_SPI_CH_EnableSlaveSelect(XMC_SPI0_CH0, XMC_SPI_CH_SLAVE_SELECT_0);
+
+			for(uint8_t i=0; i<sizeof(test_data); ++i){
+				XMC_SPI_CH_Transmit(XMC_SPI0_CH0,test_data[i],XMC_SPI_CH_MODE_STANDARD);
+				while((XMC_SPI_CH_GetStatusFlag(XMC_SPI0_CH0) & XMC_SPI_CH_STATUS_FLAG_TRANSMIT_SHIFT_INDICATION) == 0U);
+				XMC_SPI_CH_ClearStatusFlag(XMC_SPI0_CH0, XMC_SPI_CH_STATUS_FLAG_TRANSMIT_SHIFT_INDICATION);
+			}
+			/*Disable Slave Select line */
+			XMC_SPI_CH_DisableSlaveSelect(XMC_SPI0_CH0);
+		}		
+  }
 }
