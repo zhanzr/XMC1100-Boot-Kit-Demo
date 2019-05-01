@@ -124,6 +124,9 @@ CLK_VAL2_Val    EQU     0x80000000
 ; Vector Table Mapped to Address 0 at Reset
 
                 AREA    RESET, DATA, READONLY
+
+				IMPORT  Reset_Handler
+					
                 EXPORT  __Vectors
                 EXPORT  __Vectors_End
                 EXPORT  __Vectors_Size					
@@ -139,36 +142,6 @@ __Vectors_End
 __Vectors_Size  EQU     __Vectors_End - __Vectors
 
                 AREA    |.text|, CODE, READONLY
-
-
-; Reset Handler
-
-Reset_Handler   PROC
-                EXPORT  Reset_Handler             [WEAK]
-                IMPORT  SystemInit
-                IMPORT  __main
-                
-; Following code initializes the Veneers at address 0x20000000 with a "branch to itself"
-; The real veneers will be copied later from the scatter loader before reaching main.
-; This init code should handle an exception before the real veneers are copied.
-SRAM_BASE            EQU     0x20000000
-VENEER_INIT_CODE     EQU     0xE7FEBF00             ; NOP, B .
-
-                LDR     R1, =SRAM_BASE
-                LDR     R2, =VENEER_INIT_CODE                
-                MOVS    R0, #48                     ; Veneer 0..47
-Init_Veneers
-                STR     R2, [R1]
-                ADDS    R1, #4
-                SUBS    R0, R0, #1
-                BNE     Init_Veneers
-                
-                LDR     R0, =SystemInit
-                BLX     R0
-                LDR     R0, =__main
-                BX      R0
-                ENDP
-
 Default_Handler PROC
 
                 EXPORT  HardFault_Handler       [WEAK]
