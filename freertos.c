@@ -140,10 +140,11 @@ void StartDefaultTask(void const * argument)
   {
 		xQueueReceive(g_queue, &tmpTicks, portMAX_DELAY);
 		
-		printf("%s %u %i\n", 
+		printf("%s %u %i %u\n", 
 		tskKERNEL_VERSION_NUMBER,
 		tmpTicks,
-		((int32_t)XMC1000_CalcTemperature()-273)
+		((int32_t)XMC1000_CalcTemperature()-273),
+		SystemCoreClock
 		);
 	
 		LED_Toggle(1);
@@ -156,6 +157,10 @@ void StartDefaultTask(void const * argument)
 		
 		printf("Total Heap:%u\n", 
 		configTOTAL_HEAP_SIZE);
+		
+		printf("Free Heap:%u, minimum ever:%u\n",
+		xPortGetFreeHeapSize(),
+		xPortGetMinimumEverFreeHeapSize());
 //		vTaskGetRunTimeStats(tmpBuf);
 //		printf(tmpBuf);		
 

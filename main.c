@@ -43,11 +43,10 @@ XMC_GPIO_CONFIG_t uart_rx;
 __IO uint32_t g_Ticks;
 
 /* UART configuration */
-const XMC_UART_CH_CONFIG_t uart_config = 
-{	
+const XMC_UART_CH_CONFIG_t uart_config = {	
   .data_bits = 8U,
   .stop_bits = 1U,
-  .baudrate = 256000
+  .baudrate = 921600
 };
 
 XMC_RTC_CONFIG_t rtc_config =
