@@ -73,21 +73,6 @@ int stdout_putchar (int ch)
 	return ch;
 }
 
-void SystemCoreClockSetup(void)
-{
-	XMC_SCU_CLOCK_CONFIG_t clock_config =
-	{
-		.rtc_src = XMC_SCU_CLOCK_RTCCLKSRC_DCO2,
-		.pclk_src = XMC_SCU_CLOCK_PCLKSRC_DOUBLE_MCLK,
-		.fdiv = 0, 
-		.idiv = 1
-	 };
-
-	XMC_SCU_CLOCK_Init(&clock_config);
-	
-//  SystemCoreClockUpdate();
-}
-
 void MX_FREERTOS_Init(void);
 
 int main(void)

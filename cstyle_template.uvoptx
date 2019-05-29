@@ -77,7 +77,7 @@
         <tvExpOptDlg>0</tvExpOptDlg>
         <IsCurrentTarget>1</IsCurrentTarget>
       </OPTFL>
-      <CpuCode>6</CpuCode>
+      <CpuCode>255</CpuCode>
       <DebugOpt>
         <uSim>0</uSim>
         <uTrg>1</uTrg>
@@ -348,7 +348,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>H:\FreeRTOSv10.1.1\FreeRTOS\Source\croutine.c</PathWithFileName>
+      <PathWithFileName>G:\FreeRTOSv10.1.1\FreeRTOS\Source\croutine.c</PathWithFileName>
       <FilenameWithoutPath>croutine.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -360,7 +360,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>H:\FreeRTOSv10.1.1\FreeRTOS\Source\event_groups.c</PathWithFileName>
+      <PathWithFileName>G:\FreeRTOSv10.1.1\FreeRTOS\Source\event_groups.c</PathWithFileName>
       <FilenameWithoutPath>event_groups.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -372,7 +372,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>H:\FreeRTOSv10.1.1\FreeRTOS\Source\list.c</PathWithFileName>
+      <PathWithFileName>G:\FreeRTOSv10.1.1\FreeRTOS\Source\list.c</PathWithFileName>
       <FilenameWithoutPath>list.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -384,7 +384,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>H:\FreeRTOSv10.1.1\FreeRTOS\Source\queue.c</PathWithFileName>
+      <PathWithFileName>G:\FreeRTOSv10.1.1\FreeRTOS\Source\queue.c</PathWithFileName>
       <FilenameWithoutPath>queue.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -396,7 +396,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>H:\FreeRTOSv10.1.1\FreeRTOS\Source\stream_buffer.c</PathWithFileName>
+      <PathWithFileName>G:\FreeRTOSv10.1.1\FreeRTOS\Source\stream_buffer.c</PathWithFileName>
       <FilenameWithoutPath>stream_buffer.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -408,7 +408,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>H:\FreeRTOSv10.1.1\FreeRTOS\Source\tasks.c</PathWithFileName>
+      <PathWithFileName>G:\FreeRTOSv10.1.1\FreeRTOS\Source\tasks.c</PathWithFileName>
       <FilenameWithoutPath>tasks.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -420,7 +420,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>H:\FreeRTOSv10.1.1\FreeRTOS\Source\timers.c</PathWithFileName>
+      <PathWithFileName>G:\FreeRTOSv10.1.1\FreeRTOS\Source\timers.c</PathWithFileName>
       <FilenameWithoutPath>timers.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -432,7 +432,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>H:\FreeRTOSv10.1.1\FreeRTOS\Source\portable\MemMang\heap_4.c</PathWithFileName>
+      <PathWithFileName>G:\FreeRTOSv10.1.1\FreeRTOS\Source\portable\MemMang\heap_4.c</PathWithFileName>
       <FilenameWithoutPath>heap_4.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -444,7 +444,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>H:\FreeRTOSv10.1.1\FreeRTOS\Source\portable\RVDS\ARM_CM0\port.c</PathWithFileName>
+      <PathWithFileName>G:\FreeRTOSv10.1.1\FreeRTOS\Source\portable\RVDS\ARM_CM0\port.c</PathWithFileName>
       <FilenameWithoutPath>port.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -489,7 +489,7 @@
 
   <Group>
     <GroupName>::Device</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>1</RteFlg>
