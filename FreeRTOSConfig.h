@@ -107,7 +107,7 @@
 #define configUSE_MUTEXES                        1
 #define configQUEUE_REGISTRY_SIZE                8
 #define	configUSE_TRACE_FACILITY	1
-#define	configUSE_STATS_FORMATTING_FUNCTIONS	1
+#define	configUSE_STATS_FORMATTING_FUNCTIONS	0
 //#define	configGENERATE_RUN_TIME_STATS	1
 
 /* Co-routine definitions. */
@@ -118,7 +118,7 @@
 #define configUSE_TIMERS                         1
 #define configTIMER_TASK_PRIORITY                ( 2 )
 #define configTIMER_QUEUE_LENGTH                 2
-#define configTIMER_TASK_STACK_DEPTH             256
+#define configTIMER_TASK_STACK_DEPTH             64
 
 /* Set the following definitions to 1 to include the API function, or zero
 to exclude the API function. */

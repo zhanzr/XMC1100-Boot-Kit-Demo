@@ -96,7 +96,7 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of defaultTask */
 	xTaskCreate((TaskFunction_t)StartDefaultTask,
 							(const portCHAR *)"defaultTask",
-							512,
+							128,
 							NULL,
 							2,
 							&g_task01_handle);
@@ -151,16 +151,19 @@ void StartDefaultTask(void const * argument)
 		
 		xSemaphoreTake(g_noti_sema, portMAX_DELAY);	
 
-		char tmpBuf[1024];
-		vTaskList(tmpBuf);
-		printf(tmpBuf);
+//		char tmpBuf[1024];
+//		vTaskList(tmpBuf);
+//		printf(tmpBuf);
 		
 		printf("Total Heap:%u\n", 
 		configTOTAL_HEAP_SIZE);
 		
-		printf("Free Heap:%u, minimum ever:%u\n",
-		xPortGetFreeHeapSize(),
-		xPortGetMinimumEverFreeHeapSize());
+		printf("Free Heap:%u\n",
+		xPortGetFreeHeapSize());
+				
+//		printf("minimum ever:%u\n",
+//		xPortGetMinimumEverFreeHeapSize());
+		
 //		vTaskGetRunTimeStats(tmpBuf);
 //		printf(tmpBuf);		
 
