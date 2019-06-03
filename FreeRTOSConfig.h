@@ -107,7 +107,7 @@
 #define configUSE_MUTEXES                        1
 #define configQUEUE_REGISTRY_SIZE                8
 #define	configUSE_TRACE_FACILITY	1
-#define	configUSE_STATS_FORMATTING_FUNCTIONS	0
+#define	configUSE_STATS_FORMATTING_FUNCTIONS	1
 //#define	configGENERATE_RUN_TIME_STATS	1
 
 /* Co-routine definitions. */

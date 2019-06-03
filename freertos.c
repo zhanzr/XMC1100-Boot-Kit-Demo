@@ -97,7 +97,7 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of defaultTask */
 	xTaskCreate((TaskFunction_t)StartDefaultTask,
 							(const portCHAR *)"defaultTask",
-							128,
+							512,
 							NULL,
 							2,
 							&g_task01_handle);
@@ -152,25 +152,25 @@ void StartDefaultTask(void const * argument)
 		
 		xSemaphoreTake(g_noti_sema, portMAX_DELAY);	
 
-//		char tmpBuf[1024];
-//		vTaskList(tmpBuf);
-//		printf(tmpBuf);
+		char tmpBuf[1024];
+		vTaskList(tmpBuf);
+		printf(tmpBuf);
 		
 		printf("Total Heap:%u\n", 
 		configTOTAL_HEAP_SIZE);
 		
-//		printf("Free Heap:%u\n",
-//		xPortGetFreeHeapSize());
-//				
+		printf("Free Heap:%u\n",
+		xPortGetFreeHeapSize());
+				
 		//Test malloc 1 byte
 	  uint8_t* p_test_1_byte = pvPortMalloc(1);
-//		printf("Free Heap:%u\n",
-//		xPortGetFreeHeapSize());
-//		
+		printf("Free Heap:%u\n",
+		xPortGetFreeHeapSize());
+		
 		//Test malloc 100 bytes
 	  uint8_t* p_test_2_byte = pvPortMalloc(100);
-//		printf("Free Heap:%u\n",
-//		xPortGetFreeHeapSize());
+		printf("Free Heap:%u\n",
+		xPortGetFreeHeapSize());
 		
 		printf("ptr1:%p, ptr2:%p\n",
 		p_test_1_byte, p_test_2_byte);
@@ -181,11 +181,11 @@ void StartDefaultTask(void const * argument)
 		printf("ptr1:%p, ptr2:%p\n",
 		p_test_1_byte, p_test_2_byte);
 		
-//		printf("Free Heap:%u\n",
-//		xPortGetFreeHeapSize());
+		printf("Free Heap:%u\n",
+		xPortGetFreeHeapSize());
 		
-//		printf("minimum ever:%u\n",
-//		xPortGetMinimumEverFreeHeapSize());
+		printf("minimum ever:%u\n",
+		xPortGetMinimumEverFreeHeapSize());
 		
 //		vTaskGetRunTimeStats(tmpBuf);
 //		printf(tmpBuf);		

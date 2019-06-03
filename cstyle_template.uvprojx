@@ -523,11 +523,6 @@
               <FileName>heap_3.c</FileName>
               <FileType>1</FileType>
               <FilePath>G:\FreeRTOSv10.1.1\FreeRTOS\Source\portable\MemMang\heap_3.c</FilePath>
-            </File>
-            <File>
-              <FileName>heap_4.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>G:\FreeRTOSv10.1.1\FreeRTOS\Source\portable\MemMang\heap_4.c</FilePath>
               <FileOption>
                 <CommonProperty>
                   <UseCPPCompiler>2</UseCPPCompiler>
@@ -579,6 +574,11 @@
                   </Cads>
                 </FileArmAds>
               </FileOption>
+            </File>
+            <File>
+              <FileName>heap_4.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>G:\FreeRTOSv10.1.1\FreeRTOS\Source\portable\MemMang\heap_4.c</FilePath>
             </File>
             <File>
               <FileName>heap_5.c</FileName>
