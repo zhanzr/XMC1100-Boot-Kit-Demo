@@ -98,8 +98,10 @@ __heap_limit
 ;    <i> Deafult: 32.768kHz standby clock 
 ;    <o0.31>      do not move CLK_VAL1 to SCU_CLKCR[0..19]
 ;   </h>
-CLK_VAL1_Val    EQU     0x00000000      
-
+; 8 MHz
+;CLK_VAL1_Val EQU	0x00010400
+; 32 MHz
+CLK_VAL1_Val EQU	0x00010100
 ;   <h> CLK_VAL2 Configuration
 ;    <o0.0>    disable VADC and SHS Gating
 ;    <o0.1>    disable CCU80 Gating

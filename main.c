@@ -13,6 +13,7 @@
 #include <xmc_uart.h>
 #include <xmc_gpio.h>
 #include <xmc_flash.h>
+
 #include "led.h"
 
 #define UART_RX P1_3
@@ -22,103 +23,48 @@ XMC_GPIO_CONFIG_t uart_tx;
 XMC_GPIO_CONFIG_t uart_rx;
 
 __IO uint32_t g_Ticks;
-char g_Buf[256];
 
 /* UART configuration */
-const XMC_UART_CH_CONFIG_t uart_config = 
-{	
+const XMC_UART_CH_CONFIG_t uart_config = {	
   .data_bits = 8U,
   .stop_bits = 1U,
-  .baudrate = 256000
+  .baudrate = 921600
 };
 
-XMC_RTC_CONFIG_t rtc_config =
-{
-  .time.seconds = 5U,
-  .prescaler = 0x7fffU
-};     
-
-XMC_RTC_TIME_t init_rtc_time = 
-{
-	.year = 2018,
-	.month = XMC_RTC_MONTH_JANUARY,
-	.daysofweek = XMC_RTC_WEEKDAY_TUESDAY,
-	.days = 27,
-	.hours = 15,
-	.minutes = 40,
-	.seconds = 55	
-};
-
-int stdout_putchar (int ch)
-{
+int stdout_putchar (int ch) {
 	XMC_UART_CH_Transmit(XMC_UART0_CH1, (uint8_t)ch);
 	return ch;
 }
 
-void SystemCoreClockSetup(void)
-{
-	XMC_SCU_CLOCK_CONFIG_t clock_config =
-	{
-		.rtc_src = XMC_SCU_CLOCK_RTCCLKSRC_DCO2,
-		.pclk_src = XMC_SCU_CLOCK_PCLKSRC_DOUBLE_MCLK,
-		.fdiv = 0, 
-		.idiv = 1
-	 };
-
-	XMC_SCU_CLOCK_Init(&clock_config);
-	
-//  SystemCoreClockUpdate();
-}
-
-static inline void SimpleDelay(uint32_t d)
-{
+static inline void simpe_delay(uint32_t d) {
 	uint32_t t = d;
-	while(--t)
-	{
+	while(--t) {
 		__NOP();
 	}
 }
 
-void XMC_AssertHandler(const char *const msg, const char *const file, uint32_t line)
-{
-  printf("Assert:%s,%s,%u\n", msg, file, line);
-
-	while(1)
-	{
-		LED_On(1);
-		SimpleDelay(100000);
-		LED_Off(1);
-		SimpleDelay(100000);
-	}
-}
-
-void FailSafePOR(void)
-{
-	while(1)
-	{
+void FailSafePOR(void) {
+	while(1) {
 		LED_On(0);
-		SimpleDelay(100000);
+		simpe_delay(100000);
 		LED_Off(0);
-		SimpleDelay(100000);
+		simpe_delay(100000);
 	}
 }
 
 /* Constants necessary for RAM test (RAM_END is word aligned ) */
 #define	RAM_SIZE		0x3FFC
 #define RAM_START  (uint32_t *)(0x20000000)  
-//#define RAM_START  (uint32_t *)(0x20000800)
-#define RAM_END    (uint32_t *)(0x20003FFC)
-//#define RAM_END    (uint32_t *)(0x20003FFC)
+#define RAM_END    (uint32_t *)((uint32_t)RAM_START + RAM_SIZE)
+
 /* These are the direct and inverted data (pattern) used during the RAM
 test, performed using March C- Algorithm */
 #define BCKGRND     ((uint32_t)0x00000000uL)
-#define INV_BCKGRND ((uint32_t)0xFFFFFFFFuL)
+#define INV_BCKGRND ((uint32_t)~BCKGRND)
 
-#define RT_RAM_BLOCKSIZE      ((uint32_t)6u)  /* Number of RAM words tested at once */
-
-#define RAM_BLOCKSIZE         ((uint32_t)16)
-static const uint8_t RAM_SCRMBL[RAM_BLOCKSIZE] = {0u,1u,3u,2u,4u,5u,7u,6u,8u,9u,11u,10u,12u,13u,15u,14u};
-static const uint8_t RAM_REVSCRMBL[RAM_BLOCKSIZE] = {1u,0u,2u,3u,5u,4u,6u,7u,9u,8u,10u,11u,13u,12u,14u,15u};
+static const uint8_t RAM_SCRMBL[] = {0u,1u,3u,2u,4u,5u,7u,6u,8u,9u,11u,10u,12u,13u,15u,14u};
+static const uint8_t RAM_REVSCRMBL[] = {1u,0u,2u,3u,5u,4u,6u,7u,9u,8u,10u,11u,13u,12u,14u,15u};
+#define RAM_BLOCKSIZE         (sizeof(RAM_SCRMBL))
 
 typedef enum {ERROR = 0, SUCCESS = !ERROR} ErrorStatus;
 
@@ -128,8 +74,7 @@ typedef enum {ERROR = 0, SUCCESS = !ERROR} ErrorStatus;
   * @param :  None
   * @retval : ErrorStatus = (ERROR, SUCCESS)
   */
-ErrorStatus FullRamMarchC(void)
-{
+ErrorStatus FullRamMarchC(void) {
       ErrorStatus Result = SUCCESS;
       uint32_t *p;       /* RAM pointer */
       uint32_t j;        /* Index for RAM physical addressing */
@@ -138,20 +83,16 @@ ErrorStatus FullRamMarchC(void)
 
    /* ---------------------------- STEP 1 ----------------------------------- */
    /* Write background with addresses increasing */
-   for (p = RAM_START; p <= RAM_END; p++)
-   {
+   for (p = RAM_START; p <= RAM_END; p++) {
       /* Scrambling not important when there's no consecutive verify and write */
       *p = BCKGRND;
    }
 
    /* ---------------------------- STEP 2 ----------------------------------- */
    /* Verify background and write inverted background with addresses increasing */
-   for (p = RAM_START; p <= RAM_END; p += RAM_BLOCKSIZE)
-   {
-      for (j = 0u; j < RAM_BLOCKSIZE; j++)
-      {
-         if ( *(p + (uint32_t)RAM_SCRMBL[j]) != BCKGRND)
-         {
+   for (p = RAM_START; p <= RAM_END; p += RAM_BLOCKSIZE) {
+      for (j = 0u; j < RAM_BLOCKSIZE; j++) {
+         if ( *(p + (uint32_t)RAM_SCRMBL[j]) != BCKGRND) {
             Result = ERROR;
          }
          *(p + (uint32_t)RAM_SCRMBL[j]) = INV_BCKGRND;
@@ -160,12 +101,9 @@ ErrorStatus FullRamMarchC(void)
 
    /* ---------------------------- STEP 3 ----------------------------------- */
    /* Verify inverted background and write background with addresses increasing */
-   for (p = RAM_START; p <= RAM_END; p += RAM_BLOCKSIZE)
-   {
-      for (j = 0u; j < RAM_BLOCKSIZE; j++)
-      {
-         if ( *(p + (uint32_t)RAM_SCRMBL[j]) != INV_BCKGRND)
-         {
+   for (p = RAM_START; p <= RAM_END; p += RAM_BLOCKSIZE) {
+      for (j = 0u; j < RAM_BLOCKSIZE; j++) {
+         if ( *(p + (uint32_t)RAM_SCRMBL[j]) != INV_BCKGRND) {
             Result = ERROR;
          }
          *(p + (uint32_t)RAM_SCRMBL[j]) = BCKGRND;
@@ -174,12 +112,9 @@ ErrorStatus FullRamMarchC(void)
 
    /* ---------------------------- STEP 4 ----------------------------------- */
    /* Verify background and write inverted background with addresses decreasing */
-   for (p = RAM_END; p > RAM_START; p -= RAM_BLOCKSIZE)
-   {
-      for (j = 0u; j < RAM_BLOCKSIZE; j++)
-      {
-         if ( *(p - (uint32_t)RAM_REVSCRMBL[j]) != BCKGRND)
-         {
+   for (p = RAM_END; p > RAM_START; p -= RAM_BLOCKSIZE) {
+      for (j = 0u; j < RAM_BLOCKSIZE; j++) {
+         if ( *(p - (uint32_t)RAM_REVSCRMBL[j]) != BCKGRND) {
             Result = ERROR;
          }
          *(p - (uint32_t)RAM_REVSCRMBL[j]) = INV_BCKGRND;
@@ -188,12 +123,9 @@ ErrorStatus FullRamMarchC(void)
 
    /* ---------------------------- STEP 5 ----------------------------------- */
    /* Verify inverted background and write background with addresses decreasing */
-   for (p = RAM_END; p > RAM_START; p -= RAM_BLOCKSIZE)
-   {
-      for (j = 0u; j < RAM_BLOCKSIZE; j++)
-      {
-         if ( *(p - (uint32_t)RAM_REVSCRMBL[j]) != INV_BCKGRND)
-         {
+   for (p = RAM_END; p > RAM_START; p -= RAM_BLOCKSIZE) {
+      for (j = 0u; j < RAM_BLOCKSIZE; j++) {
+         if ( *(p - (uint32_t)RAM_REVSCRMBL[j]) != INV_BCKGRND) {
             Result = ERROR;
          }
          *(p - (uint32_t)RAM_REVSCRMBL[j]) = BCKGRND;
@@ -202,10 +134,8 @@ ErrorStatus FullRamMarchC(void)
 
    /* ---------------------------- STEP 6 ----------------------------------- */
    /* Verify background with addresses increasing */
-   for (p = RAM_START; p <= RAM_END; p++)
-   {
-      if (*p != BCKGRND)
-      {
+   for (p = RAM_START; p <= RAM_END; p++) {
+      if (*p != BCKGRND) {
          Result = ERROR;    /* No need to take into account scrambling here */
       }
    }
@@ -229,27 +159,8 @@ ErrorStatus FullRamMarchC(void)
 #define PARITY_DSRAM1_TEST_ADDR 0x20001000
 #define PARITY_TIMEOUT     ((uint32_t) 0xDEADU)
 
-#define __sectionClassB__               __attribute__((section(".ClassB_code")))
-#define __sectionClassB_Data__          __attribute__((section(".ClassB_data")))
-#define PRIVILEGED_VAR                  __attribute__((section(".data.privileged")))
-#define __sectionClassB_CRCREF          __attribute__((section("._CRC_area"),used, noinline))
-#define __ALWAYSINLINE
-#define __UNUSED                        __attribute__((unused))
-
-#define OPCODE           ((uint32_t) 0x46874823)    
-
 #define EnterCriticalSection()          __disable_irq(); __DMB() /*!< enable atomic instructions */
 #define ExitCriticalSection()           __DMB(); __enable_irq()  /*!< disable atomic instructions */
-
-#ifdef TESSY
-    extern void TS_TessyDummy (void* TS_var);
-#endif
-
-#ifdef TESSY
-    #define TESSY_TESTCODE( x ) TS_TessyDummy( (x)) ;
-#else
-    #define TESSY_TESTCODE( x ) /* Tessy Dummy  */ ;
-#endif
 
 #define ClassB_Status_RAMTest_Pos       ((uint32_t) 0)
 #define ClassB_Status_RAMTest_Msk       ((uint32_t) (0x00000001U << ClassB_Status_RAMTest_Pos))
@@ -257,14 +168,6 @@ ErrorStatus FullRamMarchC(void)
 #define ClassB_Status_ParityTest_Msk    ((uint32_t) (0x00000001U << ClassB_Status_ParityTest_Pos))
 #define ClassB_Status_ParityReturn_Pos  ((uint32_t) 2)
 #define ClassB_Status_ParityReturn_Msk  ((uint32_t) (0x00000001U << ClassB_Status_ParityReturn_Pos))
-
-/*!
- * brief RAM test control states
- */
-#define RAM_TEST_PENDING              ((uint32_t) 0x11)       /* test is pending, no started */
-#define RAM_TEST_DONE                 ((uint32_t) 0x10)       /* test is complete */
-#define RAM_TEST_PARITY_DATAP_PATTERN ((uint32_t) 0x20002000) /* Write to 32 byte locations with parity disabled */
-#define RAM_NEXT_RAM_PAGE             ((uint32_t) 0x04)       /* Next RAM Page */
 
 /*! generic type for ClassB functional results */
 typedef enum ClassB_EnumTestResultType
@@ -274,9 +177,7 @@ typedef enum ClassB_EnumTestResultType
     ClassB_testInProgress = 2U              /*!< test is still in progress replacement */
 } ClassB_EnumTestResultType;
 
-__sectionClassB_Data__
 uint32_t ClassB_TrapMessage;
-
 
 void SCU_0_IRQHandler(void) {
     /* check Fault reason */
@@ -308,8 +209,9 @@ void SCU_0_IRQHandler(void) {
     /* user code here */
 }
 
-extern void SCU_0_IRQHandler(void);
-
+//0x20000040 4823      LDR      r0,[pc,#140]  ; @0x200000D0
+//0x20000042 4687      MOV      pc,r0
+#define OPCODE           ((uint32_t) 0x46874823)    
 void ClassB_setup_SCU_0_vector(void) {
     /* copy the code */
     *((uint32_t *)0x20000040) = (uint32_t)OPCODE;
@@ -318,8 +220,10 @@ void ClassB_setup_SCU_0_vector(void) {
 }
 
 ClassB_EnumTestResultType ClassB_RAMTest_Parity(void) {
+#define RAM_TEST_PARITY_DATAP_PATTERN ((uint32_t) 0x20002000) /* Write to 32 byte locations with parity disabled */
+	
     volatile uint32_t   TimeoutCtr;
-    volatile uint32_t   Temp __UNUSED = 0U;
+    volatile uint32_t   Temp = 0U;
     uint32_t            TestParityDataBackup;
     uint32_t            ReturnFlag;
     ClassB_EnumTestResultType result     = ClassB_testPassed;
@@ -367,7 +271,7 @@ ClassB_EnumTestResultType ClassB_RAMTest_Parity(void) {
     /* Check whether parity trap has occurred (before timeout expires) */
     do {
 			/* Insert TESSY test code for simulating status from the exception on Parity tests */
-			TESSY_TESTCODE(&ClassB_TrapMessage);
+			&ClassB_TrapMessage;
 			/* See whether parity trap has occurred */
 			ReturnFlag = ((uint32_t) (ClassB_TrapMessage & ClassB_Status_ParityReturn_Msk));
 
@@ -405,10 +309,7 @@ ClassB_EnumTestResultType ClassB_RAMTest_Parity(void) {
 
 extern void Reset_Handler(void);
 //This test is destructive and will initialize the whole RAM to zero.
-void MemtestFunc(void) {
-	//It seems not necessary to call this function as we only use the default clock setting
-//	SystemInit();
-	
+void MemtestFunc(void) {	
   /*Initialize the UART driver */
 	uart_tx.mode = XMC_GPIO_MODE_OUTPUT_PUSH_PULL_ALT7;
 	uart_rx.mode = XMC_GPIO_MODE_INPUT_TRISTATE;
@@ -428,14 +329,12 @@ void MemtestFunc(void) {
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'R');
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'P');
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'F');
-		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'L');
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, '\n');			
 		FailSafePOR();
 	} else {				
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'R');
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'P');
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'O');
-		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'K');
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, '\n');
 	}
 		
@@ -447,7 +346,6 @@ void MemtestFunc(void) {
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'R');
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'T');
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'F');
-		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'L');
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, '\n');
 		
 		FailSafePOR();
@@ -457,18 +355,14 @@ void MemtestFunc(void) {
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'R');
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'T');
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'O');
-		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'K');
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, '\n');
 	}
 	
 	Reset_Handler();
 }
 
-int main(void)
-{
+int main(void) {
 	__IO uint32_t tmpTick;
-	__IO uint32_t deltaTick;
-	__IO uint32_t i=0;		
 	
 	__IO XMC_RTC_TIME_t now_rtc_time;
 
@@ -489,50 +383,23 @@ int main(void)
 	XMC_GPIO_Init(UART_TX, &uart_tx);
   XMC_GPIO_Init(UART_RX, &uart_rx);
 	
-  printf ("RAM parity test For XMC1100 Bootkit by Automan @ Infineon BBS @%u Hz\n",
-	SystemCoreClock	);
-	
-	//RTC
-  XMC_RTC_Init(&rtc_config);
-	
-	XMC_RTC_SetTime(&init_rtc_time);
-	
-//  XMC_RTC_EnableEvent(XMC_RTC_EVENT_PERIODIC_SECONDS);
-//  XMC_SCU_INTERRUPT_EnableEvent(XMC_SCU_INTERRUPT_EVENT_RTC_PERIODIC);
-//  NVIC_SetPriority(SCU_1_IRQn, 3);
-//  NVIC_EnableIRQ(SCU_1_IRQn);
-  XMC_RTC_Start();
+  printf ("RAM parity test For XMC1100 Bootkit by Automan @%u Hz %p\n",
+	SystemCoreClock, &ClassB_TrapMessage	);
 	
 	LED_Initialize();
 	
-	while (1)
-  {				
-//    LED_On(0);
-//    LED_On(1);
-//    LED_On(2);
-//    LED_On(3);
+	while (1) {				
     LED_On(4);
 		
 		tmpTick = g_Ticks;
-		while((tmpTick+2000) > g_Ticks)
-		{
-			__NOP();
+		while((tmpTick+1000) > g_Ticks) {
 			__WFI();
 		}
-		
-		XMC_RTC_GetTime((XMC_RTC_TIME_t *)&now_rtc_time);
-//		printf("%02d:%02d:%02d\n", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);
 
-//    LED_Off(0);
-//    LED_Off(1);
-//    LED_Off(2);
-//    LED_Off(3);
     LED_Off(4);
-		
+
 		tmpTick = g_Ticks;
-		while((tmpTick+2000) > g_Ticks)
-		{
-			__NOP();
+		while((tmpTick+1000) > g_Ticks) {
 			__WFI();
 		}		
   }
