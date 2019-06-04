@@ -86,12 +86,31 @@ void TimerCallback( xTimerHandle pxtimer )
 void StartDefaultTask(void const * argument);
 void StartTask02(void const * argument);
 
+const HeapRegion_t heap_regions[] = {
+	{
+	.pucStartAddress = (uint8_t*)0x20000800,
+	.xSizeInBytes = 0x2700
+	},
+	
+	{
+	.pucStartAddress = (uint8_t*)0x20003000,
+	.xSizeInBytes = 0xFFC
+	},
+	
+	{
+		0,
+		0
+	}
+};
+
 /**
   * @brief  FreeRTOS initialization
   * @param  None
   * @retval None
   */
 void MX_FREERTOS_Init(void) {
+	//For heap_5.c
+	vPortDefineHeapRegions(heap_regions);
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */

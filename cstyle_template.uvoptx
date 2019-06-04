@@ -119,6 +119,13 @@
       <TargetDriverDllRegistry>
         <SetRegEntry>
           <Number>0</Number>
+          <Key>DLGUARM</Key>
+          <Name>?ow爋d
+?ow爋d
+</Name>
+        </SetRegEntry>
+        <SetRegEntry>
+          <Number>0</Number>
           <Key>JL2CM3</Key>
           <Name>-U591041412 -O78 -S3 -ZTIFSpeedSel3000 -A0 -C0 -JU1 -JI127.0.0.1 -JP0 -RST0 -N00("ARM CoreSight SW-DP") -D00(0BB11477) -L00(0) -TO18 -TC10000000 -TP21 -TDS8007 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -TB1 -TFE0 -FO11 -FD20000000 -FC1000 -FN1 -FF0XMC1100_64.FLM -FS010001000 -FL010000 -FP0($$Device:XMC1100-T038x0064$Flash\XMC1100_64.FLM)</Name>
         </SetRegEntry>
@@ -147,25 +154,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>125</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>268449832</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>G:\FreeRTOSv10.1.1\FreeRTOS\Source\portable\MemMang\heap_2.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\elfout\G:/FreeRTOSv10.1.1/FreeRTOS/Source/portable/MemMang/heap_2.c\125</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
           <LineNumber>78</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>268447176</Address>
+          <Address>268447576</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -176,7 +167,40 @@
           <ExecCommand></ExecCommand>
           <Expression>\\elfout\main.c\78</Expression>
         </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>483</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>268451234</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>G:\FreeRTOSv10.1.1\FreeRTOS\Source\portable\MemMang\heap_5.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\elfout\G:/FreeRTOSv10.1.1/FreeRTOS/Source/portable/MemMang/heap_5.c\483</Expression>
+        </Bp>
       </Breakpoint>
+      <WatchWindow1>
+        <Ww>
+          <count>0</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>ucHeap</ItemText>
+        </Ww>
+        <Ww>
+          <count>1</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>xStart</ItemText>
+        </Ww>
+        <Ww>
+          <count>2</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>pxEnd</ItemText>
+        </Ww>
+      </WatchWindow1>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
