@@ -52,7 +52,7 @@ void FailSafePOR(void) {
 	}
 }
 
-/* Constants necessary for RAM test (RAM_END is word aligned ) */
+// Constants necessary for RAM test (RAM_END is word aligned )
 #define	RAM_SIZE		0x3FFC
 #define RAM_START  (uint32_t *)(0x20000000)  
 #define RAM_END    (uint32_t *)((uint32_t)RAM_START + RAM_SIZE)
@@ -156,9 +156,6 @@ ErrorStatus FullRamMarchC(void) {
    return(Result);
 }
 
-#define PARITY_DSRAM1_TEST_ADDR 0x20001000
-#define PARITY_TIMEOUT     ((uint32_t) 0xDEADU)
-
 #define EnterCriticalSection()          __disable_irq(); __DMB() /*!< enable atomic instructions */
 #define ExitCriticalSection()           __DMB(); __enable_irq()  /*!< disable atomic instructions */
 
@@ -179,7 +176,7 @@ typedef enum ClassB_EnumTestResultType
 
 uint32_t ClassB_TrapMessage;
 
-void SCU_0_IRQHandler(void) {
+void tmp_SCU_0_IRQHandler(void) {
     /* check Fault reason */
     uint32_t IrqStatus;
     /* read the interrupt status Register */
@@ -209,18 +206,9 @@ void SCU_0_IRQHandler(void) {
     /* user code here */
 }
 
-//0x20000040 4823      LDR      r0,[pc,#140]  ; @0x200000D0
-//0x20000042 4687      MOV      pc,r0
-#define OPCODE           ((uint32_t) 0x46874823)    
-void ClassB_setup_SCU_0_vector(void) {
-    /* copy the code */
-    *((uint32_t *)0x20000040) = (uint32_t)OPCODE;
-    /* copy the vector */
-    *((uint32_t *)0x200000d0) = (uint32_t)SCU_0_IRQHandler;
-}
-
-ClassB_EnumTestResultType ClassB_RAMTest_Parity(void) {
-#define RAM_TEST_PARITY_DATAP_PATTERN ((uint32_t) 0x20002000) /* Write to 32 byte locations with parity disabled */
+ClassB_EnumTestResultType ClassB_RAMTest_Parity(void) {	
+#define PARITY_DSRAM1_TEST_ADDR 0x20001000
+#define PARITY_TIMEOUT     ((uint32_t) 0xDEADU)
 	
     volatile uint32_t   TimeoutCtr;
     volatile uint32_t   Temp = 0U;
@@ -246,9 +234,20 @@ ClassB_EnumTestResultType ClassB_RAMTest_Parity(void) {
     SET_BIT(SCU_INTERRUPT->SRMSK, SCU_INTERRUPT_SRMSK_PESRAMI_Pos);
     /*lint -save -e10 -e534 MISRA 2004 Rule 16.10 accepted */
     /* make sure the interrupt vector is available */
-    ClassB_setup_SCU_0_vector();
-    __enable_irq();
+
+//0x20000040 4823      LDR      r0,[pc,#140]  ; @0x200000D0
+//0x20000042 4687      MOV      pc,r0
+#define OPCODE           ((uint32_t) 0x46874823)    
+
+		*((uint32_t *)0x20000040) = (uint32_t)OPCODE;
+    /* copy the vector */
+    *((uint32_t *)0x200000d0) = (uint32_t)tmp_SCU_0_IRQHandler;
 		
+		__ISB();
+		__DSB();
+		__DMB();
+		__enable_irq();
+
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, '>');
     /* enable the NVIC vector */
     NVIC_EnableIRQ(SCU_0_IRQn);
@@ -256,6 +255,7 @@ ClassB_EnumTestResultType ClassB_RAMTest_Parity(void) {
     /* Enable inverted parity for next SRAM write */
     SCU_GENERAL->PMTSR |= SCU_GENERAL_PMTSR_MTENS_Msk;
 
+#define RAM_TEST_PARITY_DATAP_PATTERN ((uint32_t) 0x20002000) /* Write to 32 byte locations with parity disabled */
     /* Write to 32 bit locations with parity inverted */
     *(volatile uint32_t *)PARITY_DSRAM1_TEST_ADDR = RAM_TEST_PARITY_DATAP_PATTERN;
     /*lint -restore */
@@ -313,17 +313,13 @@ void MemtestFunc(void) {
   /*Initialize the UART driver */
 	uart_tx.mode = XMC_GPIO_MODE_OUTPUT_PUSH_PULL_ALT7;
 	uart_rx.mode = XMC_GPIO_MODE_INPUT_TRISTATE;
- /* Configure UART channel */
   XMC_UART_CH_Init(XMC_UART0_CH1, &uart_config);
   XMC_UART_CH_SetInputSource(XMC_UART0_CH1, XMC_UART_CH_INPUT_RXD,USIC0_C1_DX0_P1_3);
-	/* Start UART channel */
   XMC_UART_CH_Start(XMC_UART0_CH1);
-  /* Configure pins */
 	XMC_GPIO_Init(UART_TX, &uart_tx);
   XMC_GPIO_Init(UART_RX, &uart_rx);
-	
 	LED_Initialize();
-
+	
 	//Parity Test
 	if (ClassB_testFailed == ClassB_RAMTest_Parity()) {
 		XMC_UART_CH_Transmit(XMC_UART0_CH1, 'R');
@@ -364,30 +360,12 @@ void MemtestFunc(void) {
 int main(void) {
 	__IO uint32_t tmpTick;
 	
-	__IO XMC_RTC_TIME_t now_rtc_time;
-
   /* System timer configuration */
   SysTick_Config(SystemCoreClock / 1000);
 	
-  /*Initialize the UART driver */
-	uart_tx.mode = XMC_GPIO_MODE_OUTPUT_PUSH_PULL_ALT7;
-	uart_rx.mode = XMC_GPIO_MODE_INPUT_TRISTATE;
- /* Configure UART channel */
-  XMC_UART_CH_Init(XMC_UART0_CH1, &uart_config);
-  XMC_UART_CH_SetInputSource(XMC_UART0_CH1, XMC_UART_CH_INPUT_RXD,USIC0_C1_DX0_P1_3);
-  
-	/* Start UART channel */
-  XMC_UART_CH_Start(XMC_UART0_CH1);
-
-  /* Configure pins */
-	XMC_GPIO_Init(UART_TX, &uart_tx);
-  XMC_GPIO_Init(UART_RX, &uart_rx);
-	
-  printf ("RAM parity test For XMC1100 Bootkit by Automan @%u Hz %p\n",
+  printf ("RAM parity test For XMC1100 Automan @%u Hz %p\n",
 	SystemCoreClock, &ClassB_TrapMessage	);
-	
-	LED_Initialize();
-	
+		
 	while (1) {				
     LED_On(4);
 		
