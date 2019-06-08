@@ -111,7 +111,7 @@ void MX_FREERTOS_Init(void) {
 							
 	/* Create one Software Timer.*/
 	g_timer = xTimerCreate("Timer", 
-							2000/ portTICK_PERIOD_MS,
+							200/ portTICK_PERIOD_MS,
 							pdTRUE,
 							0,
 							TimerCallback);
