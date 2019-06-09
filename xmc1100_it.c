@@ -1,11 +1,10 @@
+#include <stdio.h>
+
 #include <XMC1100.h>
 #include <xmc_scu.h>
 #include <xmc_rtc.h>
 
-extern void printf(const char* str);
-
 extern __IO uint32_t g_Ticks;
-extern char g_Buf[256];
 
 void HardFault_Handler(void)
 {
@@ -37,12 +36,7 @@ void SysTick_Handler(void)
 //RTC Alarm
 void SCU_1_IRQHandler(void)
 {
-	uint32_t lt = g_Ticks;
-
-	XMC_RTC_ClearEvent(XMC_RTC_EVENT_PERIODIC_SECONDS);	
-  
-//	sprintf(g_Buf, "RTC ISR %08X\n", lt);
-//	printf(g_Buf);  
+//	uint32_t lt = g_Ticks;
 }
                  
 void SCU_2_IRQHandler(void)

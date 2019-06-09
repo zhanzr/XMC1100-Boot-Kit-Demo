@@ -14,10 +14,68 @@
 #include <xmc_gpio.h>
 #include <xmc_flash.h>
 
-#include "led.h"
-#include "dhry.h"
+#include "arm_nnexamples_gru_test_data.h"
+#include "arm_math.h"
+#include "arm_nnfunctions.h"
 
-#define RUN_NUMBER	300000
+#include "led.h"
+
+
+/**
+ * @defgroup GRUExample Gated Recurrent Unit Example
+ *
+ * \par Description:
+ * \par
+ * Demonstrates a gated recurrent unit (GRU) example with the use of fully-connected,
+ * Tanh/Sigmoid activation functions.
+ *
+ * \par Model definition:
+ * \par
+ * GRU is a type of recurrent neural network (RNN). It contains two sigmoid gates and one hidden
+ * state. 
+ * \par
+ * The computation can be summarized as:
+ * <pre>z[t] = sigmoid( W_z &sdot; {h[t-1],x[t]} )
+ * r[t] = sigmoid( W_r &sdot; {h[t-1],x[t]} ) 
+ * n[t] = tanh( W_n &sdot; [r[t] &times; {h[t-1], x[t]} ) 
+ * h[t] = (1 - z[t]) &times; h[t-1] + z[t] &times; n[t] </pre>
+ * \image html GRU.gif "Gate Recurrent Unit Diagram"
+ *
+ * \par Variables Description:
+ * \par
+ * \li \c update_gate_weights, \c reset_gate_weights, \c hidden_state_weights are weights corresponding to update gate (W_z), reset gate (W_r), and hidden state (W_n).
+ * \li \c update_gate_bias, \c reset_gate_bias, \c hidden_state_bias are layer bias arrays
+ * \li \c test_input1, \c test_input2, \c test_history are the inputs and initial history
+ *
+ * \par
+ * The buffer is allocated as:
+ * \par
+ * | reset | input | history | update | hidden_state |
+ * \par
+ * In this way, the concatination is automatically done since (reset, input) and (input, history)
+ * are physically concatinated in memory.
+ * \par
+ *  The ordering of the weight matrix should be adjusted accordingly.
+ *
+  *
+ * 
+ * \par CMSIS DSP Software Library Functions Used:
+ * \par
+ * - arm_fully_connected_mat_q7_vec_q15_opt()
+ * - arm_nn_activations_direct_q15()
+ * - arm_mult_q15()
+ * - arm_offset_q15()
+ * - arm_sub_q15()
+ * - arm_copy_q15()
+ *
+ * <b> Refer  </b>
+ * \link arm_nnexamples_gru.cpp \endlink
+ *
+ */
+ 
+#ifndef HZ
+	#define	HZ	1000
+#endif
 
 #define UART_RX P1_3
 #define UART_TX P1_2
@@ -32,183 +90,102 @@ const XMC_UART_CH_CONFIG_t uart_config =
 {	
   .data_bits = 8U,
   .stop_bits = 1U,
-  .baudrate = 256000
+  .baudrate = 921600
 };
 
-XMC_RTC_CONFIG_t rtc_config =
-{
-  .time.seconds = 5U,
-  .prescaler = 0x7fffU
-};     
-
-XMC_RTC_TIME_t init_rtc_time = 
-{
-	.year = 2018,
-	.month = XMC_RTC_MONTH_JANUARY,
-	.daysofweek = XMC_RTC_WEEKDAY_TUESDAY,
-	.days = 27,
-	.hours = 15,
-	.minutes = 40,
-	.seconds = 55	
-};
-
-int stdout_putchar (int ch)
-{
+int stdout_putchar (int ch) {
 	XMC_UART_CH_Transmit(XMC_UART0_CH1, (uint8_t)ch);
 	return ch;
 }
 
-void SystemCoreClockSetup(void)
-{
-	XMC_SCU_CLOCK_CONFIG_t clock_config =
-	{
-		.rtc_src = XMC_SCU_CLOCK_RTCCLKSRC_DCO2,
-		.pclk_src = XMC_SCU_CLOCK_PCLKSRC_DOUBLE_MCLK,
-		.fdiv = 0, 
-		.idiv = 1
-	 };
 
-	XMC_SCU_CLOCK_Init(&clock_config);
-	
-//  SystemCoreClockUpdate();
+#define DIM_HISTORY 32
+#define DIM_INPUT 32
+#define DIM_VEC 64
+
+#define USE_X4
+
+#ifndef USE_X4
+static q7_t update_gate_weights[DIM_VEC * DIM_HISTORY] = UPDATE_GATE_WEIGHT_X2;
+static q7_t reset_gate_weights[DIM_VEC * DIM_HISTORY] = RESET_GATE_WEIGHT_X2;
+static q7_t hidden_state_weights[DIM_VEC * DIM_HISTORY] = HIDDEN_STATE_WEIGHT_X2;
+#else
+static q7_t update_gate_weights[DIM_VEC * DIM_HISTORY] = UPDATE_GATE_WEIGHT_X4;
+static q7_t reset_gate_weights[DIM_VEC * DIM_HISTORY] = RESET_GATE_WEIGHT_X4;
+static q7_t hidden_state_weights[DIM_VEC * DIM_HISTORY] = HIDDEN_STATE_WEIGHT_X4;
+#endif
+
+static q7_t update_gate_bias[DIM_HISTORY] = UPDATE_GATE_BIAS;
+static q7_t reset_gate_bias[DIM_HISTORY] = RESET_GATE_BIAS;
+static q7_t hidden_state_bias[DIM_HISTORY] = HIDDEN_STATE_BIAS;
+
+static q15_t test_input1[DIM_INPUT] = INPUT_DATA1;
+static q15_t test_input2[DIM_INPUT] = INPUT_DATA2;
+static q15_t test_history[DIM_HISTORY] = HISTORY_DATA;
+
+q15_t     scratch_buffer[DIM_HISTORY * 4 + DIM_INPUT];
+
+void gru_example(q15_t * scratch_input, uint16_t input_size, uint16_t history_size,
+                 q7_t * weights_update, q7_t * weights_reset, q7_t * weights_hidden_state,
+                 q7_t * bias_update, q7_t * bias_reset, q7_t * bias_hidden_state)
+{
+  q15_t    *reset = scratch_input;
+  q15_t    *input = scratch_input + history_size;
+  q15_t    *history = scratch_input + history_size + input_size;
+  q15_t    *update = scratch_input + 2 * history_size + input_size;
+  q15_t    *hidden_state = scratch_input + 3 * history_size + input_size;
+
+  // reset gate calculation
+  // the range of the output can be adjusted with bias_shift and output_shift
+#ifndef USE_X4
+  arm_fully_connected_mat_q7_vec_q15(input, weights_reset, input_size + history_size, history_size, 0, 15, bias_reset,
+                                     reset, NULL);
+#else
+  arm_fully_connected_mat_q7_vec_q15_opt(input, weights_reset, input_size + history_size, history_size, 0, 15,
+                                         bias_reset, reset, NULL);
+#endif
+  // sigmoid function, the size of the integer bit-width should be consistent with out_shift
+  arm_nn_activations_direct_q15(reset, history_size, 0, ARM_SIGMOID);
+  arm_mult_q15(history, reset, reset, history_size);
+
+  // update gate calculation
+  // the range of the output can be adjusted with bias_shift and output_shift
+#ifndef USE_X4
+  arm_fully_connected_mat_q7_vec_q15(input, weights_update, input_size + history_size, history_size, 0, 15,
+                                     bias_update, update, NULL);
+#else
+  arm_fully_connected_mat_q7_vec_q15_opt(input, weights_update, input_size + history_size, history_size, 0, 15,
+                                         bias_update, update, NULL);
+#endif
+
+  // sigmoid function, the size of the integer bit-width should be consistent with out_shift
+  arm_nn_activations_direct_q15(update, history_size, 0, ARM_SIGMOID);
+
+  // hidden state calculation
+#ifndef USE_X4
+  arm_fully_connected_mat_q7_vec_q15(reset, weights_hidden_state, input_size + history_size, history_size, 0, 15,
+                                     bias_hidden_state, hidden_state, NULL);
+#else
+  arm_fully_connected_mat_q7_vec_q15_opt(reset, weights_hidden_state, input_size + history_size, history_size, 0, 15,
+                                         bias_hidden_state, hidden_state, NULL);
+#endif
+
+  // tanh function, the size of the integer bit-width should be consistent with out_shift
+  arm_nn_activations_direct_q15(hidden_state, history_size, 0, ARM_TANH);
+  arm_mult_q15(update, hidden_state, hidden_state, history_size);
+
+  // we calculate z - 1 here
+  // so final addition becomes substraction
+  arm_offset_q15(update, 0x8000, update, history_size);
+  // multiply history
+  arm_mult_q15(history, update, update, history_size);
+  // calculate history_out
+  arm_sub_q15(hidden_state, update, history, history_size);
+
+  return;
 }
 
-/* Global Variables: */
-
-Rec_Pointer     Ptr_Glob,
-                Next_Ptr_Glob;
-int             Int_Glob;
-Boolean         Bool_Glob;
-char            Ch_1_Glob,
-                Ch_2_Glob;
-int             Arr_1_Glob [50];
-int             Arr_2_Glob [50] [50];
-
-#define REG	register
-	
-#ifndef REG
-        Boolean Reg = false;
-#define REG
-        /* REG becomes defined as empty */
-        /* i.e. no register variables   */
-#else
-        Boolean Reg = true;
-#endif
-
-/* variables for time measurement: */
-
-#ifdef TIMES
-struct tms      time_info;
-extern  int     times (void);
-                /* see library function "times" */
-#define Too_Small_Time (2*HZ)
-                /* Measurements should last at least about 2 seconds */
-#endif
-#ifdef TIME
-extern long     time(long *);
-                /* see library function "time"  */
-#define Too_Small_Time 2
-                /* Measurements should last at least 2 seconds */
-#endif
-#ifdef MSC_CLOCK
-//extern clock_t clock(void);
-#define Too_Small_Time (2*HZ)
-#endif
-
-long            Begin_Time,
-                End_Time,
-                User_Time;
-float           Microseconds,
-                Dhrystones_Per_Second;
-
-/* end of variables for time measurement */
-
-
-void Proc_1 (Rec_Pointer Ptr_Val_Par)
-/******************/
-    /* executed once */
-{
-  REG Rec_Pointer Next_Record = Ptr_Val_Par->Ptr_Comp;
-                                        /* == Ptr_Glob_Next */
-  /* Local variable, initialized with Ptr_Val_Par->Ptr_Comp,    */
-  /* corresponds to "rename" in Ada, "with" in Pascal           */
-
-  structassign (*Ptr_Val_Par->Ptr_Comp, *Ptr_Glob);
-  Ptr_Val_Par->variant.var_1.Int_Comp = 5;
-  Next_Record->variant.var_1.Int_Comp = Ptr_Val_Par->variant.var_1.Int_Comp;
-  Next_Record->Ptr_Comp = Ptr_Val_Par->Ptr_Comp;
-  Proc_3 (&Next_Record->Ptr_Comp);
-    /* Ptr_Val_Par->Ptr_Comp->Ptr_Comp == Ptr_Glob->Ptr_Comp */
-  if (Next_Record->Discr == Ident_1)
-    /* then, executed */
-  {
-    Next_Record->variant.var_1.Int_Comp = 6;
-    Proc_6 (Ptr_Val_Par->variant.var_1.Enum_Comp,
-           &Next_Record->variant.var_1.Enum_Comp);
-    Next_Record->Ptr_Comp = Ptr_Glob->Ptr_Comp;
-    Proc_7 (Next_Record->variant.var_1.Int_Comp, 10,
-           &Next_Record->variant.var_1.Int_Comp);
-  }
-  else /* not executed */
-    structassign (*Ptr_Val_Par, *Ptr_Val_Par->Ptr_Comp);
-} /* Proc_1 */
-
-
-void Proc_2 (One_Fifty *Int_Par_Ref)
-/******************/
-    /* executed once */
-    /* *Int_Par_Ref == 1, becomes 4 */
-{
-  One_Fifty  Int_Loc;
-  Enumeration   Enum_Loc;
-
-  Int_Loc = *Int_Par_Ref + 10;
-  do /* executed once */
-    if (Ch_1_Glob == 'A')
-      /* then, executed */
-    {
-      Int_Loc -= 1;
-      *Int_Par_Ref = Int_Loc - Int_Glob;
-      Enum_Loc = Ident_1;
-    } /* if */
-    while (Enum_Loc != Ident_1); /* true */
-} /* Proc_2 */
-
-
-void Proc_3 (Rec_Pointer *Ptr_Ref_Par)
-/******************/
-    /* executed once */
-    /* Ptr_Ref_Par becomes Ptr_Glob */
-{
-  if (Ptr_Glob != Null)
-    /* then, executed */
-    *Ptr_Ref_Par = Ptr_Glob->Ptr_Comp;
-  Proc_7 (10, Int_Glob, &Ptr_Glob->variant.var_1.Int_Comp);
-} /* Proc_3 */
-
-
-void Proc_4 (void) /* without parameters */
-/*******/
-    /* executed once */
-{
-  Boolean Bool_Loc;
-
-  Bool_Loc = Ch_1_Glob == 'A';
-  Bool_Glob = Bool_Loc | Bool_Glob;
-  Ch_2_Glob = 'B';
-} /* Proc_4 */
-
-
-void Proc_5 (void) /* without parameters */
-/*******/
-    /* executed once */
-{
-  Ch_1_Glob = 'A';
-  Bool_Glob = false;
-} /* Proc_5 */
-
-int main(void)
-{
+int main(void) {
 	__IO uint32_t tmpTick;
 	__IO uint32_t deltaTick;
 	__IO uint32_t i=0;		
@@ -232,231 +209,31 @@ int main(void)
 	XMC_GPIO_Init(UART_TX, &uart_tx);
   XMC_GPIO_Init(UART_RX, &uart_rx);
 	
-  printf ("Dhrystone For XMC1100 Bootkit by Automan @ Infineon BBS @%u Hz\n",
+  printf ("Gated Recurrent Unit Example XMC1100 by Automan @ Infineon BBS @%u Hz\n",
 	SystemCoreClock	);
-	
-	//RTC
-  XMC_RTC_Init(&rtc_config);
-	
-	XMC_RTC_SetTime(&init_rtc_time);
-	
-//  XMC_RTC_EnableEvent(XMC_RTC_EVENT_PERIODIC_SECONDS);
-//  XMC_SCU_INTERRUPT_EnableEvent(XMC_SCU_INTERRUPT_EVENT_RTC_PERIODIC);
-//  NVIC_SetPriority(SCU_1_IRQn, 3);
-//  NVIC_EnableIRQ(SCU_1_IRQn);
-  XMC_RTC_Start();
 	
 	LED_Initialize();
 	
-  One_Fifty       Int_1_Loc;
-  REG One_Fifty   Int_2_Loc;
-  One_Fifty       Int_3_Loc;
-  REG char        Ch_Index;
-  Enumeration     Enum_Loc;
-  Str_30          Str_1_Loc;
-  Str_30          Str_2_Loc;
-  REG int         Run_Index;
-  REG int         Number_Of_Runs;
-	
-  /* Initializations */
-  Next_Ptr_Glob = (Rec_Pointer) malloc (sizeof (Rec_Type));
-  Ptr_Glob = (Rec_Pointer) malloc (sizeof (Rec_Type));
+  printf("Start GRU execution\n");
+  int       input_size = DIM_INPUT;
+  int       history_size = DIM_HISTORY;
 
-  Ptr_Glob->Ptr_Comp                    = Next_Ptr_Glob;
-  Ptr_Glob->Discr                       = Ident_1;
-  Ptr_Glob->variant.var_1.Enum_Comp     = Ident_3;
-  Ptr_Glob->variant.var_1.Int_Comp      = 40;
-  strcpy (Ptr_Glob->variant.var_1.Str_Comp,
-          "DHRYSTONE PROGRAM, SOME STRING");
-  strcpy (Str_1_Loc, "DHRYSTONE PROGRAM, 1'ST STRING");
+  // copy over the input data 
+  arm_copy_q15(test_input1, scratch_buffer + history_size, input_size);
+  arm_copy_q15(test_history, scratch_buffer + history_size + input_size, history_size);
 
-  Arr_2_Glob [8][7] = 10;
-        /* Was missing in published program. Without this statement,    */
-        /* Arr_2_Glob [8][7] would have an undefined value.             */
-        /* Warning: With 16-Bit processors and Number_Of_Runs > 32000,  */
-        /* overflow may occur for this array element.                   */
+  gru_example(scratch_buffer, input_size, history_size,
+              update_gate_weights, reset_gate_weights, hidden_state_weights,
+              update_gate_bias, reset_gate_bias, hidden_state_bias);
+  printf("Complete first iteration on GRU\n");
 
-  printf ("\n");
-  printf ("Dhrystone Benchmark, Version 2.1 (Language: C)\n");
-  printf ("\n");
-  if (Reg)
-  {
-    printf ("Program compiled with 'register' attribute\n");
-    printf ("\n");
-  }
-  else
-  {
-    printf ("Program compiled without 'register' attribute\n");
-    printf ("\n");
-  }
-  printf ("Please give the number of runs through the benchmark: ");
-  {
-//    int n = 100000;
-//    scanf ("%d", &n);
-    Number_Of_Runs = RUN_NUMBER;
-  }
-  printf ("\n");
+  arm_copy_q15(test_input2, scratch_buffer + history_size, input_size);
+  gru_example(scratch_buffer, input_size, history_size,
+              update_gate_weights, reset_gate_weights, hidden_state_weights,
+              update_gate_bias, reset_gate_bias, hidden_state_bias);
+  printf("Complete second iteration on GRU\n");
 
-  printf("Execution starts, %d runs through Dhrystone\n", Number_Of_Runs);
-  /***************/
-  /* Start timer */
-  /***************/
-
-#ifdef TIMES
-  times (&time_info);
-  Begin_Time = (long) time_info.tms_utime;
-#endif
-#ifdef TIME
-  Begin_Time = time ( (long *) 0);
-#endif
-#ifdef MSC_CLOCK
-  Begin_Time = g_Ticks;
-#endif
-
-  for (Run_Index = 1; Run_Index <= Number_Of_Runs; ++Run_Index)
-  {
-
-    Proc_5();
-    Proc_4();
-      /* Ch_1_Glob == 'A', Ch_2_Glob == 'B', Bool_Glob == true */
-    Int_1_Loc = 2;
-    Int_2_Loc = 3;
-    strcpy (Str_2_Loc, "DHRYSTONE PROGRAM, 2'ND STRING");
-    Enum_Loc = Ident_2;
-    Bool_Glob = ! Func_2 (Str_1_Loc, Str_2_Loc);
-      /* Bool_Glob == 1 */
-    while (Int_1_Loc < Int_2_Loc)  /* loop body executed once */
-    {
-      Int_3_Loc = 5 * Int_1_Loc - Int_2_Loc;
-        /* Int_3_Loc == 7 */
-      Proc_7 (Int_1_Loc, Int_2_Loc, &Int_3_Loc);
-        /* Int_3_Loc == 7 */
-      Int_1_Loc += 1;
-    } /* while */
-      /* Int_1_Loc == 3, Int_2_Loc == 3, Int_3_Loc == 7 */
-    Proc_8 (Arr_1_Glob, Arr_2_Glob, Int_1_Loc, Int_3_Loc);
-      /* Int_Glob == 5 */
-    Proc_1 (Ptr_Glob);
-    for (Ch_Index = 'A'; Ch_Index <= Ch_2_Glob; ++Ch_Index)
-                             /* loop body executed twice */
-    {
-      if (Enum_Loc == Func_1 (Ch_Index, 'C'))
-         /* then, not executed */
-      {
-        Proc_6 (Ident_1, &Enum_Loc);
-        strcpy (Str_2_Loc, "DHRYSTONE PROGRAM, 3'RD STRING");
-        Int_2_Loc = Run_Index;
-        Int_Glob = Run_Index;
-      }
-    }
-      /* Int_1_Loc == 3, Int_2_Loc == 3, Int_3_Loc == 7 */
-    Int_2_Loc = Int_2_Loc * Int_1_Loc;
-    Int_1_Loc = Int_2_Loc / Int_3_Loc;
-    Int_2_Loc = 7 * (Int_2_Loc - Int_3_Loc) - Int_1_Loc;
-      /* Int_1_Loc == 1, Int_2_Loc == 13, Int_3_Loc == 7 */
-    Proc_2 (&Int_1_Loc);
-      /* Int_1_Loc == 5 */
-
-  } /* loop "for Run_Index" */
-
-  /**************/
-  /* Stop timer */
-  /**************/
-
-#ifdef TIMES
-  times (&time_info);
-  End_Time = (long) time_info.tms_utime;
-#endif
-#ifdef TIME
-  End_Time = time ( (long *) 0);
-#endif
-#ifdef MSC_CLOCK
-  End_Time = g_Ticks;
-#endif
-
-  printf ("Execution ends\n");
-  printf ("\n");
-  printf ("Final values of the variables used in the benchmark:\n");
-  printf ("\n");
-  printf( "Int_Glob:            %d\n", Int_Glob);
-	printf("        should be:   %d\n", 5);
-	printf( "Bool_Glob:           %d\n", Bool_Glob);
-	printf( "        should be:   %d\n", 1);
-	printf("Ch_1_Glob:           %c\n", Ch_1_Glob);
-	printf("        should be:   %c\n", 'A');	
-  printf("Ch_2_Glob:           %c\n", Ch_2_Glob);	
-  printf("        should be:   %c\n", 'B');	
-  printf("Arr_1_Glob[8]:       %d\n", Arr_1_Glob[8]);	
-  printf("        should be:   %d\n", 7);	
-  printf("Arr_2_Glob[8][7]:    %d\n", Arr_2_Glob[8][7]);	
-  printf ("        should be:   Number_Of_Runs + 10\n");
-  printf ("Ptr_Glob->\n");
-  printf("  Ptr_Comp:          %d\n", (int) Ptr_Glob->Ptr_Comp);	
-  printf ("        should be:   (implementation-dependent)\n");
-  printf("  Discr:             %d\n", Ptr_Glob->Discr);	
-	printf("        should be:   %d\n", 0);	
-  printf("  Enum_Comp:         %d\n", Ptr_Glob->variant.var_1.Enum_Comp);	
-	printf("        should be:   %d\n", 2);	
-  printf("  Int_Comp:          %d\n", Ptr_Glob->variant.var_1.Int_Comp);	
-  printf("        should be:   %d\n", 17);	
-  printf("  Str_Comp:          %s\n", Ptr_Glob->variant.var_1.Str_Comp);	
-  printf ("        should be:   DHRYSTONE PROGRAM, SOME STRING\n");
-  printf ("Next_Ptr_Glob->\n");
-  printf("  Ptr_Comp:          %d\n", (int) Next_Ptr_Glob->Ptr_Comp);	
-  printf ("        should be:   (implementation-dependent), same as above\n");
-	printf("  Discr:             %d\n", Next_Ptr_Glob->Discr);	
-  printf("        should be:   %d\n", 0);	
-  printf("  Enum_Comp:         %d\n", Next_Ptr_Glob->variant.var_1.Enum_Comp);	
-  printf("        should be:   %d\n", 1);	
-  printf("  Int_Comp:          %d\n", Next_Ptr_Glob->variant.var_1.Int_Comp);	
-  printf("        should be:   %d\n", 18);
-  printf("  Str_Comp:          %s\n",
-                                Next_Ptr_Glob->variant.var_1.Str_Comp);	
-  printf ("        should be:   DHRYSTONE PROGRAM, SOME STRING\n");
-  printf("Int_1_Loc:           %d\n", Int_1_Loc);	
-  printf("        should be:   %d\n", 5);	
-  printf("Int_2_Loc:           %d\n", Int_2_Loc);	
-  printf("        should be:   %d\n", 13);	
-  printf("Int_3_Loc:           %d\n", Int_3_Loc);	
-  printf("        should be:   %d\n", 7);	
-  printf("Enum_Loc:            %d\n", Enum_Loc);	
-  printf("        should be:   %d\n", 1);	
-  printf("Str_1_Loc:           %s\n", Str_1_Loc);	
-  printf ("        should be:   DHRYSTONE PROGRAM, 1'ST STRING\n");
-  printf("Str_2_Loc:           %s\n", Str_2_Loc);	
-  printf ("        should be:   DHRYSTONE PROGRAM, 2'ND STRING\n");
-  printf ("\n");
-
-  User_Time = End_Time - Begin_Time;
-
-  if (User_Time < Too_Small_Time)
-  {
-		printf( "Measured time too small to obtain meaningful results %u-%u\n", Begin_Time, End_Time);
-    printf ("Please increase number of runs\n");
-  }
-  else
-  {
-#ifdef TIME
-    Microseconds = (float) User_Time * Mic_secs_Per_Second
-                        / (float) Number_Of_Runs;
-    Dhrystones_Per_Second = (float) Number_Of_Runs / (float) User_Time;
-#else
-    Microseconds = (float) User_Time * (float)Mic_secs_Per_Second
-                        / ((float) HZ * ((float) Number_Of_Runs));
-    Dhrystones_Per_Second = ((float) HZ * (float) Number_Of_Runs)
-                        / (float) User_Time;
-#endif
-		printf("Microseconds for one run through Dhrystone[%u-%u]:  ", Begin_Time, End_Time);
-
-    printf("%6.1f \n", Microseconds);
-	
-    printf ("Dhrystones per Second:                      ");
-    printf("%6.1f \n", Dhrystones_Per_Second);
-	
-  }
-			
-	while (1)
-  {				
+	while (1) {				
 //    LED_On(0);
 //    LED_On(1);
 //    LED_On(2);
@@ -464,15 +241,11 @@ int main(void)
     LED_On(4);
 		
 		tmpTick = g_Ticks;
-		while((tmpTick+2000) > g_Ticks)
-		{
+		while((tmpTick+2000) > g_Ticks) {
 			__NOP();
 			__WFI();
 		}
 		
-		XMC_RTC_GetTime((XMC_RTC_TIME_t *)&now_rtc_time);
-//		printf("%02d:%02d:%02d\n", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);
-
 //    LED_Off(0);
 //    LED_Off(1);
 //    LED_Off(2);
@@ -480,8 +253,7 @@ int main(void)
     LED_Off(4);
 		
 		tmpTick = g_Ticks;
-		while((tmpTick+2000) > g_Ticks)
-		{
+		while((tmpTick+2000) > g_Ticks) {
 			__NOP();
 			__WFI();
 		}		
