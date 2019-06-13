@@ -10,22 +10,13 @@ File:			XMC1000_tseRoutine.c
 	===========================================================================
 
 ******************************************************************************/
+#include <stdbool.h>
 #include "XMC1000_TSE.h"
 
 // fast square root algorithm taken from 
 // Otto Peter: Prozessor zieht Wurzel, c't 1990, Heft 1, page 300-306
 #define N_BITS 32
 #define MAX_BIT ((N_BITS + 1) / 2 - 1)
-
-#define TRUE 1
-#define FALSE 0
-
-uint32_t *tse_k1_ptr;
-uint32_t *tse_k3_ptr;
-uint32_t *tse_k2_ptr;
-uint16_t *tse_min_ptr;
-uint16_t *tse_max_ptr;
-int8_t *tse_corrdata_ptr;
 
 /**************************************************************************//**
 Purpose:        Implementation of fast square root algorithm after Otto Peter's
@@ -35,7 +26,7 @@ Purpose:        Implementation of fast square root algorithm after Otto Peter's
 @param          uint32_t    integer number unsigned
 @return         square root
 ******************************************************************************/
-uint32_t sqrt_5(uint32_t x)
+uint32_t sqrt_5(uint32_t x)  __pure
 {
     uint32_t xroot, m2, x2;
 
@@ -56,7 +47,12 @@ uint32_t sqrt_5(uint32_t x)
     return xroot;
 }
 
-
+uint32_t *tse_k1_ptr;
+uint32_t *tse_k3_ptr;
+uint32_t *tse_k2_ptr;
+uint16_t *tse_min_ptr;
+uint16_t *tse_max_ptr;
+int8_t *tse_corrdata_ptr;
 
 #define MIN_TEMP_KELVIN      (233)
 #define MAX_TEMP_KELVIN      (398)
@@ -72,7 +68,7 @@ Purpose:        Implementation of CalcTemperature function
 Detailed description: The function is used to convert the ANATSEMON values to Kelvin. 
 
 ******************************************************************************/
-uint32_t XMC1000_CalcTemperature(void)
+uint32_t XMC1000_CalcTemperature_soft(void) __pure
 {
     uint32_t rx;
     int32_t  ik1, ik3, ik2;
@@ -81,7 +77,7 @@ uint32_t XMC1000_CalcTemperature(void)
     uint16_t tempConfigRecord;
     uint32_t calcTemperature;
     int8_t  tse_corrdata;
-
+	
     tse_k1_ptr = (uint32_t*)0x10000F20;
     tse_k3_ptr = (uint32_t*)0x10000F24;
     tse_k2_ptr = (uint32_t*)0x10000F28;
@@ -153,17 +149,17 @@ Detailed description: The function is used to convert Kelvin temperatures to ANA
 If the conversion is not possible, the function returns 0x00
 
 ******************************************************************************/
-uint32_t XMC1000_CalcTSEVAR(uint32_t temperature)
+uint32_t XMC1000_CalcTSEVAR_soft(uint32_t temperature)
 {
     int32_t h0, h1, h2;
     int32_t ik1, ik3, ik2;
 
-    uint32_t searchStatus;
+    bool searchStatus;
     uint16_t i;
     
     int8_t corrdata;
 
-    searchStatus = FALSE;
+    searchStatus = false;
 
     tse_corrdata_ptr = (int8_t*)0x10000F34;
 
@@ -174,13 +170,13 @@ uint32_t XMC1000_CalcTSEVAR(uint32_t temperature)
     	if(temperature == (MIN_TEMP_KELVIN + i + corrdata)) //TSE_CorrData[i]
         {        
             temperature = MIN_TEMP_KELVIN + i;
-            searchStatus = TRUE;
+            searchStatus = true;
             break;
         }
     	tse_corrdata_ptr++;
     }
 
-    if(searchStatus == FALSE)
+    if(searchStatus == false)
     {
         return 0;
     }

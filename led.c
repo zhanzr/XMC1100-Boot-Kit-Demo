@@ -23,7 +23,7 @@ static const GPIO_PIN LED_PIN[] =
    - \b  0: function succeeded
    - \b -1: function failed
 */
-void LED_Initialize (void) 
+void LED_Initialize (void)
 {
 	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 5, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
 	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 6, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
@@ -80,7 +80,7 @@ void LED_On (uint8_t num)
    - \b  0: function succeeded
    - \b -1: function failed
 */
-void LED_Off (uint8_t num) 
+void LED_Off (uint8_t num) __pure
 {
 	switch(num)
 	{		

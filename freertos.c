@@ -31,12 +31,15 @@ using namespace std;
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <limits.h>
+#include <dspfns.h> 
+#include <c55x.h>       // include TI C55x intrinsics
 #endif
 
 #include <xmc_gpio.h>
+#include <xmc_rtc.h>
 #include "led.h"
-#include "XMC1000_TSE.h"
-
+#include "XMC1000_Tse.h"
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
@@ -49,17 +52,14 @@ TimerHandle_t g_timer;
 
 /* Private function prototypes -----------------------------------------------*/
 /* Determine whether we are in thread mode or handler mode. */
-static int inHandlerMode (void)
-{
+static inline int inHandlerMode (void)  __pure {
   return __get_IPSR() != 0;
 }
 
-uint32_t getKernelSysTick(void)
-{
+uint32_t getKernelSysTick(void) {
   if (inHandlerMode()) {
     return xTaskGetTickCountFromISR();
-  }
-  else {
+  } else {
     return xTaskGetTickCount();
   }
 }
@@ -78,9 +78,10 @@ void freertos_tick_handler(void)
 	#endif  /* INCLUDE_xTaskGetSchedulerState */  
 }
 
-void TimerCallback( xTimerHandle pxtimer )
-{
-		LED_Toggle(0);
+void TimerCallback( xTimerHandle pxtimer ) {
+	uint32_t ra = __return_address();
+		
+	LED_Toggle(0);
 }
 
 void StartDefaultTask(void const * argument);
@@ -92,11 +93,12 @@ void StartTask02(void const * argument);
   * @retval None
   */
 void MX_FREERTOS_Init(void) {
+	uint32_t ra = __return_address();
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
 	xTaskCreate((TaskFunction_t)StartDefaultTask,
 							(const portCHAR *)"defaultTask",
-							128,
+							384,
 							NULL,
 							2,
 							&g_task01_handle);
@@ -126,6 +128,44 @@ void MX_FREERTOS_Init(void) {
 	g_queue = xQueueCreate(2, sizeof(uint32_t));
 }
 
+int32_t C_L_add(int32_t a, int32_t b)
+{
+    int32_t c = a + b;
+    if (((a ^ b) & INT_MIN) == 0)
+    {
+        if ((c ^ a) & INT_MIN)
+        {
+            c = (a < 0) ? INT_MIN : INT_MAX;
+        }
+    }
+    return c;
+}
+
+int32_t foo(int32_t a, int32_t b)
+{
+    int32_t c, d, e, f;
+    Overflow = 0;         // set global overflow flag
+    c = C_L_add(a, b);    // C saturating add
+    e = __qadd(a, b);     // ARM intrinsic saturating add
+    f = L_add(a, b);      // ETSI saturating add
+	
+	//TI C55X emulation
+	if(true){		
+	int32_t c, d, e;
+    d = __qadd(a, b);     // ARM intrinsic saturating add
+    e = _lsadd(a, b);     // TI C55x saturating add
+    return c == d == e;   // returns 1
+	}
+	
+    return Overflow ? -1 : c == d == e == f; // returns 1, unless overflow
+}
+
+void vApplicationIdleHook( void ) {
+	uint32_t ra = __return_address();
+	foo(1, 2);
+	__WFI();
+}
+
 /**
   * @brief  Function implementing the defaultTask thread.
   * @param  argument: Not used 
@@ -133,27 +173,39 @@ void MX_FREERTOS_Init(void) {
   */
 void StartDefaultTask(void const * argument)
 {
+	uint32_t ra = __return_address();
 	uint32_t tmpTicks;	
-		
+	
+	uint32_t tmp_sp = __current_sp();
+	
+	__yield();
+	
   /* Infinite loop */
   for(;;)
   {
 		xQueueReceive(g_queue, &tmpTicks, portMAX_DELAY);
 		
-		printf("%s %u %i %u\n", 
+		printf("%s %u %u %u\n", 
 		tskKERNEL_VERSION_NUMBER,
 		tmpTicks,
-		((int32_t)XMC1000_CalcTemperature()-273),
-		SystemCoreClock
+		SystemCoreClock,
+		__clz(tmpTicks)
 		);
 	
+		int32_t tmp_i32 = (int32_t)XMC1000_CalcTemperature_soft();
+		printf("die temp:%i\n", tmp_i32 - 273);
+		
+		XMC_RTC_TIME_t current_time;
+		XMC_RTC_GetTime(&current_time);
+		printf("RTC %02u:%02u:%02u\n", current_time.hours, current_time.minutes, current_time.seconds);
+		
 		LED_Toggle(1);
 		
 		xSemaphoreTake(g_noti_sema, portMAX_DELAY);	
 
-//		char tmpBuf[1024];
-//		vTaskList(tmpBuf);
-//		printf(tmpBuf);
+		char tmpBuf[1024];
+		vTaskList(tmpBuf);
+		printf(tmpBuf);
 		
 		printf("Total Heap:%u\n", 
 		configTOTAL_HEAP_SIZE);
@@ -161,8 +213,8 @@ void StartDefaultTask(void const * argument)
 		printf("Free Heap:%u\n",
 		xPortGetFreeHeapSize());
 				
-//		printf("minimum ever:%u\n",
-//		xPortGetMinimumEverFreeHeapSize());
+		printf("minimum ever:%u\n",
+		xPortGetMinimumEverFreeHeapSize());
 		
 //		vTaskGetRunTimeStats(tmpBuf);
 //		printf(tmpBuf);		
@@ -178,9 +230,9 @@ void StartDefaultTask(void const * argument)
 */
 void StartTask02(void const * argument)
 {
+	uint32_t ra = __return_address();
   /* Infinite loop */
-  for(;;)
-  {
+  for(;;) {
 		LED_Toggle(2);
 
 		xSemaphoreGive(g_noti_sema);		
@@ -188,6 +240,6 @@ void StartTask02(void const * argument)
 		uint32_t tmpTick = getKernelSysTick();
 		xQueueSend(g_queue, &tmpTick, 0);
 
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    vTaskDelay(2000 / portTICK_PERIOD_MS);
   }
 }

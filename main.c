@@ -32,7 +32,6 @@ using namespace std;
 #include "timers.h"
 
 #include "led.h"
-#include "XMC1000_TSE.h"
 
 #define UART_RX P1_3
 #define UART_TX P1_2
@@ -74,13 +73,8 @@ int stdout_putchar (int ch)
 
 void MX_FREERTOS_Init(void);
 
-int main(void)
-{
-	__IO uint32_t tmpTick;
-	__IO uint32_t deltaTick;
-	__IO uint32_t i=0;		
-	
-	__IO XMC_RTC_TIME_t now_rtc_time;
+int main(void) {	
+	uint32_t ra = __return_address();
 
   /* System timer configuration */
   SysTick_Config(SystemCoreClock / configTICK_RATE_HZ);
@@ -123,8 +117,5 @@ int main(void)
   /* Start scheduler */  
 	vTaskStartScheduler();
 	
-	while(1)
-  {				
-			;
-  }
+	while(1) { ; }
 }

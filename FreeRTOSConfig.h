@@ -95,7 +95,7 @@
 #define configUSE_PREEMPTION                     1
 #define configSUPPORT_STATIC_ALLOCATION          0
 #define configSUPPORT_DYNAMIC_ALLOCATION         1
-#define configUSE_IDLE_HOOK                      0
+#define configUSE_IDLE_HOOK                      1
 #define configUSE_TICK_HOOK                      0
 #define configCPU_CLOCK_HZ                       ( SystemCoreClock )
 #define configTICK_RATE_HZ                       ((TickType_t)1000)
@@ -107,7 +107,7 @@
 #define configUSE_MUTEXES                        1
 #define configQUEUE_REGISTRY_SIZE                8
 #define	configUSE_TRACE_FACILITY	1
-#define	configUSE_STATS_FORMATTING_FUNCTIONS	0
+#define	configUSE_STATS_FORMATTING_FUNCTIONS	1
 //#define	configGENERATE_RUN_TIME_STATS	1
 
 /* Co-routine definitions. */

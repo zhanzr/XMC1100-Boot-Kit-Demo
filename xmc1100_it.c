@@ -14,7 +14,7 @@ void HardFault_Handler(void)
 }
 
 void freertos_tick_handler(void);
-void SysTick_Handler(void)
+void SysTick_Handler(void) __irq
 {	
 	g_Ticks++;
 
