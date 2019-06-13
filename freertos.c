@@ -128,41 +128,84 @@ void MX_FREERTOS_Init(void) {
 	g_queue = xQueueCreate(2, sizeof(uint32_t));
 }
 
-int32_t C_L_add(int32_t a, int32_t b)
-{
-    int32_t c = a + b;
-    if (((a ^ b) & INT_MIN) == 0)
-    {
-        if ((c ^ a) & INT_MIN)
-        {
-            c = (a < 0) ? INT_MIN : INT_MAX;
-        }
-    }
-    return c;
-}
-
-int32_t foo(int32_t a, int32_t b)
-{
-    int32_t c, d, e, f;
+void etsi_emu_test_func(void) {
+		int32_t a;
+		int32_t b;
+    int32_t c;
+	
+	//Test L_add
+	  a = 1;
+	  b = 2;
     Overflow = 0;         // set global overflow flag
-    c = C_L_add(a, b);    // C saturating add
-    e = __qadd(a, b);     // ARM intrinsic saturating add
-    f = L_add(a, b);      // ETSI saturating add
+    c = L_add(a, b);      // ETSI 
+		printf("L_add %i %i %i %i %i\n", a, b, c, Overflow, a+b);
 	
-	//TI C55X emulation
-	if(true){		
-	int32_t c, d, e;
-    d = __qadd(a, b);     // ARM intrinsic saturating add
-    e = _lsadd(a, b);     // TI C55x saturating add
-    return c == d == e;   // returns 1
-	}
+	  a = INT32_MAX;
+	  b = 2;
+    Overflow = 0;         // set global overflow flag
+    c = L_add(a, b);      // ETSI 
+		printf("L_add %i %i %i %i %i\n", a, b, c, Overflow, a+b);
 	
-    return Overflow ? -1 : c == d == e == f; // returns 1, unless overflow
+	//Test L_mult
+		a = 1000;
+	  b = 2000;
+    Overflow = 0;         // set global overflow flag
+    c = L_mult(a, b);      // ETSI 
+	
+		printf("L_mult %i %i %i %i %i\n", a, b, c, Overflow, a*b);
+	
+		a = -0x8000;
+	  b = -0x8000;
+    Overflow = 0;         // set global overflow flag
+    c = L_mult(a, b);      // ETSI 
+	
+		printf("L_mult %i %i %i %i %i\n", a, b, c, Overflow, a*b);
+		
+		//Test div_s
+		a = 1000;
+	  b = 2000;
+    Overflow = 0;         // set global overflow flag
+    c = div_s(a, b);      // ETSI 
+	
+		printf("div_s %i %i %i %i %i\n", a, b, c, Overflow, a/b);
+	
+		a = 10;
+	  b = 100;
+    Overflow = 0;         // set global overflow flag
+    c = div_s(a, b);      // ETSI 
+	
+		printf("div_s %i %i %i %i %i\n", a, b, c, Overflow, a/b);
+		
+		//Test L_mac
+		a = 1000;
+	  b = 2000;
+		c = 0;
+    Overflow = 0;         // set global overflow flag
+    c = L_mac(c, a, b);      // ETSI 
+	
+		printf("L_mac %i %i %i %i %i\n", a, b, c, Overflow, 0+a*b);
+	
+		a = -1000;
+	  b = -2000;
+		c = 1;
+    Overflow = 0;         // set global overflow flag
+    c = L_mac(c, a, b);      // ETSI 
+	
+		printf("L_mac %i %i %i %i %i\n", a, b, c, Overflow, 1+a*b);
+		
+    return;
 }
 
+	//TI C55X emulation
+//	if(true){		
+//	int32_t c, d, e;
+//    d = __qadd(a, b);     // ARM intrinsic saturating add
+//    e = _lsadd(a, b);     // TI C55x saturating add
+//    return c == d == e;   // returns 1
+//	}
+	
 void vApplicationIdleHook( void ) {
 	uint32_t ra = __return_address();
-	foo(1, 2);
 	__WFI();
 }
 
@@ -218,6 +261,8 @@ void StartDefaultTask(void const * argument)
 		
 //		vTaskGetRunTimeStats(tmpBuf);
 //		printf(tmpBuf);		
+
+	etsi_emu_test_func();
 
 		printf("\n");
   }

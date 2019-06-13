@@ -151,9 +151,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>146</LineNumber>
+          <LineNumber>175</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>268444926</Address>
+          <Address>268448902</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -162,7 +162,23 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>.\freertos.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\elfout\freertos.c\146</Expression>
+          <Expression>\\elfout\freertos.c\175</Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>697</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>268448768</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>G:\Keil_v5\ARM\ARMCC\include\dspfns.h</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\elfout\freertos.c\697</Expression>
         </Bp>
       </Breakpoint>
       <MemoryWindow1>
@@ -368,7 +384,7 @@
       <GroupNumber>2</GroupNumber>
       <FileNumber>12</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>G:\FreeRTOSv10.1.1\FreeRTOS\Source\portable\RVDS\ARM_CM0\port.c</PathWithFileName>
