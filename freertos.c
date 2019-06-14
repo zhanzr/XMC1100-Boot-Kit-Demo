@@ -128,72 +128,50 @@ void MX_FREERTOS_Init(void) {
 	g_queue = xQueueCreate(2, sizeof(uint32_t));
 }
 
-void etsi_emu_test_func(void) {
-		int32_t a;
-		int32_t b;
-    int32_t c;
+void gnu_builtin_test(void) {
+	int res = __builtin_bcmp(gnu_builtin_test, gnu_builtin_test, sizeof(void(*)(void)));
 	
-	//Test L_add
-	  a = 1;
-	  b = 2;
-    Overflow = 0;         // set global overflow flag
-    c = L_add(a, b);      // ETSI 
-		printf("L_add %i %i %i %i %i\n", a, b, c, Overflow, a+b);
+	struct V {
+	char buf1[10];
+	int b;
+	char buf2[10]; 
+	} var;
+	char* p = &var.buf1[1];
+	char*	q = (char*)&var.b;
+
+//	/* Here the object p points to is var.  */
+//	assert (__builtin_object_size (p, 0) == sizeof (var) - 1);
+//	/* The subobject p points to is var.buf1.  */
+//	assert (__builtin_object_size (p, 1) == sizeof (var.buf1) - 1);
+//	/* The object q points to is var.  */
+//	assert (__builtin_object_size (q, 0)
+//					== (char *) (&var + 1) - (char *) &var.b);
+//	/* The subobject q points to is var.b.  */
+//	assert (__builtin_object_size (q, 1) == sizeof (var.b));
 	
-	  a = INT32_MAX;
-	  b = 2;
-    Overflow = 0;         // set global overflow flag
-    c = L_add(a, b);      // ETSI 
-		printf("L_add %i %i %i %i %i\n", a, b, c, Overflow, a+b);
-	
-	//Test L_mult
-		a = 1000;
-	  b = 2000;
-    Overflow = 0;         // set global overflow flag
-    c = L_mult(a, b);      // ETSI 
-	
-		printf("L_mult %i %i %i %i %i\n", a, b, c, Overflow, a*b);
-	
-		a = -0x8000;
-	  b = -0x8000;
-    Overflow = 0;         // set global overflow flag
-    c = L_mult(a, b);      // ETSI 
-	
-		printf("L_mult %i %i %i %i %i\n", a, b, c, Overflow, a*b);
+	printf("size check %i %i %i %i\n",
+	__builtin_object_size (p, 0),
+	__builtin_object_size (p, 1),
+	__builtin_object_size (q, 0),
+	__builtin_object_size (q, 1));
 		
-		//Test div_s
-		a = 1000;
-	  b = 2000;
-    Overflow = 0;         // set global overflow flag
-    c = div_s(a, b);      // ETSI 
+	printf("malloc %p builtin_malloc %p\n", 
+	malloc,
+	__builtin_malloc
+	);
 	
-		printf("div_s %i %i %i %i %i\n", a, b, c, Overflow, a/b);
+		printf("clz %p __builtin_clz %p\n", 
+	__clz,
+	__builtin_clz
+	);
 	
-		a = 10;
-	  b = 100;
-    Overflow = 0;         // set global overflow flag
-    c = div_s(a, b);      // ETSI 
+		printf("memcmp %p __builtin_bcmp %p\n", 
+	memcmp,
+	__builtin_bcmp
+	);	
+	uint8_t* p_malloc_10000 = __builtin_alloca(10000);
 	
-		printf("div_s %i %i %i %i %i\n", a, b, c, Overflow, a/b);
-		
-		//Test L_mac
-		a = 1000;
-	  b = 2000;
-		c = 0;
-    Overflow = 0;         // set global overflow flag
-    c = L_mac(c, a, b);      // ETSI 
-	
-		printf("L_mac %i %i %i %i %i\n", a, b, c, Overflow, 0+a*b);
-	
-		a = -1000;
-	  b = -2000;
-		c = 1;
-    Overflow = 0;         // set global overflow flag
-    c = L_mac(c, a, b);      // ETSI 
-	
-		printf("L_mac %i %i %i %i %i\n", a, b, c, Overflow, 1+a*b);
-		
-    return;
+	__NOP();
 }
 
 	//TI C55X emulation
@@ -262,7 +240,7 @@ void StartDefaultTask(void const * argument)
 //		vTaskGetRunTimeStats(tmpBuf);
 //		printf(tmpBuf);		
 
-	etsi_emu_test_func();
+	gnu_builtin_test();
 
 		printf("\n");
   }

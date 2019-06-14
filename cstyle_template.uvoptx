@@ -120,6 +120,10 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
+          <Name>p弞
+?輜p弞
+?輜p弞
+</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -151,9 +155,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>175</LineNumber>
+          <LineNumber>132</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>268448902</Address>
+          <Address>268448510</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -162,23 +166,7 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>.\freertos.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\elfout\freertos.c\175</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>697</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>268448768</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>G:\Keil_v5\ARM\ARMCC\include\dspfns.h</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\elfout\freertos.c\697</Expression>
+          <Expression>\\elfout\freertos.c\132</Expression>
         </Bp>
       </Breakpoint>
       <MemoryWindow1>
