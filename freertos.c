@@ -33,7 +33,7 @@ using namespace std;
 #include <stdlib.h>
 #include <limits.h>
 #include <dspfns.h> 
-#include <c55x.h>       // include TI C55x intrinsics
+#include <xmc_vadc.h>
 #endif
 
 #include <xmc_gpio.h>
@@ -127,79 +127,19 @@ void MX_FREERTOS_Init(void) {
 	/* Create a queue*/
 	g_queue = xQueueCreate(2, sizeof(uint32_t));
 }
-
-int func(char *a){
-  char b[10];
-  char *p = &b[5];
-  printf("__builtin_object_size(a,0):%ld\n",__builtin_object_size(a,0));
-  printf("__builtin_object_size(b,0):%ld\n",__builtin_object_size(b,0));
-  printf("__builtin_object_size(p,0):%ld\n",__builtin_object_size(p,0));
-  return 0;
-}
-
-void gnu_builtin_test(void) {
-	int res = __builtin_bcmp(gnu_builtin_test, gnu_builtin_test, sizeof(void(*)(void)));
-	
-	struct V {
-	char buf1[10];
-	int b;
-	char buf2[10]; 
-	} var;
-	char* p = &var.buf1[1];
-	char*	q = (char*)&var.b;
-
-//	/* Here the object p points to is var.  */
-//	assert (__builtin_object_size (p, 0) == sizeof (var) - 1);
-//	/* The subobject p points to is var.buf1.  */
-//	assert (__builtin_object_size (p, 1) == sizeof (var.buf1) - 1);
-//	/* The object q points to is var.  */
-//	assert (__builtin_object_size (q, 0)
-//					== (char *) (&var + 1) - (char *) &var.b);
-//	/* The subobject q points to is var.b.  */
-//	assert (__builtin_object_size (q, 1) == sizeof (var.b));
-	
-	printf("size check %i %i %i %i\n",
-	__builtin_object_size (p, 0),
-	__builtin_object_size (p, 1),
-	__builtin_object_size (q, 0),
-	__builtin_object_size (q, 1));
-		
-	printf("malloc %p builtin_malloc %p\n", 
-	malloc,
-	__builtin_malloc
-	);
-	
-		printf("clz %p __builtin_clz %p\n", 
-	__clz,
-	__builtin_clz
-	);
-	
-		printf("memcmp %p __builtin_bcmp %p\n", 
-	memcmp,
-	__builtin_bcmp
-	);	
-	
-	{
-	  char a[10];
-		func(a);
-	}
-	
-	uint8_t* p_malloc_10000 = __builtin_alloca(10000);
-	
-	__NOP();
-}
-
-	//TI C55X emulation
-//	if(true){		
-//	int32_t c, d, e;
-//    d = __qadd(a, b);     // ARM intrinsic saturating add
-//    e = _lsadd(a, b);     // TI C55x saturating add
-//    return c == d == e;   // returns 1
-//	}
 	
 void vApplicationIdleHook( void ) {
 	uint32_t ra = __return_address();
 	__WFI();
+}
+
+void get_adc_value(void) {
+	XMC_VADC_DETAILED_RESULT_t g_raw_result;
+	
+	g_raw_result.res = XMC_VADC_GLOBAL_GetDetailedResult(VADC);					
+	printf("VADC result: %u %u\n", g_raw_result.channel_number, g_raw_result.result);
+	g_raw_result.res = XMC_VADC_GLOBAL_GetDetailedResult(VADC);					
+	printf("VADC result: %u %u\n", g_raw_result.channel_number, g_raw_result.result);
 }
 
 /**
@@ -254,9 +194,10 @@ void StartDefaultTask(void const * argument)
 		
 //		vTaskGetRunTimeStats(tmpBuf);
 //		printf(tmpBuf);		
-
-	gnu_builtin_test();
-
+    
+		/* Retrieve result from result register. */				
+		get_adc_value();
+	
 		printf("\n");
   }
 }

@@ -24,6 +24,7 @@ using namespace std;
 #include <xmc_uart.h>
 #include <xmc_gpio.h>
 #include <xmc_flash.h>
+#include <xmc_vadc.h>
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -65,8 +66,32 @@ XMC_RTC_TIME_t init_rtc_time =
 	.seconds = 55	
 };
 
-int stdout_putchar (int ch)
-{
+
+/***************************************************************************
+ * CONFIGURATION
+ **************************************************************************/
+
+/* VADC group data configuration. No configuration needed, standard values
+ * are used. */
+
+/* Data configuration for background source. */
+const XMC_VADC_BACKGROUND_CONFIG_t g_bgn_handle = {
+		.asctrl =0,
+		.asmr = 0,
+		.conv_start_mode = XMC_VADC_STARTMODE_WFS,
+		.req_src_priority = XMC_VADC_GROUP_RS_PRIORITY_0,
+
+};
+
+/* VADC Global resources data configuration. No configuration needed,
+ * standard values are used. */
+ const XMC_VADC_GLOBAL_CONFIG_t g_global_handle = {
+		.wait_for_read_mode = 1,
+		.class0.conversion_mode_standard = XMC_VADC_CONVMODE_12BIT,
+		.class0.sample_time_std_conv = 0,
+};
+
+int stdout_putchar (int ch) {
 	XMC_UART_CH_Transmit(XMC_UART0_CH1, (uint8_t)ch);
 	return ch;
 }
@@ -95,6 +120,30 @@ int main(void) {
 	
 	XMC_SCU_StartTempMeasurement();
 	
+	 /* ****************************** VADC ****************************** */
+    /* Provide clock to VADC and initialize the VADC global registers. */
+    XMC_VADC_GLOBAL_Init(VADC, &g_global_handle);
+
+    /* Calibrate the VADC. Make sure you do this after all used VADC groups
+     * are set to normal operation mode. */
+    XMC_VADC_GLOBAL_StartupCalibration(VADC);
+
+    /* Initialize the background source hardware. The gating mode is set to
+     * ignore to pass external triggers unconditionally.*/
+    XMC_VADC_GLOBAL_BackgroundInit(VADC, &g_bgn_handle);
+
+    /* Add a channel to the background source. */
+    XMC_VADC_GLOBAL_BackgroundAddChannelToSequence(VADC, 0, 5);
+    /* Add a channel to the background source. */
+    XMC_VADC_GLOBAL_BackgroundAddChannelToSequence(VADC, 0, 6);
+		
+    /* Enables autoscan feature for continuous conversion. */
+    XMC_VADC_GLOBAL_BackgroundEnableContinuousMode(VADC);
+
+    /* Generate conversion request (load event). */
+    XMC_VADC_GLOBAL_BackgroundTriggerConversion(VADC);
+
+
   printf ("FreeRTOS For XMC1100 Bootkit @%u Hz\n",
 	SystemCoreClock	);
 	
