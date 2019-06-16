@@ -128,6 +128,15 @@ void MX_FREERTOS_Init(void) {
 	g_queue = xQueueCreate(2, sizeof(uint32_t));
 }
 
+int func(char *a){
+  char b[10];
+  char *p = &b[5];
+  printf("__builtin_object_size(a,0):%ld\n",__builtin_object_size(a,0));
+  printf("__builtin_object_size(b,0):%ld\n",__builtin_object_size(b,0));
+  printf("__builtin_object_size(p,0):%ld\n",__builtin_object_size(p,0));
+  return 0;
+}
+
 void gnu_builtin_test(void) {
 	int res = __builtin_bcmp(gnu_builtin_test, gnu_builtin_test, sizeof(void(*)(void)));
 	
@@ -169,6 +178,12 @@ void gnu_builtin_test(void) {
 	memcmp,
 	__builtin_bcmp
 	);	
+	
+	{
+	  char a[10];
+		func(a);
+	}
+	
 	uint8_t* p_malloc_10000 = __builtin_alloca(10000);
 	
 	__NOP();
