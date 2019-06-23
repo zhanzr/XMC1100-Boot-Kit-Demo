@@ -142,6 +142,9 @@ void get_adc_value(void) {
 	printf("VADC result: %u %u\n", g_raw_result.channel_number, g_raw_result.result);
 }
 
+void test_flash_code(uint32_t ln_cnt);
+void test_ram_code(uint32_t ln_cnt);
+void test_ram_code_func2(void);
 /**
   * @brief  Function implementing the defaultTask thread.
   * @param  argument: Not used 
@@ -198,7 +201,23 @@ void StartDefaultTask(void const * argument)
 		/* Retrieve result from result register. */				
 		get_adc_value();
 	
-		printf("\n");
+	TickType_t tmp_ticks[3];
+#define	TEST_LOOP_N	500000
+		printf("ram func addr %p\n", test_ram_code);
+		printf("another ram func addr %p\n", test_ram_code_func2);
+		printf("flash func addr %p\n", test_flash_code);
+		
+		tmp_ticks[0] = xTaskGetTickCount();
+		test_ram_code(TEST_LOOP_N);
+		tmp_ticks[1] = xTaskGetTickCount();
+		test_flash_code(TEST_LOOP_N);
+		tmp_ticks[2] = xTaskGetTickCount();
+
+		printf("Loop Count:%u, ticks:%u %u %u [%u] [%u]\n", 
+		TEST_LOOP_N, 
+		tmp_ticks[0], tmp_ticks[1], tmp_ticks[2],
+		(tmp_ticks[1]-tmp_ticks[0]),
+		(tmp_ticks[2]-tmp_ticks[1]));
   }
 }
 
@@ -219,6 +238,6 @@ void StartTask02(void const * argument)
 		uint32_t tmpTick = getKernelSysTick();
 		xQueueSend(g_queue, &tmpTick, 0);
 
-    vTaskDelay(2000 / portTICK_PERIOD_MS);
+    vTaskDelay(10 / portTICK_PERIOD_MS);
   }
 }

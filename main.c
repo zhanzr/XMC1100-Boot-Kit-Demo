@@ -98,9 +98,7 @@ int stdout_putchar (int ch) {
 
 void MX_FREERTOS_Init(void);
 
-int main(void) {	
-	uint32_t ra = __return_address();
-
+int main(void) {		
   /* System timer configuration */
   SysTick_Config(SystemCoreClock / configTICK_RATE_HZ);
 	
