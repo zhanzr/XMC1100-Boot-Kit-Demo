@@ -122,9 +122,10 @@ int main(void) {
     XMC_VADC_GLOBAL_BackgroundTriggerConversion(VADC);
 
 
-  printf ("FreeRTOS For XMC1100 Bootkit @%u Hz %08X\n",
+  printf ("FreeRTOS For XMC1100 @%u Hz %08X, %p\n",
 	SystemCoreClock,
-	SCU_GENERAL->IDCHIP	);
+	SCU_GENERAL->IDCHIP,
+	main);
 	LED_Initialize();
 
   /* Call init function for freertos objects (in freertos.c) */

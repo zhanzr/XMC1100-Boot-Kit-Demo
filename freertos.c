@@ -47,7 +47,7 @@ TaskHandle_t g_task01_handle;
 TaskHandle_t g_task02_handle;
 SemaphoreHandle_t g_noti_sema;
 QueueHandle_t g_queue;
-TimerHandle_t g_timer;
+//TimerHandle_t g_timer;
 /* USER CODE END Variables */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -78,11 +78,11 @@ void freertos_tick_handler(void)
 	#endif  /* INCLUDE_xTaskGetSchedulerState */  
 }
 
-void TimerCallback( xTimerHandle pxtimer ) {
-	uint32_t ra = __return_address();
-		
-	LED_Toggle(0);
-}
+//void TimerCallback( xTimerHandle pxtimer ) {
+//	uint32_t ra = __return_address();
+//		
+//	LED_Toggle(0);
+//}
 
 void StartDefaultTask(void const * argument);
 void StartTask02(void const * argument);
@@ -98,7 +98,7 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of defaultTask */
 	xTaskCreate((TaskFunction_t)StartDefaultTask,
 							(const portCHAR *)"defaultTask",
-							512,
+							256,
 							NULL,
 							2,
 							&g_task01_handle);
@@ -112,12 +112,12 @@ void MX_FREERTOS_Init(void) {
 							&g_task02_handle);
 							
 	/* Create one Software Timer.*/
-	g_timer = xTimerCreate("Timer", 
-							2000/ portTICK_PERIOD_MS,
-							pdTRUE,
-							0,
-							TimerCallback);
-	xTimerStart( g_timer, 0);
+//	g_timer = xTimerCreate("Timer", 
+//							2000/ portTICK_PERIOD_MS,
+//							pdTRUE,
+//							0,
+//							TimerCallback);
+//	xTimerStart( g_timer, 0);
 
 	/* Create the notification semaphore and set the initial state. */
 	vSemaphoreCreateBinary(g_noti_sema);
@@ -128,10 +128,10 @@ void MX_FREERTOS_Init(void) {
 	g_queue = xQueueCreate(2, sizeof(uint32_t));
 }
 	
-void vApplicationIdleHook( void ) {
-	uint32_t ra = __return_address();
-	__WFI();
-}
+//void vApplicationIdleHook( void ) {
+//	uint32_t ra = __return_address();
+//	__WFI();
+//}
 
 void get_adc_value(void) {
 	XMC_VADC_DETAILED_RESULT_t g_raw_result;
@@ -146,7 +146,7 @@ void test_flash_code(uint32_t ln_cnt);
 void test_ram_code(uint32_t ln_cnt);
 void test_ram_code_func2(void);
 
-void __svc(12) svc_12(void);
+//void __svc(12) svc_12(void);
 
 /**
   * @brief  Function implementing the defaultTask thread.
@@ -155,80 +155,77 @@ void __svc(12) svc_12(void);
   */
 void StartDefaultTask(void const * argument)
 {
-	uint32_t ra = __return_address();
 	uint32_t tmpTicks;	
-	
-	uint32_t tmp_sp = __current_sp();
-	
-	__yield();
+		
+//	__yield();
 	
   /* Infinite loop */
   for(;;)
   {
 		xQueueReceive(g_queue, &tmpTicks, portMAX_DELAY);
 		
-		printf("%s %u %u %u\n", 
+		printf("%s %u %u %p\n", 
 		tskKERNEL_VERSION_NUMBER,
 		tmpTicks,
 		SystemCoreClock,
-		__clz(tmpTicks)
+		StartDefaultTask
 		);
 	
-		int32_t tmp_i32 = (int32_t)XMC1000_CalcTemperature_soft();
-		printf("die temp:%i\n", tmp_i32 - 273);
+//		int32_t tmp_i32 = (int32_t)XMC1000_CalcTemperature_soft();
+//		printf("die temp:%i\n", tmp_i32 - 273);
 		
-		XMC_RTC_TIME_t current_time;
-		XMC_RTC_GetTime(&current_time);
-		printf("RTC %02u:%02u:%02u\n", current_time.hours, current_time.minutes, current_time.seconds);
-		
+//		XMC_RTC_TIME_t current_time;
+//		XMC_RTC_GetTime(&current_time);
+//		printf("RTC %02u:%02u:%02u\n", current_time.hours, current_time.minutes, current_time.seconds);
+//		
 		LED_Toggle(1);
 		
 		xSemaphoreTake(g_noti_sema, portMAX_DELAY);	
 
-		char tmpBuf[1024];
-		vTaskList(tmpBuf);
-		printf(tmpBuf);
+//		char tmpBuf[1024];
+//		vTaskList(tmpBuf);
+//		printf(tmpBuf);
 		
-		printf("Total Heap:%u\n", 
-		configTOTAL_HEAP_SIZE);
-		
-		printf("Free Heap:%u\n",
-		xPortGetFreeHeapSize());
-				
-		printf("minimum ever:%u\n",
-		xPortGetMinimumEverFreeHeapSize());
+//		printf("Total Heap:%u\n", 
+//		configTOTAL_HEAP_SIZE);
+//		
+//		printf("Free Heap:%u\n",
+//		xPortGetFreeHeapSize());
+//				
+//		printf("minimum ever:%u\n",
+//		xPortGetMinimumEverFreeHeapSize());
 		
 //		vTaskGetRunTimeStats(tmpBuf);
 //		printf(tmpBuf);		
     
 		/* Retrieve result from result register. */				
 		get_adc_value();
-	
-	TickType_t tmp_ticks[3];
-#define	TEST_LOOP_N	10
-		printf("ram func addr %p\n", test_ram_code);
-		printf("another ram func addr %p\n", test_ram_code_func2);
-		printf("flash func addr %p\n", test_flash_code);
-		
-		tmp_ticks[0] = xTaskGetTickCount();
-		test_ram_code(TEST_LOOP_N);
-		tmp_ticks[1] = xTaskGetTickCount();
-		test_flash_code(TEST_LOOP_N);
-		tmp_ticks[2] = xTaskGetTickCount();
+//	
+//	TickType_t tmp_ticks[3];
+//#define	TEST_LOOP_N	10
+//		printf("ram func addr %p\n", test_ram_code);
+//		printf("another ram func addr %p\n", test_ram_code_func2);
+//		printf("flash func addr %p\n", test_flash_code);
+//		
+//		tmp_ticks[0] = xTaskGetTickCount();
+//		test_ram_code(TEST_LOOP_N);
+//		tmp_ticks[1] = xTaskGetTickCount();
+//		test_flash_code(TEST_LOOP_N);
+//		tmp_ticks[2] = xTaskGetTickCount();
 
-		printf("Loop Count:%u, ticks:%u %u %u [%u] [%u]\n", 
-		TEST_LOOP_N, 
-		tmp_ticks[0], tmp_ticks[1], tmp_ticks[2],
-		(tmp_ticks[1]-tmp_ticks[0]),
-		(tmp_ticks[2]-tmp_ticks[1]));
-				
-		printf("Before SVC:\n");		
-		svc_12();
-		printf("After svc:\n");
-		
-		printf("Before BKPT:\n");		
-		__BKPT(0x12);
-		printf("After BKPT:\n");				
+//		printf("Loop Count:%u, ticks:%u %u %u [%u] [%u]\n", 
+//		TEST_LOOP_N, 
+//		tmp_ticks[0], tmp_ticks[1], tmp_ticks[2],
+//		(tmp_ticks[1]-tmp_ticks[0]),
+//		(tmp_ticks[2]-tmp_ticks[1]));
+//				
+//		printf("Before SVC:\n");		
+//		svc_12();
+//		printf("After svc:\n");
+//		
+//		printf("Before BKPT:\n");		
+//		__BKPT(0x12);
+//		printf("After BKPT:\n");				
 		
   }
 }
@@ -240,7 +237,6 @@ void StartDefaultTask(void const * argument)
 */
 void StartTask02(void const * argument)
 {
-	uint32_t ra = __return_address();
   /* Infinite loop */
   for(;;) {
 		LED_Toggle(2);
@@ -250,6 +246,6 @@ void StartTask02(void const * argument)
 		uint32_t tmpTick = getKernelSysTick();
 		xQueueSend(g_queue, &tmpTick, 0);
 		
-    vTaskDelay(10 / portTICK_PERIOD_MS);
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
 }

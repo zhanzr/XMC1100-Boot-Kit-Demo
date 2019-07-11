@@ -23,14 +23,10 @@ static const GPIO_PIN LED_PIN[] =
    - \b  0: function succeeded
    - \b -1: function failed
 */
-void LED_Initialize (void)
-{
-	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 5, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
-	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 6, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
-	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 7, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
-
-	XMC_GPIO_SetMode(XMC_GPIO_PORT1, 4, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
-	XMC_GPIO_SetMode(XMC_GPIO_PORT1, 5, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
+void LED_Initialize (void) {
+	for(uint8_t i=0; i<LED_COUNT; ++i) {
+		XMC_GPIO_SetMode(LED_PIN[i].port, LED_PIN[i].pin, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
+	}
 }
 
 /**
@@ -40,14 +36,10 @@ void LED_Initialize (void)
    - \b  0: function succeeded
    - \b -1: function failed
 */
-void LED_Uninitialize (void) 
-{
-	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 5, XMC_GPIO_MODE_INPUT_TRISTATE);
-	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 6, XMC_GPIO_MODE_INPUT_TRISTATE);
-	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 7, XMC_GPIO_MODE_INPUT_TRISTATE);
-
-	XMC_GPIO_SetMode(XMC_GPIO_PORT1, 4, XMC_GPIO_MODE_INPUT_TRISTATE);
-	XMC_GPIO_SetMode(XMC_GPIO_PORT1, 5, XMC_GPIO_MODE_INPUT_TRISTATE);
+void LED_Uninitialize (void) {
+	for(uint8_t i=0; i<LED_COUNT; ++i) {
+		XMC_GPIO_SetMode(LED_PIN[i].port, LED_PIN[i].pin, XMC_GPIO_MODE_INPUT_TRISTATE);
+	}	
 }
 
 /**
