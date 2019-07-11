@@ -8,26 +8,24 @@ extern __IO uint32_t g_Ticks;
 
 void HardFault_Handler(void)
 {
+	printf("%p", HardFault_Handler);
 	printf(__FUNCTION__);
 	while(1)
 	{;}
 }
 
 void freertos_tick_handler(void);
-void SysTick_Handler(void) __irq
-{	
-	g_Ticks++;
-
+void SysTick_Handler(void) {	
 	freertos_tick_handler();	
 }
 
 
 //RTC Alarm
-void SCU_1_IRQHandler(void)
-{
-	uint32_t lt = g_Ticks;
-
-	XMC_RTC_ClearEvent(XMC_RTC_EVENT_PERIODIC_SECONDS);	
+void SCU_1_IRQHandler(void){	
+	printf("%p", HardFault_Handler);
+	printf(__FUNCTION__);
+	while(1)
+	{;}
 }
                  
 void SCU_2_IRQHandler(void)

@@ -98,7 +98,7 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of defaultTask */
 	xTaskCreate((TaskFunction_t)StartDefaultTask,
 							(const portCHAR *)"defaultTask",
-							384,
+							512,
 							NULL,
 							2,
 							&g_task01_handle);
@@ -145,6 +145,9 @@ void get_adc_value(void) {
 void test_flash_code(uint32_t ln_cnt);
 void test_ram_code(uint32_t ln_cnt);
 void test_ram_code_func2(void);
+
+void __svc(12) svc_12(void);
+
 /**
   * @brief  Function implementing the defaultTask thread.
   * @param  argument: Not used 
@@ -202,7 +205,7 @@ void StartDefaultTask(void const * argument)
 		get_adc_value();
 	
 	TickType_t tmp_ticks[3];
-#define	TEST_LOOP_N	500000
+#define	TEST_LOOP_N	10
 		printf("ram func addr %p\n", test_ram_code);
 		printf("another ram func addr %p\n", test_ram_code_func2);
 		printf("flash func addr %p\n", test_flash_code);
@@ -218,6 +221,15 @@ void StartDefaultTask(void const * argument)
 		tmp_ticks[0], tmp_ticks[1], tmp_ticks[2],
 		(tmp_ticks[1]-tmp_ticks[0]),
 		(tmp_ticks[2]-tmp_ticks[1]));
+				
+		printf("Before SVC:\n");		
+		svc_12();
+		printf("After svc:\n");
+		
+		printf("Before BKPT:\n");		
+		__BKPT(0x12);
+		printf("After BKPT:\n");				
+		
   }
 }
 
@@ -237,7 +249,7 @@ void StartTask02(void const * argument)
 		
 		uint32_t tmpTick = getKernelSysTick();
 		xQueueSend(g_queue, &tmpTick, 0);
-
+		
     vTaskDelay(10 / portTICK_PERIOD_MS);
   }
 }

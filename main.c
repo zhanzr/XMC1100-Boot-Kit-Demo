@@ -40,33 +40,13 @@ using namespace std;
 XMC_GPIO_CONFIG_t uart_tx;
 XMC_GPIO_CONFIG_t uart_rx;
 
-__IO uint32_t g_Ticks;
-
 /* UART configuration */
 const XMC_UART_CH_CONFIG_t uart_config = {	
   .data_bits = 8U,
   .stop_bits = 1U,
   .baudrate = 921600
 };
-
-XMC_RTC_CONFIG_t rtc_config =
-{
-  .time.seconds = 5U,
-  .prescaler = 0x7fffU
-};     
-
-XMC_RTC_TIME_t init_rtc_time = 
-{
-	.year = 2018,
-	.month = XMC_RTC_MONTH_JANUARY,
-	.daysofweek = XMC_RTC_WEEKDAY_TUESDAY,
-	.days = 27,
-	.hours = 15,
-	.minutes = 40,
-	.seconds = 55	
-};
-
-
+    
 /***************************************************************************
  * CONFIGURATION
  **************************************************************************/
@@ -99,8 +79,8 @@ int stdout_putchar (int ch) {
 void MX_FREERTOS_Init(void);
 
 int main(void) {		
-  /* System timer configuration */
-  SysTick_Config(SystemCoreClock / configTICK_RATE_HZ);
+//  /* System timer configuration */
+//  SysTick_Config(SystemCoreClock / configTICK_RATE_HZ);
 	
   /*Initialize the UART driver */
 	uart_tx.mode = XMC_GPIO_MODE_OUTPUT_PUSH_PULL_ALT7;
@@ -142,22 +122,11 @@ int main(void) {
     XMC_VADC_GLOBAL_BackgroundTriggerConversion(VADC);
 
 
-  printf ("FreeRTOS For XMC1100 Bootkit @%u Hz\n",
-	SystemCoreClock	);
-	
-	//RTC
-  XMC_RTC_Init(&rtc_config);
-	
-	XMC_RTC_SetTime(&init_rtc_time);
-	
-//  XMC_RTC_EnableEvent(XMC_RTC_EVENT_PERIODIC_SECONDS);
-//  XMC_SCU_INTERRUPT_EnableEvent(XMC_SCU_INTERRUPT_EVENT_RTC_PERIODIC);
-//  NVIC_SetPriority(SCU_1_IRQn, 3);
-//  NVIC_EnableIRQ(SCU_1_IRQn);
-  XMC_RTC_Start();
-	
+  printf ("FreeRTOS For XMC1100 Bootkit @%u Hz %08X\n",
+	SystemCoreClock,
+	SCU_GENERAL->IDCHIP	);
 	LED_Initialize();
-			
+
   /* Call init function for freertos objects (in freertos.c) */
   MX_FREERTOS_Init();
 
