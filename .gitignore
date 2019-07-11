@@ -14,7 +14,6 @@
 *.txt
 Objects/*
 
-*.ini
 DebugConfig/*
 */DebugConfig/*
 MDK-ARM/DebugConfig/*
