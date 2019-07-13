@@ -1,10 +1,10 @@
 ;*********************************************************************************************************************
-;* @file     startup_XMC1100.s
-;* @brief    CMSIS Core Device Startup File for Infineon XMC1100 Device Series
-;* @version  V1.4
-;* @date     03 Sep 2015
+;* ;file     startup_XMC1100.s
+;* ;brief    CMSIS Core Device Startup File for Infineon XMC1100 Device Series
+;* ;version  V1.4
+;* ;date     03 Sep 2015
 ;*
-;* @cond
+;* ;cond
 ;*********************************************************************************************************************
 ;* Copyright (c) 2013-2016, Infineon Technologies AG
 ;* All rights reserved.                        
@@ -30,7 +30,7 @@
 ;* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                                  
 ;*                                                                              
 ;* To improve the quality of the software, users are encouraged to share modifications, enhancements or bug fixes with 
-;* Infineon Technologies AG dave@infineon.com).                                                          
+;* Infineon Technologies AG dave;infineon.com).                                                          
 ;*********************************************************************************************************************
 ;*
 ;**************************** Change history ********************************
@@ -41,7 +41,7 @@
 ;* V1.3, Dec, 11, 2014 JFT:Default clocking changed, MCLK=32MHz and PCLK=64MHz
 ;* V1.4, Sep, 03, 2015 JFT:SSW default clocking changed, MCLK=8MHz and PCLK=16MHz avoid problems with BMI tool timeout
 ;*
-;* @endcond 
+;* ;endcond 
 ;*
 
 ; ------------------ <<< Use Configuration Wizard in Context Menu >>> ------------------
@@ -62,12 +62,12 @@ __initial_sp
 ;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ; </h>
 
-Heap_Size       EQU     0x00000200
+;Heap_Size       EQU     0x00000200
 
-                AREA    HEAP, NOINIT, READWRITE, ALIGN=3
-__heap_base
-Heap_Mem        SPACE   Heap_Size
-__heap_limit
+;                AREA    HEAP, NOINIT, READWRITE, ALIGN=3
+;__heap_base
+;Heap_Mem        SPACE   Heap_Size
+;__heap_limit
 
 ; <h> Clock system handling by SSW
 ;   <h> CLK_VAL1 Configuration
@@ -98,8 +98,10 @@ __heap_limit
 ;    <i> Deafult: 32.768kHz standby clock 
 ;    <o0.31>      do not move CLK_VAL1 to SCU_CLKCR[0..19]
 ;   </h>
-CLK_VAL1_Val    EQU     0x00000000      
-
+; 8 MHz
+;CLK_VAL1_Val    EQU     0x00010400
+; 32 MHz
+CLK_VAL1_Val    EQU     0x00010100
 ;   <h> CLK_VAL2 Configuration
 ;    <o0.0>    disable VADC and SHS Gating
 ;    <o0.1>    disable CCU80 Gating
@@ -144,29 +146,95 @@ __Vectors_Size  EQU     __Vectors_End - __Vectors
 ; Reset Handler
 
 Reset_Handler   PROC
-                EXPORT  Reset_Handler             [WEAK]
-                IMPORT  SystemInit
-                IMPORT  __main
-                
+                EXPORT  Reset_Handler             [WEAK]        
 ; Following code initializes the Veneers at address 0x20000000 with a "branch to itself"
 ; The real veneers will be copied later from the scatter loader before reaching main.
 ; This init code should handle an exception before the real veneers are copied.
-SRAM_BASE            EQU     0x20000000
-VENEER_INIT_CODE     EQU     0xE7FEBF00             ; NOP, B .
+SRAM_BASE          EQU     0x20000000
+NV_BASE            EQU     0x10001000
 
-                LDR     R1, =SRAM_BASE
-                LDR     R2, =VENEER_INIT_CODE                
-                MOVS    R0, #48                     ; Veneer 0..47
-Init_Veneers
-                STR     R2, [R1]
-                ADDS    R1, #4
-                SUBS    R0, R0, #1
-                BNE     Init_Veneers
-                
-                LDR     R0, =SystemInit
-                BLX     R0
-                LDR     R0, =__main
-                BX      R0
+; Copy interrupt veneer to SRAM from NV Storage
+	ldr	r1, =NV_BASE
+	ldr	r2, =SRAM_BASE
+	ldr	r3, =VeneerEnd
+	bl  __copy_data
+
+    ldr  r0, =asm_blink
+    blx  r0
+                ENDP
+
+asm_blink PROC
+                IMPORT  LED_Initialize
+                IMPORT  LED_Off
+                IMPORT  LED_On
+                IMPORT  LED_Toggle
+					
+SysTick_BASE	EQU	0xE000E010
+SysTick_CTRL	EQU	0
+SysTick_LOAD	EQU	4
+SysTick_VAL	EQU	8
+	
+	BL LED_Initialize
+	
+	; Program SysTick timer at 1KHz.
+	LDR R0,=SysTick_BASE
+	LDR R1,=(32000000/1000 - 1)
+	STR R1,[R0,#SysTick_LOAD]
+	MOVS R1, #0
+	STR R1,[R0,#SysTick_VAL]
+	MOVS R1, #5
+	STR R1,[R0,#SysTick_CTRL]	
+	
+;Delay 500 * 1 ms
+Blinky_loop
+	LDR R0,=SysTick_BASE
+	LDR R1, =1000
+Blinky_inner_loop1
+Blinky_inner_loop2
+	LDR R2, =0x10000
+	LDR R3, [R0,#SysTick_CTRL]
+	TST R3, R2
+	BEQ Blinky_inner_loop2
+	SUBS R1, R1, #1
+	BNE Blinky_inner_loop1
+
+	MOVS R0, 0
+	BL LED_Toggle
+	
+	MOVS R0, 1
+	BL LED_Toggle
+
+	MOVS R0, 2
+	BL LED_Toggle
+	
+	MOVS R0, 3
+	BL LED_Toggle
+	
+	MOVS R0, 4
+	BL LED_Toggle
+				B Blinky_loop
+                ENDP
+					
+__copy_data PROC
+;  The ranges of copy from/to are specified by following symbols
+;    r1: start of the section to copy from.
+;    r2: start of the section to copy to
+;    r3: end of the section to copy to
+;
+;  All addresses must be aligned to 4 bytes boundary.
+;  Uses r0
+;/
+	subs	r3, r2
+	ble	_L_loop_done
+
+_L_loop
+	subs	r3, #4
+	ldr	r0, [r1,r3]
+	str	r0, [r2,r3]
+	bgt	_L_loop
+
+_L_loop_done
+	bx  lr
                 ENDP
 
 Default_Handler PROC
@@ -224,101 +292,127 @@ CCU40_3_IRQHandler
 
 
                 ALIGN
-
-
-; User Initial Stack & Heap
-
-                IF      :DEF:__MICROLIB
-
-                EXPORT  __initial_sp
-                EXPORT  __heap_base
-                EXPORT  __heap_limit
-
-                ELSE
-
-                IMPORT  __use_two_region_memory
-                EXPORT  __user_initial_stackheap
-
-__user_initial_stackheap PROC
-                LDR     R0, =  Heap_Mem
-                LDR     R1, =(Stack_Mem + Stack_Size)
-                LDR     R2, = (Heap_Mem +  Heap_Size)
-                LDR     R3, = Stack_Mem
-                BX      LR
-                ENDP
-
-                ALIGN
-
-                ENDIF
-
-
 ;* ================== START OF INTERRUPT HANDLER VENEERS ==================== */
 ; Veneers are located to fix SRAM Address 0x2000'0000
                 AREA    |.ARM.__at_0x20000000|, CODE, READWRITE
-
-; Each Veneer has exactly a lengs of 4 Byte
-
-                MACRO
-                STAYHERE $IrqNumber
-                LDR  R0, =$IrqNumber
-                B    .
-                MEND
-
-                MACRO
-                JUMPTO $Handler
-                LDR  R0, =$Handler
-                BX   R0
-                MEND
-
-                STAYHERE 0x0                          ;* Reserved
-                STAYHERE 0x1                          ;* Reserved 
-                STAYHERE 0x2                          ;* Reserved 
-                JUMPTO   HardFault_Handler            ;* HardFault Veneer  
-                STAYHERE 0x4                          ;* Reserved 
-                STAYHERE 0x5                          ;* Reserved 
-                STAYHERE 0x6                          ;* Reserved 
-                STAYHERE 0x7                          ;* Reserved 
-                STAYHERE 0x8                          ;* Reserved 
-                STAYHERE 0x9                          ;* Reserved 
-                STAYHERE 0xA                          ;* Reserved
-                JUMPTO   SVC_Handler                  ;* SVC Veneer        
-                STAYHERE 0xC                          ;* Reserved
-                STAYHERE 0xD                          ;* Reserved
-                JUMPTO   PendSV_Handler               ;* PendSV Veneer     
-                JUMPTO   SysTick_Handler              ;* SysTick Veneer    
-                JUMPTO   SCU_0_IRQHandler             ;* SCU_0 Veneer      
-                JUMPTO   SCU_1_IRQHandler             ;* SCU_1 Veneer      
-                JUMPTO   SCU_2_IRQHandler             ;* SCU_2 Veneer      
-                JUMPTO   ERU0_0_IRQHandler            ;* SCU_3 Veneer      
-                JUMPTO   ERU0_1_IRQHandler            ;* SCU_4 Veneer      
-                JUMPTO   ERU0_2_IRQHandler            ;* SCU_5 Veneer      
-                JUMPTO   ERU0_3_IRQHandler            ;* SCU_6 Veneer      
-                STAYHERE 0x17                         ;* Reserved  
-                STAYHERE 0x18                         ;* Reserved
-                JUMPTO   USIC0_0_IRQHandler           ;* USIC0_0 Veneer    
-                JUMPTO   USIC0_1_IRQHandler           ;* USIC0_1 Veneer    
-                JUMPTO   USIC0_2_IRQHandler           ;* USIC0_2 Veneer    
-                JUMPTO   USIC0_3_IRQHandler           ;* USIC0_3 Veneer    
-                JUMPTO   USIC0_4_IRQHandler           ;* USIC0_4 Veneer    
-                JUMPTO   USIC0_5_IRQHandler           ;* USIC0_5 Veneer    
-                JUMPTO   VADC0_C0_0_IRQHandler        ;* VADC0_C0_0 Veneer 
-                JUMPTO   VADC0_C0_1_IRQHandler        ;* VADC0_C0_1 Veneer 
-                STAYHERE 0x21                         ;* Reserved
-                STAYHERE 0x22                         ;* Reserved
-                STAYHERE 0x23                         ;* Reserved
-                STAYHERE 0x24                         ;* Reserved
-                JUMPTO   CCU40_0_IRQHandler           ;* CCU40_0 Veneer    
-                JUMPTO   CCU40_1_IRQHandler           ;* CCU40_1 Veneer    
-                JUMPTO   CCU40_2_IRQHandler           ;* CCU40_2 Veneer    
-                JUMPTO   CCU40_3_IRQHandler           ;* CCU40_3 Veneer    
-                STAYHERE 0x29                         ;* Reserved 
-                STAYHERE 0x2A                         ;* Reserved  
-                STAYHERE 0x2B                         ;* Reserved 
-                STAYHERE 0x2C                         ;* Reserved
-                STAYHERE 0x2D                         ;* Reserved
-                STAYHERE 0x2E                         ;* Reserved
-                STAYHERE 0x2F                         ;* Reserved
-
+    DCD     0 
+    DCD     0 
+    DCD     0 					
+HardFault_Veneer 
+    LDR R0, =HardFault_Handler
+    BX   R0
+    DCD     0 
+    DCD     0 
+    DCD     0 
+    DCD     0 
+    DCD     0 
+    DCD     0 
+    DCD     0 
+    
+; ======================================================================== */
+SVC_Veneer
+    LDR R0, =SVC_Handler
+    BX   R0
+    DCD     0 
+    DCD     0 
+; ======================================================================== */
+PendSV_Veneer
+    LDR R0, =PendSV_Handler
+    BX   R0
+; ======================================================================== */
+SysTick_Veneer
+    LDR R0, =SysTick_Handler
+    BX   R0
+; ======================================================================== */
+SCU_0_Veneer
+    LDR R0, =SCU_0_IRQHandler
+    BX   R0
+; ======================================================================== */
+SCU_1_Veneer
+    LDR R0, =SCU_1_IRQHandler
+    BX   R0
+; ======================================================================== */
+SCU_2_Veneer
+    LDR R0, =SCU_2_IRQHandler
+    BX   R0
+; ======================================================================== */
+SCU_3_Veneer
+    LDR R0, =ERU0_0_IRQHandler
+    BX   R0
+; ======================================================================== */
+SCU_4_Veneer
+    LDR R0, =ERU0_1_IRQHandler
+    BX   R0
+; ======================================================================== */
+SCU_5_Veneer
+    LDR R0, =ERU0_2_IRQHandler
+    BX   R0
+; ======================================================================== */
+SCU_6_Veneer
+    LDR R0, =ERU0_3_IRQHandler
+    BX   R0
+    DCD     0 
+    DCD     0 
+; ======================================================================== */
+USIC0_0_Veneer
+    LDR R0, =USIC0_0_IRQHandler
+    BX   R0
+; ======================================================================== */
+USIC0_1_Veneer
+    LDR R0, =USIC0_1_IRQHandler
+    BX   R0
+; ======================================================================== */
+USIC0_2_Veneer
+    LDR R0, =USIC0_2_IRQHandler
+    BX   R0
+; ======================================================================== */
+USIC0_3_Veneer
+    LDR R0, =USIC0_3_IRQHandler
+    BX   R0
+; ======================================================================== */
+USIC0_4_Veneer
+    LDR R0, =USIC0_4_IRQHandler
+    BX   R0
+; ======================================================================== */
+USIC0_5_Veneer
+    LDR R0, =USIC0_5_IRQHandler
+    BX   R0
+; ======================================================================== */
+VADC0_C0_0_Veneer
+    LDR R0, =VADC0_C0_0_IRQHandler
+    BX   R0
+; ======================================================================== */
+VADC0_C0_1_Veneer
+    LDR R0, =VADC0_C0_1_IRQHandler
+    BX   R0
+    DCD     0 
+    DCD     0 
+    DCD     0 
+    DCD     0 
+; ======================================================================== */
+CCU40_0_Veneer
+    LDR R0, =CCU40_0_IRQHandler
+    BX   R0
+; ======================================================================== */
+CCU40_1_Veneer
+    LDR R0, =CCU40_1_IRQHandler
+    BX   R0
+; ======================================================================== */
+CCU40_2_Veneer
+    LDR R0, =CCU40_2_IRQHandler
+    BX   R0
+; ======================================================================== */
+CCU40_3_Veneer
+    LDR R0, =CCU40_3_IRQHandler
+    BX   R0
+    DCD     0 
+    DCD     0 
+    DCD     0 
+    DCD     0 
+    DCD     0 
+    DCD     0 
+    DCD     0 
+VeneerEnd
                 ALIGN
 
 ;* ================== END OF INTERRUPT HANDLER VENEERS ====================== */
