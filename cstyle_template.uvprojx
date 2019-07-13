@@ -10,7 +10,7 @@
       <TargetName>flash_ecc</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>6120000::V6.12::.\ARMCLANG</pCCUsed>
+      <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
@@ -391,11 +391,6 @@
               <FileName>xmc1100_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\xmc1100_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>dhry_2.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\dhry_2.c</FilePath>
             </File>
           </Files>
         </Group>
