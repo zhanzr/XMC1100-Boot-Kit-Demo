@@ -1,4 +1,5 @@
 #pragma once
+#include <xmc_gpio.h>
 
 /* GPIO Pin identifier */
 typedef struct _GPIO_PIN {
@@ -11,3 +12,4 @@ void LED_Uninitialize (void) ;
 
 void LED_On (uint8_t num) ;
 void LED_Off (uint8_t num);
+void LED_Toggle (uint8_t num);

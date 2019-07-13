@@ -16,71 +16,69 @@ void HardFault_Handler(void)
 // SVC handler - main code to handle processing
 // Input parameter is stack frame starting address
 // obtained from assembly wrapper.
-void SVC_Handler_main(unsigned int * svc_args)
-{
-	// Stack frame contains:
-	// r0, r1, r2, r3, r12, r14, the return address and xPSR
-	// - Stacked R0 = svc_args[0]
-	// - Stacked R1 = svc_args[1]
-	// - Stacked R2 = svc_args[2]
-	// - Stacked R3 = svc_args[3]
-	// - Stacked R12 = svc_args[4]
-	// - Stacked LR = svc_args[5]
-	// - Stacked PC = svc_args[6]
-	// - Stacked xPSR= svc_args[7]
-	unsigned int svc_number;
-	svc_number = ((char *)svc_args[6])[-2];
-	switch(svc_number)
-	{
-		case 0:
-			svc_args[0] = svc_args[0] + svc_args[1];
-		break;
+//void SVC_Handler_main(unsigned int * svc_args)
+//{
+//	// Stack frame contains:
+//	// r0, r1, r2, r3, r12, r14, the return address and xPSR
+//	// - Stacked R0 = svc_args[0]
+//	// - Stacked R1 = svc_args[1]
+//	// - Stacked R2 = svc_args[2]
+//	// - Stacked R3 = svc_args[3]
+//	// - Stacked R12 = svc_args[4]
+//	// - Stacked LR = svc_args[5]
+//	// - Stacked PC = svc_args[6]
+//	// - Stacked xPSR= svc_args[7]
+//	unsigned int svc_number;
+//	svc_number = ((char *)svc_args[6])[-2];
+//	switch(svc_number)
+//	{
+//		case 0:
+//			svc_args[0] = svc_args[0] + svc_args[1];
+//		break;
 
-		case 1:
-			svc_args[0] = svc_args[0] - svc_args[1];
-		break;
+//		case 1:
+//			svc_args[0] = svc_args[0] - svc_args[1];
+//		break;
 
-		case 2:
-			svc_args[0] = svc_args[0] + 1;
-		break;
+//		case 2:
+//			svc_args[0] = svc_args[0] + 1;
+//		break;
 
-		case 3:
-			printf("svc 3:%08X\n", svc_args[0]);
-			break;
-		
-		default: // Unknown SVC request
-		break;
-	}
-	return;
-}
+//		case 3:
+//			printf("svc 3:%08X\n", svc_args[0]);
+//			break;
+//		
+//		default: // Unknown SVC request
+//		break;
+//	}
+//	return;
+//}
 
-// SVC handler - Assembly wrapper to extract
-// stack frame starting address
-__asm void SVC_Handler(void) {
-	IMPORT SVC_Handler_main
-	
-	MOVS r0, #4
-	MOV r1, LR
-	TST r0, r1
-	BEQ stacking_used_MSP
-	MRS R0, PSP // first parameter - stacking was using PSP
-	LDR R1,=SVC_Handler_main
-	BX R1
-stacking_used_MSP
-	MRS R0, MSP // first parameter - stacking was using MSP
-	LDR R1,=SVC_Handler_main
-	BX R1
-}
+//// SVC handler - Assembly wrapper to extract
+//// stack frame starting address
+//__asm void SVC_Handler(void) {
+//	IMPORT SVC_Handler_main
+//	
+//	MOVS r0, #4
+//	MOV r1, LR
+//	TST r0, r1
+//	BEQ stacking_used_MSP
+//	MRS R0, PSP // first parameter - stacking was using PSP
+//	LDR R1,=SVC_Handler_main
+//	BX R1
+//stacking_used_MSP
+//	MRS R0, MSP // first parameter - stacking was using MSP
+//	LDR R1,=SVC_Handler_main
+//	BX R1
+//}
 
-void PendSV_Handler(void) {
-	printf("%s\n", __func__);
-}
+//void PendSV_Handler(void) {
+//	printf("%s\n", __func__);
+//}
 
-void SysTick_Handler(void)
-{	
-	g_Ticks++;
-}
-
+//void SysTick_Handler(void) {	
+//	g_Ticks++;
+//}
 
 //RTC Alarm
 void SCU_1_IRQHandler(void)

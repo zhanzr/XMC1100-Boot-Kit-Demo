@@ -51,7 +51,7 @@
 ;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ; </h>
 
-Stack_Size      EQU     0x00000800
+Stack_Size      EQU     0x00001000
 
                 AREA    STACK, NOINIT, READWRITE, ALIGN=3
 Stack_Mem       SPACE   Stack_Size
@@ -98,7 +98,7 @@ __heap_limit
 ;    <i> Deafult: 32.768kHz standby clock 
 ;    <o0.31>      do not move CLK_VAL1 to SCU_CLKCR[0..19]
 ;   </h>
-CLK_VAL1_Val    EQU     0x00000000      
+CLK_VAL1_Val    EQU     0x00010400      
 
 ;   <h> CLK_VAL2 Configuration
 ;    <o0.0>    disable VADC and SHS Gating

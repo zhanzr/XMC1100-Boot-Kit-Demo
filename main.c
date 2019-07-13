@@ -12,6 +12,10 @@
 #include <xmc_uart.h>
 #include <xmc_gpio.h>
 
+#include <cmsis_os.h>
+
+#include "led.h"
+
 #define UART_RX P1_3
 #define UART_TX P1_2
 
@@ -32,15 +36,30 @@ int stdout_putchar (int ch) {
 	return ch;
 }
 
-int __svc(0x00) svc_service_add(int x, int y);
-int __svc(0x01) svc_service_sub(int x, int y);
-int __svc(0x02) svc_service_incr(int x);
+void blink_func0 (void  const *argument) {
+	while(1) {
+		LED_Toggle(0);
+	
+		osSignalWait(1, osWaitForever);
+	}
+}
 
-void __svc(0x03) svc_service_print_u32(uint32_t val32);
+osThreadId tid_blink0;                 
+osThreadDef(blink_func0, osPriorityNormal, 1, 0);
+
+void singal_func (void  const *argument) {
+	while(1) {
+		osSignalSet(tid_blink0, 1);
+		osDelay(200);    
+	}
+}
+
+osThreadId tid_signal;                 
+osThreadDef(singal_func, osPriorityNormal, 1, 0);
 
 int main(void) {
   /* System timer configuration */
-  SysTick_Config(SystemCoreClock / 1000);
+	LED_Initialize();
 	
   /*Initialize the UART driver */
 	uart_tx.mode = XMC_GPIO_MODE_OUTPUT_PUSH_PULL_ALT7;
@@ -62,24 +81,10 @@ int main(void) {
 	printf ("XMC1100 test @%u Hz\n",
 	SystemCoreClock	);
 	
-	int x, y, z;
+	tid_blink0 = osThreadCreate(osThread(blink_func0), NULL);
+	tid_signal = osThreadCreate(osThread(singal_func), NULL);
 
-	x = 3; y = 5;
-	z = svc_service_add(x, y);
-	printf ("3+5 = %d \n", z);
-	x = 9; y = 2;
-	z = svc_service_sub(x, y);
-	printf ("9-2 = %d \n", z);
-
-	x = 3;
-	z = svc_service_incr(x);
-	printf ("3++ = %d \n", z);
-
-	svc_service_print_u32((uint32_t)main);
-	svc_service_print_u32((uint32_t)stdout_putchar);
-
-	//Pending the PendSVC
-	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk; // Set PendSV pending status
+  osKernelStart();
 
 	while (1) {
   }
