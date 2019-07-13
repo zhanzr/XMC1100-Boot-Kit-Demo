@@ -210,7 +210,7 @@
             <Ra2Chk>0</Ra2Chk>
             <Ra3Chk>0</Ra3Chk>
             <Im1Chk>1</Im1Chk>
-            <Im2Chk>0</Im2Chk>
+            <Im2Chk>1</Im2Chk>
             <OnChipMemories>
               <Ocm1>
                 <Type>0</Type>
@@ -299,13 +299,13 @@
               </OCR_RVCT8>
               <OCR_RVCT9>
                 <Type>0</Type>
-                <StartAddress>0x20000000</StartAddress>
+                <StartAddress>0x200000c0</StartAddress>
                 <Size>0x3ffc</Size>
               </OCR_RVCT9>
               <OCR_RVCT10>
                 <Type>0</Type>
-                <StartAddress>0x0</StartAddress>
-                <Size>0x0</Size>
+                <StartAddress>0x20000000</StartAddress>
+                <Size>0xc</Size>
               </OCR_RVCT10>
             </OnChipMemories>
             <RvctStartVector></RvctStartVector>
@@ -424,37 +424,7 @@
           <targetInfo name="xmc1100_prj"/>
         </targetInfos>
       </component>
-      <component Cclass="Device" Cgroup="XMClib" Csub="CCU4" Cvendor="Infineon" Cversion="2.1.22" condition="XMC1 CMSIS SCU">
-        <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.10.0"/>
-        <targetInfos>
-          <targetInfo name="xmc1100_prj"/>
-        </targetInfos>
-      </component>
-      <component Cclass="Device" Cgroup="XMClib" Csub="FLASH" Cvendor="Infineon" Cversion="2.1.22" condition="XMC1 CMSIS">
-        <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.10.0"/>
-        <targetInfos>
-          <targetInfo name="xmc1100_prj"/>
-        </targetInfos>
-      </component>
       <component Cclass="Device" Cgroup="XMClib" Csub="GPIO" Cvendor="Infineon" Cversion="2.1.22" condition="XMC1 CMSIS">
-        <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.10.0"/>
-        <targetInfos>
-          <targetInfo name="xmc1100_prj"/>
-        </targetInfos>
-      </component>
-      <component Cclass="Device" Cgroup="XMClib" Csub="RTC" Cvendor="Infineon" Cversion="2.1.22" condition="XMC1 CMSIS SCU">
-        <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.10.0"/>
-        <targetInfos>
-          <targetInfo name="xmc1100_prj"/>
-        </targetInfos>
-      </component>
-      <component Cclass="Device" Cgroup="XMClib" Csub="SCU" Cvendor="Infineon" Cversion="2.1.22" condition="XMC1 CMSIS">
-        <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.10.0"/>
-        <targetInfos>
-          <targetInfo name="xmc1100_prj"/>
-        </targetInfos>
-      </component>
-      <component Cclass="Device" Cgroup="XMClib" Csub="UART" Cvendor="Infineon" Cversion="2.1.22" condition="XMC1 CMSIS SCU">
         <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.10.0"/>
         <targetInfos>
           <targetInfo name="xmc1100_prj"/>
@@ -500,7 +470,7 @@
           <targetInfo name="xmc1100_prj"/>
         </targetInfos>
       </file>
-      <file attr="config" category="source" condition="XMC11xx" name="Device\XMC1100_series\Source\system_XMC1100.c" version="0.0.0">
+      <file attr="config" category="source" condition="XMC11xx" name="Device\XMC1100_series\Source\system_XMC1100.c" version="1.12.0">
         <instance index="0">RTE\Device\XMC1100-T038x0064\system_XMC1100.c</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="Infineon" Cversion="2.4.0" condition="XMC1"/>
         <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.10.0"/>

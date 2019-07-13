@@ -1,56 +1,3 @@
-;*********************************************************************************************************************
-;* ;file     startup_XMC1100.s
-;* ;brief    CMSIS Core Device Startup File for Infineon XMC1100 Device Series
-;* ;version  V1.4
-;* ;date     03 Sep 2015
-;*
-;* ;cond
-;*********************************************************************************************************************
-;* Copyright (c) 2013-2016, Infineon Technologies AG
-;* All rights reserved.                        
-;*                                             
-;* Redistribution and use in source and binary forms, with or without modification,are permitted provided that the 
-;* following conditions are met:   
-;*                                                                              
-;* Redistributions of source code must retain the above copyright notice, this list of conditions and the following 
-;* disclaimer.                        
-;* 
-;* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following 
-;* disclaimer in the documentation and/or other materials provided with the distribution.                       
-;* 
-;* Neither the name of the copyright holders nor the names of its contributors may be used to endorse or promote 
-;* products derived from this software without specific prior written permission.                                           
-;*                                                                              
-;* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, 
-;* INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE  
-;* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE  FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-;* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR  
-;* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-;* WHETHER IN CONTRACT, STRICT LIABILITY,OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
-;* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                                  
-;*                                                                              
-;* To improve the quality of the software, users are encouraged to share modifications, enhancements or bug fixes with 
-;* Infineon Technologies AG dave;infineon.com).                                                          
-;*********************************************************************************************************************
-;*
-;**************************** Change history ********************************
-;* V1.0, Jan, 21, 2013 TYS:Startup file for XMC1
-;* V1.1, Jul, 17, 2013 TYS:remove redundant vector table
-;* V1.2, Nov, 25, 2014 JFT:Removed DAVE3 dependency. 
-;*                         Default handler used for all IRQs
-;* V1.3, Dec, 11, 2014 JFT:Default clocking changed, MCLK=32MHz and PCLK=64MHz
-;* V1.4, Sep, 03, 2015 JFT:SSW default clocking changed, MCLK=8MHz and PCLK=16MHz avoid problems with BMI tool timeout
-;*
-;* ;endcond 
-;*
-
-; ------------------ <<< Use Configuration Wizard in Context Menu >>> ------------------
-           
-           
-; <h> Stack Configuration
-;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
-; </h>
-
 Stack_Size      EQU     0x00001000
 
                 AREA    STACK, NOINIT, READWRITE, ALIGN=3
@@ -58,17 +5,15 @@ Stack_Mem       SPACE   Stack_Size
 __initial_sp
 
 
-; <h> Heap Configuration
-;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
-; </h>
+; --------------------------------------------------
+; Allocate data variable space
+	AREA | Header Data|, DATA ; Start of Data definitions
+	ALIGN 4
+MyData1 DCD 0 ; Word size data
+MyData2 DCW 0 ; half Word size data
+MyData3 DCB 0 ; byte size data
 
-;Heap_Size       EQU     0x00000200
-
-;                AREA    HEAP, NOINIT, READWRITE, ALIGN=3
-;__heap_base
-;Heap_Mem        SPACE   Heap_Size
-;__heap_limit
-
+                ALIGN
 ; <h> Clock system handling by SSW
 ;   <h> CLK_VAL1 Configuration
 ;    <o0.0..7>    FDIV Fractional Divider Selection
@@ -137,167 +82,17 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     CLK_VAL1_Val              ; CLK_VAL1
                 DCD     CLK_VAL2_Val              ; CLK_VAL2
 __Vectors_End
-
+		
 __Vectors_Size  EQU     __Vectors_End - __Vectors
-
-                AREA    |.text|, CODE, READONLY
-
-
-; Reset Handler
-
-Reset_Handler   PROC
-                EXPORT  Reset_Handler             [WEAK]        
-; Following code initializes the Veneers at address 0x20000000 with a "branch to itself"
-; The real veneers will be copied later from the scatter loader before reaching main.
-; This init code should handle an exception before the real veneers are copied.
-SRAM_BASE          EQU     0x20000000
-NV_BASE            EQU     0x10001000
-
-; Copy interrupt veneer to SRAM from NV Storage
-	ldr	r1, =NV_BASE
-	ldr	r2, =SRAM_BASE
-	ldr	r3, =VeneerEnd
-	bl  __copy_data
-
-    ldr  r0, =asm_blink
-    blx  r0
-                ENDP
-
-asm_blink PROC
-                IMPORT  LED_Initialize
-                IMPORT  LED_Off
-                IMPORT  LED_On
-                IMPORT  LED_Toggle
-					
-SysTick_BASE	EQU	0xE000E010
-SysTick_CTRL	EQU	0
-SysTick_LOAD	EQU	4
-SysTick_VAL	EQU	8
-	
-	BL LED_Initialize
-	
-	; Program SysTick timer at 1KHz.
-	LDR R0,=SysTick_BASE
-	LDR R1,=(32000000/1000 - 1)
-	STR R1,[R0,#SysTick_LOAD]
-	MOVS R1, #0
-	STR R1,[R0,#SysTick_VAL]
-	MOVS R1, #5
-	STR R1,[R0,#SysTick_CTRL]	
-	
-;Delay 500 * 1 ms
-Blinky_loop
-	LDR R0,=SysTick_BASE
-	LDR R1, =1000
-Blinky_inner_loop1
-Blinky_inner_loop2
-	LDR R2, =0x10000
-	LDR R3, [R0,#SysTick_CTRL]
-	TST R3, R2
-	BEQ Blinky_inner_loop2
-	SUBS R1, R1, #1
-	BNE Blinky_inner_loop1
-
-	MOVS R0, 0
-	BL LED_Toggle
-	
-	MOVS R0, 1
-	BL LED_Toggle
-
-	MOVS R0, 2
-	BL LED_Toggle
-	
-	MOVS R0, 3
-	BL LED_Toggle
-	
-	MOVS R0, 4
-	BL LED_Toggle
-				B Blinky_loop
-                ENDP
-					
-__copy_data PROC
-;  The ranges of copy from/to are specified by following symbols
-;    r1: start of the section to copy from.
-;    r2: start of the section to copy to
-;    r3: end of the section to copy to
-;
-;  All addresses must be aligned to 4 bytes boundary.
-;  Uses r0
-;/
-	subs	r3, r2
-	ble	_L_loop_done
-
-_L_loop
-	subs	r3, #4
-	ldr	r0, [r1,r3]
-	str	r0, [r2,r3]
-	bgt	_L_loop
-
-_L_loop_done
-	bx  lr
-                ENDP
-
-Default_Handler PROC
-
-                EXPORT  HardFault_Handler       [WEAK]
-                EXPORT  SVC_Handler             [WEAK]
-                EXPORT  PendSV_Handler          [WEAK]
-                EXPORT  SysTick_Handler         [WEAK]
-                EXPORT  SCU_0_IRQHandler        [WEAK]
-                EXPORT  SCU_1_IRQHandler        [WEAK]
-                EXPORT  SCU_2_IRQHandler        [WEAK]
-                EXPORT  ERU0_0_IRQHandler       [WEAK]
-                EXPORT  ERU0_1_IRQHandler       [WEAK]
-                EXPORT  ERU0_2_IRQHandler       [WEAK]
-                EXPORT  ERU0_3_IRQHandler       [WEAK]
-                EXPORT  USIC0_0_IRQHandler      [WEAK]
-                EXPORT  USIC0_1_IRQHandler      [WEAK]
-                EXPORT  USIC0_2_IRQHandler      [WEAK]
-                EXPORT  USIC0_3_IRQHandler      [WEAK]
-                EXPORT  USIC0_4_IRQHandler      [WEAK]
-                EXPORT  USIC0_5_IRQHandler      [WEAK]
-                EXPORT  VADC0_C0_0_IRQHandler   [WEAK]
-                EXPORT  VADC0_C0_1_IRQHandler   [WEAK]
-                EXPORT  CCU40_0_IRQHandler      [WEAK]
-                EXPORT  CCU40_1_IRQHandler      [WEAK]
-                EXPORT  CCU40_2_IRQHandler      [WEAK]
-                EXPORT  CCU40_3_IRQHandler      [WEAK]
-
-HardFault_Handler       
-SVC_Handler             
-PendSV_Handler          
-SysTick_Handler         
-SCU_0_IRQHandler        
-SCU_1_IRQHandler        
-SCU_2_IRQHandler        
-ERU0_0_IRQHandler       
-ERU0_1_IRQHandler       
-ERU0_2_IRQHandler       
-ERU0_3_IRQHandler       
-USIC0_0_IRQHandler      
-USIC0_1_IRQHandler      
-USIC0_2_IRQHandler      
-USIC0_3_IRQHandler      
-USIC0_4_IRQHandler      
-USIC0_5_IRQHandler      
-VADC0_C0_0_IRQHandler   
-VADC0_C0_1_IRQHandler   
-CCU40_0_IRQHandler      
-CCU40_1_IRQHandler      
-CCU40_2_IRQHandler      
-CCU40_3_IRQHandler      
-                B       .
-
-                ENDP
-
-
-                ALIGN
+	ALIGN
+		
 ;* ================== START OF INTERRUPT HANDLER VENEERS ==================== */
-; Veneers are located to fix SRAM Address 0x2000'0000
-                AREA    |.ARM.__at_0x20000000|, CODE, READWRITE
-    DCD     0 
-    DCD     0 
-    DCD     0 					
+                AREA    |.ARM.__at_0x10001018|, CODE, READONLY
+				EXPORT VeneerStart
+				EXPORT VeneerEnd
+				EXPORT VeneerSize
+; Veneers are located to fix SRAM Address
+VeneerStart								
 HardFault_Veneer 
     LDR R0, =HardFault_Handler
     BX   R0
@@ -413,6 +208,166 @@ CCU40_3_Veneer
     DCD     0 
     DCD     0 
 VeneerEnd
+VeneerSize  EQU     VeneerEnd - VeneerStart
+             ALIGN
+				 
+				AREA    |.text|, CODE, READONLY
+; Reset Handler
+
+Reset_Handler   PROC
+                EXPORT  Reset_Handler             [WEAK]        
+; Following code initializes the Veneers at address 0x20000000 with a "branch to itself"
+; The real veneers will be copied later from the scatter loader before reaching main.
+; This init code should handle an exception before the real veneers are copied.
+SRAM_VENEER_BASE          EQU     0x2000000C
+
+; Copy interrupt veneer to SRAM from NV Storage
+	ldr	r1, =__Vectors_End
+	ldr	r2, =SRAM_VENEER_BASE
+	ldr	r3, =(SRAM_VENEER_BASE + VeneerSize)
+	bl  __copy_data
+
+    ldr  r0, =asm_blink
+    blx  r0
+                ENDP
+
+asm_blink PROC
+                IMPORT  LED_Initialize
+                IMPORT  LED_Off
+                IMPORT  LED_On
+                IMPORT  LED_Toggle
+					
+SysTick_BASE	EQU	0xE000E010
+SysTick_CTRL	EQU	0
+SysTick_LOAD	EQU	4
+SysTick_VAL	EQU	8
+	
+	LDR R0,=MyData1
+	LDR R1,=0x00001234
+	STR R1,[R0] ; MyData1 = 0x00001234
+	LDR R0,=MyData2
+	LDR R1,=0x55CC
+	STRH R1,[R0] ; MyData2 = 0x55CC
+	LDR R0,=MyData3
+	LDR R1,=0xAA
+	STRB R1,[R0] ; MyData3 = 0xAA	
+	
+	BL LED_Initialize
+	
+	; Program SysTick timer at 1KHz.
+	LDR R0,=SysTick_BASE
+	LDR R1,=(32000000/1000 - 1)
+	STR R1,[R0, SysTick_LOAD]
+	MOVS R1, 0
+	STR R1,[R0, SysTick_VAL]
+	MOVS R1, 5
+	STR R1,[R0, SysTick_CTRL]	
+	
+;Delay 500 * 1 ms
+Blinky_loop
+	LDR R0,=SysTick_BASE
+	LDR R1, =1000
+Blinky_inner_loop1
+Blinky_inner_loop2
+	LDR R2, =0x10000
+	LDR R3, [R0, SysTick_CTRL]
+	TST R3, R2
+	BEQ Blinky_inner_loop2
+	SUBS R1, R1, 1
+	BNE Blinky_inner_loop1
+
+	MOVS R0, 0
+	BL LED_Toggle
+	
+	MOVS R0, 1
+	BL LED_Toggle
+
+	MOVS R0, 2
+	BL LED_Toggle
+	
+	MOVS R0, 3
+	BL LED_Toggle
+	
+	MOVS R0, 4
+	BL LED_Toggle
+				B Blinky_loop
+                ENDP
+					
+__copy_data PROC
+;  The ranges of copy from/to are specified by following symbols
+;    r1: start of the section to copy from.
+;    r2: start of the section to copy to
+;    r3: end of the section to copy to
+;
+;  All addresses must be aligned to 4 bytes boundary.
+;  Uses r0
+;/
+	subs	r3, r2
+	ble	_L_loop_done
+
+_L_loop
+	subs	r3, 4
+	ldr	r0, [r1,r3]
+	str	r0, [r2,r3]
+	bgt	_L_loop
+
+_L_loop_done
+	bx  lr
+                ENDP
+
+Default_Handler PROC
+
+                EXPORT  HardFault_Handler       [WEAK]
+                EXPORT  SVC_Handler             [WEAK]
+                EXPORT  PendSV_Handler          [WEAK]
+                EXPORT  SysTick_Handler         [WEAK]
+                EXPORT  SCU_0_IRQHandler        [WEAK]
+                EXPORT  SCU_1_IRQHandler        [WEAK]
+                EXPORT  SCU_2_IRQHandler        [WEAK]
+                EXPORT  ERU0_0_IRQHandler       [WEAK]
+                EXPORT  ERU0_1_IRQHandler       [WEAK]
+                EXPORT  ERU0_2_IRQHandler       [WEAK]
+                EXPORT  ERU0_3_IRQHandler       [WEAK]
+                EXPORT  USIC0_0_IRQHandler      [WEAK]
+                EXPORT  USIC0_1_IRQHandler      [WEAK]
+                EXPORT  USIC0_2_IRQHandler      [WEAK]
+                EXPORT  USIC0_3_IRQHandler      [WEAK]
+                EXPORT  USIC0_4_IRQHandler      [WEAK]
+                EXPORT  USIC0_5_IRQHandler      [WEAK]
+                EXPORT  VADC0_C0_0_IRQHandler   [WEAK]
+                EXPORT  VADC0_C0_1_IRQHandler   [WEAK]
+                EXPORT  CCU40_0_IRQHandler      [WEAK]
+                EXPORT  CCU40_1_IRQHandler      [WEAK]
+                EXPORT  CCU40_2_IRQHandler      [WEAK]
+                EXPORT  CCU40_3_IRQHandler      [WEAK]
+
+HardFault_Handler       
+SVC_Handler             
+PendSV_Handler          
+SysTick_Handler         
+SCU_0_IRQHandler        
+SCU_1_IRQHandler        
+SCU_2_IRQHandler        
+ERU0_0_IRQHandler       
+ERU0_1_IRQHandler       
+ERU0_2_IRQHandler       
+ERU0_3_IRQHandler       
+USIC0_0_IRQHandler      
+USIC0_1_IRQHandler      
+USIC0_2_IRQHandler      
+USIC0_3_IRQHandler      
+USIC0_4_IRQHandler      
+USIC0_5_IRQHandler      
+VADC0_C0_0_IRQHandler   
+VADC0_C0_1_IRQHandler   
+CCU40_0_IRQHandler      
+CCU40_1_IRQHandler      
+CCU40_2_IRQHandler      
+CCU40_3_IRQHandler      
+                B       .
+
+                ENDP
+
                 ALIGN
 
 ;* ================== END OF INTERRUPT HANDLER VENEERS ====================== */
