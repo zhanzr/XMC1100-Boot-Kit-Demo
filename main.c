@@ -9,15 +9,12 @@
 
 #include <XMC1100.h>
 #include <xmc_scu.h>
-#include <xmc_rtc.h>
 #include <xmc_uart.h>
 #include <xmc_gpio.h>
-#include <xmc_flash.h>
 
-#include "led.h"
 #include "dhry.h"
 
-#define RUN_NUMBER	300000
+#define RUN_NUMBER	200000
 
 #define UART_RX P1_3
 #define UART_TX P1_2
@@ -28,49 +25,15 @@ XMC_GPIO_CONFIG_t uart_rx;
 __IO uint32_t g_Ticks;
 
 /* UART configuration */
-const XMC_UART_CH_CONFIG_t uart_config = 
-{	
+const XMC_UART_CH_CONFIG_t uart_config = {	
   .data_bits = 8U,
   .stop_bits = 1U,
-  .baudrate = 256000
+  .baudrate = 921600U
 };
 
-XMC_RTC_CONFIG_t rtc_config =
-{
-  .time.seconds = 5U,
-  .prescaler = 0x7fffU
-};     
-
-XMC_RTC_TIME_t init_rtc_time = 
-{
-	.year = 2018,
-	.month = XMC_RTC_MONTH_JANUARY,
-	.daysofweek = XMC_RTC_WEEKDAY_TUESDAY,
-	.days = 27,
-	.hours = 15,
-	.minutes = 40,
-	.seconds = 55	
-};
-
-int stdout_putchar (int ch)
-{
+int stdout_putchar (int ch) {
 	XMC_UART_CH_Transmit(XMC_UART0_CH1, (uint8_t)ch);
 	return ch;
-}
-
-void SystemCoreClockSetup(void)
-{
-	XMC_SCU_CLOCK_CONFIG_t clock_config =
-	{
-		.rtc_src = XMC_SCU_CLOCK_RTCCLKSRC_DCO2,
-		.pclk_src = XMC_SCU_CLOCK_PCLKSRC_DOUBLE_MCLK,
-		.fdiv = 0, 
-		.idiv = 1
-	 };
-
-	XMC_SCU_CLOCK_Init(&clock_config);
-	
-//  SystemCoreClockUpdate();
 }
 
 /* Global Variables: */
@@ -207,14 +170,7 @@ void Proc_5 (void) /* without parameters */
   Bool_Glob = false;
 } /* Proc_5 */
 
-int main(void)
-{
-	__IO uint32_t tmpTick;
-	__IO uint32_t deltaTick;
-	__IO uint32_t i=0;		
-	
-	__IO XMC_RTC_TIME_t now_rtc_time;
-
+int main(void) {
   /* System timer configuration */
   SysTick_Config(SystemCoreClock / HZ);
 	
@@ -232,21 +188,10 @@ int main(void)
 	XMC_GPIO_Init(UART_TX, &uart_tx);
   XMC_GPIO_Init(UART_RX, &uart_rx);
 	
-  printf ("Dhrystone For XMC1100 Bootkit by Automan @ Infineon BBS @%u Hz\n",
+  printf ("Dhrystone @%u Hz\n",
 	SystemCoreClock	);
 	
-	//RTC
-  XMC_RTC_Init(&rtc_config);
-	
-	XMC_RTC_SetTime(&init_rtc_time);
-	
-//  XMC_RTC_EnableEvent(XMC_RTC_EVENT_PERIODIC_SECONDS);
-//  XMC_SCU_INTERRUPT_EnableEvent(XMC_SCU_INTERRUPT_EVENT_RTC_PERIODIC);
-//  NVIC_SetPriority(SCU_1_IRQn, 3);
-//  NVIC_EnableIRQ(SCU_1_IRQn);
-  XMC_RTC_Start();
-	
-	LED_Initialize();
+	__enable_irq();
 	
   One_Fifty       Int_1_Loc;
   REG One_Fifty   Int_2_Loc;
@@ -429,13 +374,11 @@ int main(void)
 
   User_Time = End_Time - Begin_Time;
 
-  if (User_Time < Too_Small_Time)
-  {
-		printf( "Measured time too small to obtain meaningful results %u-%u\n", Begin_Time, End_Time);
+  if (User_Time < Too_Small_Time) {
+		printf( "Measured time too small to obtain meaningful results %ld-%ld\n",
+		Begin_Time, End_Time);
     printf ("Please increase number of runs\n");
-  }
-  else
-  {
+  } else {
 #ifdef TIME
     Microseconds = (float) User_Time * Mic_secs_Per_Second
                         / (float) Number_Of_Runs;
@@ -446,44 +389,14 @@ int main(void)
     Dhrystones_Per_Second = ((float) HZ * (float) Number_Of_Runs)
                         / (float) User_Time;
 #endif
-		printf("Microseconds for one run through Dhrystone[%u-%u]:  ", Begin_Time, End_Time);
-
-    printf("%6.1f \n", Microseconds);
+		printf("MicroSecond for one run through Dhrystone[%ld-%ld]:\t %4.3f \n",
+		Begin_Time, End_Time, Microseconds);
 	
-    printf ("Dhrystones per Second:                      ");
-    printf("%6.1f \n", Dhrystones_Per_Second);
-	
+    printf ("Dhrystones per Second:\t%4.3f \n", Dhrystones_Per_Second);
+		//DMIPS/MHz = 10^6 / (1757 * Number of processor clock cycles per Dhrystone loop)
+		printf("DMIPS/MHz:\t%4.3f\n", Dhrystones_Per_Second /(1757 * (SystemCoreClock/1000000)));
   }
 			
-	while (1)
-  {				
-//    LED_On(0);
-//    LED_On(1);
-//    LED_On(2);
-//    LED_On(3);
-    LED_On(4);
-		
-		tmpTick = g_Ticks;
-		while((tmpTick+2000) > g_Ticks)
-		{
-			__NOP();
-			__WFI();
-		}
-		
-		XMC_RTC_GetTime((XMC_RTC_TIME_t *)&now_rtc_time);
-//		printf("%02d:%02d:%02d\n", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);
-
-//    LED_Off(0);
-//    LED_Off(1);
-//    LED_Off(2);
-//    LED_Off(3);
-    LED_Off(4);
-		
-		tmpTick = g_Ticks;
-		while((tmpTick+2000) > g_Ticks)
-		{
-			__NOP();
-			__WFI();
-		}		
+	while (1) {
   }
 }
