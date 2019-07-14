@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdarg.h>
 
 #include <XMC1100.h>
 #include <xmc_scu.h>
@@ -26,33 +27,70 @@ XMC_GPIO_CONFIG_t uart_rx;
 
 __IO uint32_t g_Ticks;
 
+const char* test_string[2] = {
+	"000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F202122232425262728292A2B2C2D2E2F303132333435363738393A3B3C3D3E3F404142434445464748494A4B4C4D4E4F505152535455565758595A5B5C5D5E5F606162636465666768696A6B6C6D6E6F707172737475767778797A7B7C7D7E7F808182838485868788898A8B8C8D8E8F909192939495969798999A9B9C9D9E9FA0A1A2A3A4A5A6A7A8A9AAABACADAEAFB0B1B2B3B4B5B6B7B8B9BABBBCBDBEBFC0C1C2C3C4C5C6C7C8C9CACBCCCDCECFD0D1D2D3D4D5D6D7D8D9DADBDCDDDEDFE0E1E2E3E4E5E6E7E8E9EAEBECEDEEEFF0F1F2F3F4F5F6F7F8F9FAFBFCFDFEFF",
+	"000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff"
+};
+
 /* UART configuration */
 const XMC_UART_CH_CONFIG_t uart_config = {	
   .data_bits = 8U,
   .stop_bits = 1U,
-  .baudrate = 921600U
+//  .baudrate = 921600U
+  .baudrate = 9600U
 };
+
+osMutexId uart_mutex;
+osMutexDef (uart_mutex);
 
 int stdout_putchar (int ch) {
 	XMC_UART_CH_Transmit(XMC_UART0_CH1, (uint8_t)ch);
 	return ch;
 }
 
-void blink_func0 (void  const *argument) {
-	while(1) {
-		LED_Toggle(0);
+//int mutex_printf (const char *format, ...) {
+//   osMutexWait(uart_mutex, osWaitForever);
+//   va_list args;
+//   int retval;
+//   va_start (args, format);
+//   retval = vfprintf (stdout, format, args);   
+//   va_end (args);
+//   osMutexRelease(uart_mutex);
+//   return retval;
+//}
+
+void blink_func (void  const *argument) {
+	uint32_t num = (uint32_t)argument;
 	
+	while(1) {
+		LED_Toggle(num);
+		
+		osMutexWait(uart_mutex, osWaitForever);
+		
+		printf("\nTask Func %p Got num:%u, %u\n",
+		blink_func,
+		num,
+		osKernelSysTick()
+		);
+		printf("\n");
+		printf(test_string[num]);
+		printf("\n");
+  
+		osMutexRelease(uart_mutex);
+		
 		osSignalWait(1, osWaitForever);
 	}
 }
 
-osThreadId tid_blink0;                 
-osThreadDef(blink_func0, osPriorityNormal, 1, 0);
+#define TEST_BLINK_NUM	2
+osThreadId tid_blink[TEST_BLINK_NUM];                 
+osThreadDef(blink_func, osPriorityNormal, TEST_BLINK_NUM, 0);
 
 void singal_func (void  const *argument) {
 	while(1) {
-		osSignalSet(tid_blink0, 1);
-		osDelay(200);    
+		osSignalSet(tid_blink[0], 1);
+		osSignalSet(tid_blink[1], 1);
+		osDelay(500);    
 	}
 }
 
@@ -86,8 +124,11 @@ int main(void) {
 	SystemCoreClock,
 	osKernelSystemId);
 	
-	tid_blink0 = osThreadCreate(osThread(blink_func0), NULL);
+	tid_blink[0] = osThreadCreate(osThread(blink_func), (void*)0);
+	tid_blink[1] = osThreadCreate(osThread(blink_func), (void*)1);
 	tid_signal = osThreadCreate(osThread(singal_func), NULL);
+
+	uart_mutex = osMutexCreate(osMutex(uart_mutex));
 
   osKernelStart();
 }
