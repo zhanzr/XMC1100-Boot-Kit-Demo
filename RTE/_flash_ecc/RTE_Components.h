@@ -19,6 +19,9 @@
 /*  ARM::CMSIS:RTOS:Keil RTX:4.81.1 */
 #define RTE_CMSIS_RTOS                  /* CMSIS-RTOS */
         #define RTE_CMSIS_RTOS_RTX              /* CMSIS-RTOS Keil RTX */
+/*  Keil.ARM Compiler::Compiler:Event Recorder:DAP:1.4.0 */
+#define RTE_Compiler_EventRecorder
+          #define RTE_Compiler_EventRecorder_DAP
 /*  Keil.ARM Compiler::Compiler:I/O:STDOUT:User:1.2.0 */
 #define RTE_Compiler_IO_STDOUT          /* Compiler I/O: STDOUT */
           #define RTE_Compiler_IO_STDOUT_User     /* Compiler I/O: STDOUT User */

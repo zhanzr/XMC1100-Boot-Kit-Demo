@@ -167,6 +167,7 @@ Init_Veneers
                 BLX     R0
                 LDR     R0, =__main
                 BX      R0
+				B	.
                 ENDP
 
 Default_Handler PROC

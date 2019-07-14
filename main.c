@@ -14,6 +14,8 @@
 
 #include <cmsis_os.h>
 
+#include "EventRecorder.h"
+
 #include "led.h"
 
 #define UART_RX P1_3
@@ -58,6 +60,8 @@ osThreadId tid_signal;
 osThreadDef(singal_func, osPriorityNormal, 1, 0);
 
 int main(void) {
+//  EventRecorderInitialize(EventRecordAll, 1);
+	
   /* System timer configuration */
 	LED_Initialize();
 	
@@ -78,14 +82,12 @@ int main(void) {
 	NVIC_SetPriority(SVCall_IRQn, 0x2);
 	NVIC_SetPriority(PendSV_IRQn, 0x3);
   
-	printf ("XMC1100 test @%u Hz\n",
-	SystemCoreClock	);
+	printf ("XMC1100 test @%u Hz %s\n",
+	SystemCoreClock,
+	osKernelSystemId);
 	
 	tid_blink0 = osThreadCreate(osThread(blink_func0), NULL);
 	tid_signal = osThreadCreate(osThread(singal_func), NULL);
 
   osKernelStart();
-
-	while (1) {
-  }
 }
