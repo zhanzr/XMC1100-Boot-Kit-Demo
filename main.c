@@ -63,7 +63,7 @@ int main(void) {
 	SystemCoreClock	);
 	
 	int x, y, z;
-
+	
 	x = 3; y = 5;
 	z = svc_service_add(x, y);
 	printf ("3+5 = %d \n", z);
