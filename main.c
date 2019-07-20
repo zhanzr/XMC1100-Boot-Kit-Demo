@@ -11,6 +11,9 @@
 #include <xmc_scu.h>
 #include <xmc_uart.h>
 #include <xmc_gpio.h>
+#include <xmc_prng.h>
+
+#define RANDOM_TEST_NUM	1000000
 
 #define UART_RX P1_3
 #define UART_TX P1_2
@@ -39,6 +42,9 @@ int __svc(0x02) svc_service_incr(int x);
 void __svc(0x03) svc_service_print_u32(uint32_t val32);
 
 int main(void) {
+	uint16_t tmpRand;
+	XMC_PRNG_INIT_t	tmpPrngT;
+	
   /* System timer configuration */
   SysTick_Config(SystemCoreClock / 1000);
 	
@@ -62,24 +68,50 @@ int main(void) {
 	printf ("XMC1100 test @%u Hz\n",
 	SystemCoreClock	);
 	
-	int x, y, z;
+	#ifdef __USE_ANSI_EXAMPLE_RAND
+	printf("use ansi example rand\n");
+	#else
+	printf("use libc rand\n");
+	#endif
 	
-	x = 3; y = 5;
-	z = svc_service_add(x, y);
-	printf ("3+5 = %d \n", z);
-	x = 9; y = 2;
-	z = svc_service_sub(x, y);
-	printf ("9-2 = %d \n", z);
+	#ifdef __MICROLIB
+	printf("Micro LibC\n");
+	#else
+	printf("Standard LibC\n");
+	#endif
+	
+	srand(0);
+	
+	tmpPrngT.key_words[0]=0;
+	tmpPrngT.key_words[1]=1;
+	tmpPrngT.key_words[2]=2;
+	tmpPrngT.key_words[3]=3;	
+	tmpPrngT.key_words[4]=4;	
+	tmpPrngT.block_size = XMC_PRNG_RDBS_WORD;	
+	XMC_PRNG_Init(&tmpPrngT);
 
-	x = 3;
-	z = svc_service_incr(x);
-	printf ("3++ = %d \n", z);
-
-	svc_service_print_u32((uint32_t)main);
-	svc_service_print_u32((uint32_t)stdout_putchar);
-
-	//Pending the PendSVC
-	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk; // Set PendSV pending status
+	uint32_t lockTick;
+	uint32_t deltalTick;
+  
+	printf( "CLib Rand Function Start\n");
+	lockTick = g_Ticks;
+	for(uint32_t i=0; i<RANDOM_TEST_NUM; ++i)
+	{
+		tmpRand = rand();
+//		printf( "%d\t", tmpRand);
+	}
+	deltalTick = g_Ticks-lockTick;
+  printf( "\nCLib Rand Function generated %u with %u ms\n", RANDOM_TEST_NUM, deltalTick);
+	
+  printf( "Hardware Rand Function Start\n");
+	lockTick = g_Ticks;
+	for(uint32_t i=0; i<RANDOM_TEST_NUM; ++i)
+	{
+		tmpRand = XMC_PRNG_GetPseudoRandomNumber();
+//		printf( "%d\t", tmpRand);
+	}
+	deltalTick = g_Ticks-lockTick;
+  printf( "\nHardware Rand Function generated %u with %u ms\n", RANDOM_TEST_NUM, deltalTick);
 
 	while (1) {
   }

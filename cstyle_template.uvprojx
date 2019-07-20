@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>flash_ecc</TargetName>
+      <TargetName>xmc1100_prj</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
@@ -188,7 +188,7 @@
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>0</useUlib>
+            <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <nSecure>0</nSecure>
@@ -312,8 +312,8 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>1</Optim>
-            <oTime>0</oTime>
+            <Optim>4</Optim>
+            <oTime>1</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
             <Strict>0</Strict>
@@ -420,46 +420,52 @@
   <RTE>
     <apis/>
     <components>
-      <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="5.2.0" condition="ARMv6_7_8-M Device">
-        <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="5.5.1"/>
+      <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="5.3.0" condition="ARMv6_7_8-M Device">
+        <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="5.6.0"/>
         <targetInfos>
-          <targetInfo name="flash_ecc"/>
+          <targetInfo name="xmc1100_prj"/>
         </targetInfos>
       </component>
       <component Cclass="Device" Cgroup="Startup" Cvendor="Infineon" Cversion="2.4.0" condition="XMC1">
         <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.10.0"/>
         <targetInfos>
-          <targetInfo name="flash_ecc"/>
+          <targetInfo name="xmc1100_prj"/>
         </targetInfos>
       </component>
       <component Cclass="Device" Cgroup="XMClib" Csub="CCU4" Cvendor="Infineon" Cversion="2.1.22" condition="XMC1 CMSIS SCU">
         <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.10.0"/>
         <targetInfos>
-          <targetInfo name="flash_ecc"/>
+          <targetInfo name="xmc1100_prj"/>
         </targetInfos>
       </component>
       <component Cclass="Device" Cgroup="XMClib" Csub="GPIO" Cvendor="Infineon" Cversion="2.1.22" condition="XMC1 CMSIS">
         <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.10.0"/>
         <targetInfos>
-          <targetInfo name="flash_ecc"/>
+          <targetInfo name="xmc1100_prj"/>
+        </targetInfos>
+      </component>
+      <component Cclass="Device" Cgroup="XMClib" Csub="PRNG" Cvendor="Infineon" Cversion="2.1.22" condition="XMC1 CMSIS SCU">
+        <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.10.0"/>
+        <targetInfos>
+          <targetInfo name="xmc1100_prj"/>
         </targetInfos>
       </component>
       <component Cclass="Device" Cgroup="XMClib" Csub="SCU" Cvendor="Infineon" Cversion="2.1.22" condition="XMC1 CMSIS">
         <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.10.0"/>
         <targetInfos>
-          <targetInfo name="flash_ecc"/>
+          <targetInfo name="xmc1100_prj"/>
         </targetInfos>
       </component>
       <component Cclass="Device" Cgroup="XMClib" Csub="UART" Cvendor="Infineon" Cversion="2.1.22" condition="XMC1 CMSIS SCU">
         <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.10.0"/>
         <targetInfos>
-          <targetInfo name="flash_ecc"/>
+          <targetInfo name="xmc1100_prj"/>
         </targetInfos>
       </component>
       <component Cbundle="ARM Compiler" Cclass="Compiler" Cgroup="I/O" Csub="STDOUT" Cvariant="User" Cvendor="Keil" Cversion="1.2.0" condition="ARMCC Cortex-M">
         <package name="ARM_Compiler" schemaVersion="1.4.9" url="http://www.keil.com/pack/" vendor="Keil" version="1.6.1"/>
         <targetInfos>
-          <targetInfo name="flash_ecc"/>
+          <targetInfo name="xmc1100_prj"/>
         </targetInfos>
       </component>
     </components>
@@ -511,7 +517,7 @@
         <component Cclass="Device" Cgroup="Startup" Cvendor="Infineon" Cversion="2.4.0" condition="XMC1"/>
         <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.10.0"/>
         <targetInfos>
-          <targetInfo name="flash_ecc"/>
+          <targetInfo name="xmc1100_prj"/>
         </targetInfos>
       </file>
       <file attr="config" category="source" condition="XMC11xx" name="Device\XMC1100_series\Source\system_XMC1100.c" version="0.0.0">
@@ -519,7 +525,7 @@
         <component Cclass="Device" Cgroup="Startup" Cvendor="Infineon" Cversion="2.4.0" condition="XMC1"/>
         <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.10.0"/>
         <targetInfos>
-          <targetInfo name="flash_ecc"/>
+          <targetInfo name="xmc1100_prj"/>
         </targetInfos>
       </file>
       <file attr="config" category="header" condition="XMC1200_T38" name="RTE_Driver\Config\XMC1200_T38\RTE_Device.h" version="1.0.0">
