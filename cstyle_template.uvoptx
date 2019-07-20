@@ -145,29 +145,14 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
+          <Name>高??Jw高??Jw高?</Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
       <Breakpoint>
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>60</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>0</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
-          <Filename>.\xmc1100_it.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression></Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>0</LineNumber>
+          <LineNumber>283</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>536870952</Address>
           <ByteObject>0</ByteObject>
@@ -176,16 +161,16 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename></Filename>
+          <Filename>RTE\Device\XMC1100-T038x0064\startup_XMC1100.s</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>0x20000028</Expression>
+          <Expression>\\elfout\RTE/Device/XMC1100-T038x0064/startup_XMC1100.s\283</Expression>
         </Bp>
         <Bp>
-          <Number>2</Number>
+          <Number>1</Number>
           <Type>0</Type>
           <LineNumber>67</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>268447088</Address>
+          <Address>268446056</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -195,6 +180,22 @@
           <Filename>.\main.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\elfout\main.c\67</Expression>
+        </Bp>
+        <Bp>
+          <Number>2</Number>
+          <Type>0</Type>
+          <LineNumber>284</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>536870956</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>RTE\Device\XMC1100-T038x0064\startup_XMC1100.s</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\elfout\RTE/Device/XMC1100-T038x0064/startup_XMC1100.s\284</Expression>
         </Bp>
       </Breakpoint>
       <MemoryWindow1>
