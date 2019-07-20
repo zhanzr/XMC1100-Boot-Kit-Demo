@@ -109,6 +109,54 @@ int main(void) {
 	printf("Standard LibC\n");
 	#endif
 	
+	uint32_t flash_addr;	
+	uint32_t sram_addr;	
+//Flash access alignment test	
+	printf("Flash Access Test\n");
+	flash_addr = 0x10001000;
+	printf("[%08X], 1, %02X\n", flash_addr, *(uint8_t*)(flash_addr));
+	printf("[%08X], 2, %04X\n", flash_addr, *(uint16_t*)(flash_addr));
+	printf("[%08X], 4, %08X\n", flash_addr, *(uint32_t*)(flash_addr));
+	
+	flash_addr++;
+	printf("[%08X], 1, %02X\n", flash_addr, *(uint8_t*)(flash_addr));
+//	printf("[%08X], 2, %04X\n", flash_addr, *(uint16_t*)(flash_addr));
+//	printf("[%08X], 4, %08X\n", flash_addr, *(uint32_t*)(flash_addr));	
+	
+	flash_addr++;
+	printf("[%08X], 1, %02X\n", flash_addr, *(uint8_t*)(flash_addr));
+	printf("[%08X], 2, %04X\n", flash_addr, *(uint16_t*)(flash_addr));
+//	printf("[%08X], 4, %08X\n", flash_addr, *(uint32_t*)(flash_addr));	
+	
+	flash_addr++;
+	printf("[%08X], 1, %02X\n", flash_addr, *(uint8_t*)(flash_addr));
+//	printf("[%08X], 2, %04X\n", flash_addr, *(uint16_t*)(flash_addr));
+//	printf("[%08X], 4, %08X\n", flash_addr, *(uint32_t*)(flash_addr));		
+	
+	//SRAM access alignment test sram_addr;
+	printf("SRAM Access Test\n");
+	sram_addr = 0x20000000;
+	printf("[%08X], 1, %02X\n", sram_addr, *(uint8_t*)(sram_addr));
+	printf("[%08X], 2, %04X\n", sram_addr, *(uint16_t*)(sram_addr));
+	printf("[%08X], 4, %08X\n", sram_addr, *(uint32_t*)(sram_addr));
+	
+	sram_addr++;	
+	printf("[%08X], 1, %02X\n", sram_addr, *(uint8_t*)(sram_addr));
+//	printf("[%08X], 2, %04X\n", sram_addr, *(uint16_t*)(sram_addr));
+//	printf("[%08X], 4, %08X\n", sram_addr, *(uint32_t*)(sram_addr));
+		
+	sram_addr++;	
+	printf("[%08X], 1, %02X\n", sram_addr, *(uint8_t*)(sram_addr));
+	printf("[%08X], 2, %04X\n", sram_addr, *(uint16_t*)(sram_addr));
+//	printf("[%08X], 4, %08X\n", sram_addr, *(uint32_t*)(sram_addr));
+	
+	sram_addr++;	
+	printf("[%08X], 1, %02X\n", sram_addr, *(uint8_t*)(sram_addr));
+//	printf("[%08X], 2, %04X\n", sram_addr, *(uint16_t*)(sram_addr));
+//	printf("[%08X], 4, %08X\n", sram_addr, *(uint32_t*)(sram_addr));	
+	
+	printf("All Test End\n");
+	
 	while (1) {
 		/* Calculate temperature of the chip in Kelvin */
 		temp_k = XMC1000_CalcTemperature();
