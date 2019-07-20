@@ -392,6 +392,11 @@
               <FileType>1</FileType>
               <FilePath>.\xmc1100_it.c</FilePath>
             </File>
+            <File>
+              <FileName>XMC1000_tseRoutine.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\XMC1000_tseRoutine.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -445,6 +450,12 @@
         </targetInfos>
       </component>
       <component Cclass="Device" Cgroup="XMClib" Csub="PRNG" Cvendor="Infineon" Cversion="2.1.22" condition="XMC1 CMSIS SCU">
+        <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.10.0"/>
+        <targetInfos>
+          <targetInfo name="xmc1100_prj"/>
+        </targetInfos>
+      </component>
+      <component Cclass="Device" Cgroup="XMClib" Csub="RTC" Cvendor="Infineon" Cversion="2.1.22" condition="XMC1 CMSIS SCU">
         <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.10.0"/>
         <targetInfos>
           <targetInfo name="xmc1100_prj"/>

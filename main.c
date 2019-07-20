@@ -12,8 +12,9 @@
 #include <xmc_uart.h>
 #include <xmc_gpio.h>
 #include <xmc_prng.h>
+#include <xmc_rtc.h>
 
-#define RANDOM_TEST_NUM	1000000
+#include "XMC1000_TSE.h"
 
 #define UART_RX P1_3
 #define UART_TX P1_2
@@ -30,20 +31,37 @@ const XMC_UART_CH_CONFIG_t uart_config = {
   .baudrate = 921600U
 };
 
+XMC_RTC_CONFIG_t rtc_config =
+{
+  .time.seconds = 5U,
+  .prescaler = 0x7fffU
+};     
+
+XMC_RTC_TIME_t init_rtc_time = 
+{
+	.year = 2019,
+	.month = XMC_RTC_MONTH_JANUARY,
+	.daysofweek = XMC_RTC_WEEKDAY_TUESDAY,
+	.days = 17,
+	.hours = 5,
+	.minutes = 6,
+	.seconds = 55	
+};
+
 int stdout_putchar (int ch) {
 	XMC_UART_CH_Transmit(XMC_UART0_CH1, (uint8_t)ch);
 	return ch;
 }
 
-int __svc(0x00) svc_service_add(int x, int y);
-int __svc(0x01) svc_service_sub(int x, int y);
-int __svc(0x02) svc_service_incr(int x);
-
-void __svc(0x03) svc_service_print_u32(uint32_t val32);
-
 int main(void) {
 	uint16_t tmpRand;
+	XMC_RTC_TIME_t now_rtc_time;
 	XMC_PRNG_INIT_t	tmpPrngT;
+	int32_t temp_k;
+	int32_t temp_C;
+			
+	/* Enable DTS */
+	XMC_SCU_StartTempMeasurement();
 	
   /* System timer configuration */
   SysTick_Config(SystemCoreClock / 1000);
@@ -65,6 +83,17 @@ int main(void) {
 	NVIC_SetPriority(SVCall_IRQn, 0x2);
 	NVIC_SetPriority(PendSV_IRQn, 0x3);
   
+	//RTC
+  XMC_RTC_Init(&rtc_config);
+	
+	XMC_RTC_SetTime(&init_rtc_time);
+	
+//  XMC_RTC_EnableEvent(XMC_RTC_EVENT_PERIODIC_SECONDS);
+//  XMC_SCU_INTERRUPT_EnableEvent(XMC_SCU_INTERRUPT_EVENT_RTC_PERIODIC);
+//  NVIC_SetPriority(SCU_1_IRQn, 3);
+//  NVIC_EnableIRQ(SCU_1_IRQn);
+  XMC_RTC_Start();
+	
 	printf ("XMC1100 test @%u Hz\n",
 	SystemCoreClock	);
 	
@@ -80,39 +109,22 @@ int main(void) {
 	printf("Standard LibC\n");
 	#endif
 	
-	srand(0);
-	
-	tmpPrngT.key_words[0]=0;
-	tmpPrngT.key_words[1]=1;
-	tmpPrngT.key_words[2]=2;
-	tmpPrngT.key_words[3]=3;	
-	tmpPrngT.key_words[4]=4;	
-	tmpPrngT.block_size = XMC_PRNG_RDBS_WORD;	
-	XMC_PRNG_Init(&tmpPrngT);
-
-	uint32_t lockTick;
-	uint32_t deltalTick;
-  
-	printf( "CLib Rand Function Start\n");
-	lockTick = g_Ticks;
-	for(uint32_t i=0; i<RANDOM_TEST_NUM; ++i)
-	{
-		tmpRand = rand();
-//		printf( "%d\t", tmpRand);
-	}
-	deltalTick = g_Ticks-lockTick;
-  printf( "\nCLib Rand Function generated %u with %u ms\n", RANDOM_TEST_NUM, deltalTick);
-	
-  printf( "Hardware Rand Function Start\n");
-	lockTick = g_Ticks;
-	for(uint32_t i=0; i<RANDOM_TEST_NUM; ++i)
-	{
-		tmpRand = XMC_PRNG_GetPseudoRandomNumber();
-//		printf( "%d\t", tmpRand);
-	}
-	deltalTick = g_Ticks-lockTick;
-  printf( "\nHardware Rand Function generated %u with %u ms\n", RANDOM_TEST_NUM, deltalTick);
-
 	while (1) {
+		/* Calculate temperature of the chip in Kelvin */
+		temp_k = XMC1000_CalcTemperature();
+
+		/* Convert temperature to Celcius */
+		temp_C = (int32_t)temp_k - 273;
+
+		printf ("die temp = %i 'C\n", temp_C);
+		
+		XMC_RTC_GetTime(&now_rtc_time);
+		printf("%02d:%02d:%02d\n", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);		
+		uint32_t lockTick = g_Ticks;
+		while((lockTick+2000) > g_Ticks)
+		{
+			__NOP();
+			__WFI();
+		}			
   }
 }
