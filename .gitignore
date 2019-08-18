@@ -1,0 +1,9 @@
+*.crf
+*.o
+*.d
+Objects/
+Listings/
+*.uvguix.*
+DebugConfig/
+JlinkLog.txt
+JLinkSettings.ini

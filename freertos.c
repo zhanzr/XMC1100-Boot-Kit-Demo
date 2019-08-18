@@ -64,22 +64,7 @@ uint32_t getKernelSysTick(void)
   }
 }
 
-extern void xPortSysTickHandler(void);
-
-void freertos_tick_handler(void)
-{
-	#if (INCLUDE_xTaskGetSchedulerState  == 1 )
-		if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED)
-		{
-	#endif  /* INCLUDE_xTaskGetSchedulerState */  
-			xPortSysTickHandler();
-	#if (INCLUDE_xTaskGetSchedulerState  == 1 )
-		}
-	#endif  /* INCLUDE_xTaskGetSchedulerState */  
-}
-
-void TimerCallback( xTimerHandle pxtimer )
-{
+void TimerCallback( xTimerHandle pxtimer ) {
 		LED_Toggle(0);
 }
 
@@ -136,8 +121,7 @@ void StartDefaultTask(void const * argument)
 	uint32_t tmpTicks;	
 		
   /* Infinite loop */
-  for(;;)
-  {
+  for(;;) {
 		xQueueReceive(g_queue, &tmpTicks, portMAX_DELAY);
 		
 		printf("%s %u %i %u\n", 
@@ -179,8 +163,7 @@ void StartDefaultTask(void const * argument)
 void StartTask02(void const * argument)
 {
   /* Infinite loop */
-  for(;;)
-  {
+  for(;;) {
 		LED_Toggle(2);
 
 		xSemaphoreGive(g_noti_sema);		

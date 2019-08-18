@@ -32,15 +32,12 @@ using namespace std;
 #include "timers.h"
 
 #include "led.h"
-#include "XMC1000_TSE.h"
 
 #define UART_RX P1_3
 #define UART_TX P1_2
 
 XMC_GPIO_CONFIG_t uart_tx;
 XMC_GPIO_CONFIG_t uart_rx;
-
-__IO uint32_t g_Ticks;
 
 /* UART configuration */
 const XMC_UART_CH_CONFIG_t uart_config = {	
@@ -49,15 +46,13 @@ const XMC_UART_CH_CONFIG_t uart_config = {
   .baudrate = 921600
 };
 
-XMC_RTC_CONFIG_t rtc_config =
-{
+XMC_RTC_CONFIG_t rtc_config = {
   .time.seconds = 5U,
   .prescaler = 0x7fffU
 };     
 
-XMC_RTC_TIME_t init_rtc_time = 
-{
-	.year = 2018,
+XMC_RTC_TIME_t init_rtc_time = {
+	.year = 2019,
 	.month = XMC_RTC_MONTH_JANUARY,
 	.daysofweek = XMC_RTC_WEEKDAY_TUESDAY,
 	.days = 27,
@@ -66,25 +61,23 @@ XMC_RTC_TIME_t init_rtc_time =
 	.seconds = 55	
 };
 
-int stdout_putchar (int ch)
-{
+void vApplicationTickHook( void ) {
+}
+
+int stdout_putchar (int ch) {
 	XMC_UART_CH_Transmit(XMC_UART0_CH1, (uint8_t)ch);
 	return ch;
 }
 
 void MX_FREERTOS_Init(void);
 
-int main(void)
-{
+int main(void) {
 	__IO uint32_t tmpTick;
 	__IO uint32_t deltaTick;
 	__IO uint32_t i=0;		
 	
 	__IO XMC_RTC_TIME_t now_rtc_time;
 
-  /* System timer configuration */
-  SysTick_Config(SystemCoreClock / configTICK_RATE_HZ);
-	
   /*Initialize the UART driver */
 	uart_tx.mode = XMC_GPIO_MODE_OUTPUT_PUSH_PULL_ALT7;
 	uart_rx.mode = XMC_GPIO_MODE_INPUT_TRISTATE;
@@ -123,8 +116,8 @@ int main(void)
   /* Start scheduler */  
 	vTaskStartScheduler();
 	
-	while(1)
-  {				
+	perror(__FUNCTION__);
+	while(1) {				
 			;
   }
 }
