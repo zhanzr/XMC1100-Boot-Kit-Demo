@@ -369,7 +369,7 @@
             <TextAddressRange>0x10001000</TextAddressRange>
             <DataAddressRange>0x20000000</DataAddressRange>
             <pXoBase></pXoBase>
-            <ScatterFile></ScatterFile>
+            <ScatterFile>.\Objects\elfout.sct</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
             <Misc></Misc>
@@ -413,11 +413,6 @@
           <GroupName>freertos</GroupName>
           <Files>
             <File>
-              <FileName>croutine.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>G:\FreeRTOSv10.1.1\FreeRTOS\Source\croutine.c</FilePath>
-            </File>
-            <File>
               <FileName>event_groups.c</FileName>
               <FileType>1</FileType>
               <FilePath>G:\FreeRTOSv10.1.1\FreeRTOS\Source\event_groups.c</FilePath>
@@ -447,11 +442,6 @@
               <FileType>1</FileType>
               <FilePath>G:\FreeRTOSv10.1.1\FreeRTOS\Source\timers.c</FilePath>
             </File>
-            <File>
-              <FileName>port.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>G:\FreeRTOSv10.1.1\FreeRTOS\Source\portable\RVDS\ARM_CM0\port.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -465,8 +455,13 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>heap</GroupName>
+          <GroupName>portable</GroupName>
           <Files>
+            <File>
+              <FileName>port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>G:\FreeRTOSv10.1.1\FreeRTOS\Source\portable\RVDS\ARM_CM0\port.c</FilePath>
+            </File>
             <File>
               <FileName>heap_4.c</FileName>
               <FileType>1</FileType>

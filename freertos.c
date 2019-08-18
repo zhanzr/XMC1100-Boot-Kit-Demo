@@ -81,7 +81,7 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of defaultTask */
 	xTaskCreate((TaskFunction_t)StartDefaultTask,
 							(const portCHAR *)"defaultTask",
-							128,
+							256,
 							NULL,
 							2,
 							&g_task01_handle);
@@ -89,7 +89,7 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of myTask02 */
 	xTaskCreate((TaskFunction_t)StartTask02,
 							(const portCHAR *)"myTask02",
-							64,
+							128,
 							NULL,
 							3,
 							&g_task02_handle);
@@ -132,6 +132,7 @@ void StartDefaultTask(void const * argument)
 		);
 	
 		LED_Toggle(1);
+		LED_Toggle(3);
 		
 		xSemaphoreTake(g_noti_sema, portMAX_DELAY);	
 
@@ -145,6 +146,21 @@ void StartDefaultTask(void const * argument)
 		printf("Free Heap:%u\n",
 		xPortGetFreeHeapSize());
 				
+		volatile StackType_t* tmp_top_stk = (((TCB_t *)g_task01_handle)->pxTopOfStack);
+		volatile StackType_t* tmp_stk = (((TCB_t *)g_task01_handle)->pxStack);
+
+		printf("task0 pTopStack:%p, pxStack:%p, free:%u Word\n", 
+		tmp_top_stk,
+		tmp_stk,
+		((uint32_t)tmp_top_stk-(uint32_t)tmp_stk)/4);
+		
+	  tmp_top_stk = (((TCB_t *)g_task02_handle)->pxTopOfStack);
+	  tmp_stk = (((TCB_t *)g_task02_handle)->pxStack);		
+		printf("task2 pTopStack:%p, pxStack:%p, free:%u Word\n", 
+		tmp_top_stk,
+		tmp_stk,
+		((uint32_t)tmp_top_stk-(uint32_t)tmp_stk)/4);
+
 //		printf("minimum ever:%u\n",
 //		xPortGetMinimumEverFreeHeapSize());
 		
