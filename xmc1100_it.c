@@ -13,15 +13,6 @@ void HardFault_Handler(void)
 	{;}
 }
 
-void freertos_tick_handler(void);
-void SysTick_Handler(void) __irq
-{	
-	g_Ticks++;
-
-	freertos_tick_handler();	
-}
-
-
 //RTC Alarm
 void SCU_1_IRQHandler(void)
 {

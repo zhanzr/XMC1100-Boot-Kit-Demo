@@ -1,0 +1,8 @@
+*.o
+*.d
+*.crf
+*uvguix*
+*Objects
+DebugConfig
+Listings
+JLinkLog.txt

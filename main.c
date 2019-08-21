@@ -73,11 +73,12 @@ int stdout_putchar (int ch)
 
 void MX_FREERTOS_Init(void);
 
+void vApplicationTickHook( void ) {
+	g_Ticks++;
+}
+
 int main(void) {	
 	uint32_t ra = __return_address();
-
-  /* System timer configuration */
-  SysTick_Config(SystemCoreClock / configTICK_RATE_HZ);
 	
   /*Initialize the UART driver */
 	uart_tx.mode = XMC_GPIO_MODE_OUTPUT_PUSH_PULL_ALT7;
