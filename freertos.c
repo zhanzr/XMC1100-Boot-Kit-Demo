@@ -87,6 +87,7 @@ void TimerCallback( xTimerHandle pxtimer ) {
 void StartDefaultTask(void const * argument);
 void StartTask02(void const * argument);
 
+	
 /**
   * @brief  FreeRTOS initialization
   * @param  None
@@ -128,43 +129,24 @@ void MX_FREERTOS_Init(void) {
 	g_queue = xQueueCreate(2, sizeof(uint32_t));
 }
 
-int32_t C_L_add(int32_t a, int32_t b)
-{
-    int32_t c = a + b;
-    if (((a ^ b) & INT_MIN) == 0)
-    {
-        if ((c ^ a) & INT_MIN)
-        {
-            c = (a < 0) ? INT_MIN : INT_MAX;
-        }
-    }
-    return c;
-}
-
-int32_t foo(int32_t a, int32_t b)
-{
-    int32_t c, d, e, f;
-    Overflow = 0;         // set global overflow flag
-    c = C_L_add(a, b);    // C saturating add
-    e = __qadd(a, b);     // ARM intrinsic saturating add
-    f = L_add(a, b);      // ETSI saturating add
-	
-	//TI C55X emulation
-	if(true){		
-	int32_t c, d, e;
-    d = __qadd(a, b);     // ARM intrinsic saturating add
-    e = _lsadd(a, b);     // TI C55x saturating add
-    return c == d == e;   // returns 1
-	}
-	
-    return Overflow ? -1 : c == d == e == f; // returns 1, unless overflow
-}
-
 void vApplicationIdleHook( void ) {
 	uint32_t ra = __return_address();
-	foo(1, 2);
+
 	__WFI();
 }
+
+extern void __Vectors(void);
+
+extern void __Vectors_End;
+#define __STEXT	(void(*)(void))&__Vectors_End
+extern void Region$$Table$$Limit;
+#define __ETEXT ((void(*)(void))&Region$$Table$$Limit) 
+	
+extern void __Vectors_Size(void);
+extern void Reset_Handler(void);
+extern void __main(void);
+
+#pragma import(__use_smaller_memcpy)
 
 /**
   * @brief  Function implementing the defaultTask thread.
@@ -215,6 +197,19 @@ void StartDefaultTask(void const * argument)
 				
 		printf("minimum ever:%u\n",
 		xPortGetMinimumEverFreeHeapSize());
+		
+		printf("vect: %p vect_end: %p table_limit: %p\n", __Vectors, __STEXT, __ETEXT);
+		printf("vect_size: %p\n", __Vectors_Size);
+		printf("Reset_Handler: %p\n", Reset_Handler);
+		printf("__main: %p\n", __main);
+		
+		uint8_t test_buf[32];
+		for(uint32_t i=0; i<32; ++i) {
+			test_buf[i] = i+1;
+		}
+    		
+    uint8_t test_rcv_buf[32];
+    memcpy(test_rcv_buf, test_buf, 32);
 		
 //		vTaskGetRunTimeStats(tmpBuf);
 //		printf(tmpBuf);		

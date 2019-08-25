@@ -16,6 +16,7 @@ using namespace std;
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <math.h>
 #endif
 
 #include <XMC1100.h>
@@ -76,7 +77,7 @@ void MX_FREERTOS_Init(void);
 void vApplicationTickHook( void ) {
 	g_Ticks++;
 }
-
+	
 int main(void) {	
 	uint32_t ra = __return_address();
 	
@@ -111,7 +112,7 @@ int main(void) {
   XMC_RTC_Start();
 	
 	LED_Initialize();
-			
+						
   /* Call init function for freertos objects (in freertos.c) */
   MX_FREERTOS_Init();
 

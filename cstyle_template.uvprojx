@@ -188,7 +188,7 @@
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>0</useUlib>
+            <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <nSecure>0</nSecure>
@@ -336,7 +336,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>XMC1100_T038x0064</Define>
+              <Define>USE_SMALLER_MEMCPY</Define>
               <Undefine></Undefine>
               <IncludePath>.;G:\FreeRTOSv10.1.1\FreeRTOS\Source\include;G:\FreeRTOSv10.1.1\FreeRTOS\Source\portable\RVDS\ARM_CM0</IncludePath>
             </VariousControls>
