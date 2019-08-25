@@ -31,15 +31,20 @@ using namespace std;
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <time.h>
+#include <math.h>
 #include <limits.h>
-#include <dspfns.h> 
-#include <c55x.h>       // include TI C55x intrinsics
 #endif
 
 #include <xmc_gpio.h>
 #include <xmc_rtc.h>
 #include "led.h"
 #include "XMC1000_Tse.h"
+
+#ifdef CLOCKS_PER_SEC
+#undef CLOCKS_PER_SEC
+#define	CLOCKS_PER_SEC	configTICK_RATE_HZ
+#endif
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
@@ -56,6 +61,10 @@ static inline int inHandlerMode (void)  __pure {
   return __get_IPSR() != 0;
 }
 
+void _clock_init( void ) {
+	//No need to reinitialize the clock
+}
+
 uint32_t getKernelSysTick(void) {
   if (inHandlerMode()) {
     return xTaskGetTickCountFromISR();
@@ -64,18 +73,41 @@ uint32_t getKernelSysTick(void) {
   }
 }
 
-extern void xPortSysTickHandler(void);
+clock_t clock( void ) {
+	return getKernelSysTick();
+}
 
-void freertos_tick_handler(void)
-{
-	#if (INCLUDE_xTaskGetSchedulerState  == 1 )
-		if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED)
-		{
-	#endif  /* INCLUDE_xTaskGetSchedulerState */  
-			xPortSysTickHandler();
-	#if (INCLUDE_xTaskGetSchedulerState  == 1 )
-		}
-	#endif  /* INCLUDE_xTaskGetSchedulerState */  
+//extern void xPortSysTickHandler(void);
+
+//void freertos_tick_handler(void)
+//{
+//	#if (INCLUDE_xTaskGetSchedulerState  == 1 )
+//		if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED)
+//		{
+//	#endif  /* INCLUDE_xTaskGetSchedulerState */  
+//			xPortSysTickHandler();
+//	#if (INCLUDE_xTaskGetSchedulerState  == 1 )
+//		}
+//	#endif  /* INCLUDE_xTaskGetSchedulerState */  
+//}
+
+int frequency_of_primes (int n) {
+  int i,j;
+  int freq=n-1;
+  for (i=2; i<=n; ++i) for (j=sqrt(i);j>1;--j) if (i%j==0) {--freq; break;}
+  return freq;
+}
+
+int test_clock (void) {
+  clock_t t;
+  int f;
+  t = clock();
+  printf ("Calculating...\n");
+  f = frequency_of_primes (999);
+  printf ("The number of primes lower than 1,000 is: %d\n",f);
+  t = clock() - t;
+  printf ("It took me %d clicks (%f seconds).\n",t,((float)t)/CLOCKS_PER_SEC);
+  return 0;
 }
 
 void TimerCallback( xTimerHandle pxtimer ) {
@@ -146,7 +178,7 @@ extern void __Vectors_Size(void);
 extern void Reset_Handler(void);
 extern void __main(void);
 
-#pragma import(__use_smaller_memcpy)
+//#pragma import(__use_smaller_memcpy)
 
 /**
   * @brief  Function implementing the defaultTask thread.
@@ -202,14 +234,11 @@ void StartDefaultTask(void const * argument)
 		printf("vect_size: %p\n", __Vectors_Size);
 		printf("Reset_Handler: %p\n", Reset_Handler);
 		printf("__main: %p\n", __main);
-		
-		uint8_t test_buf[32];
-		for(uint32_t i=0; i<32; ++i) {
-			test_buf[i] = i+1;
-		}
-    		
-    uint8_t test_rcv_buf[32];
-    memcpy(test_rcv_buf, test_buf, 32);
+		printf("_clock_init: %p\n", _clock_init);
+        
+		printf("%u %u\n", CLOCKS_PER_SEC, clock());
+				
+		test_clock();
 		
 //		vTaskGetRunTimeStats(tmpBuf);
 //		printf(tmpBuf);		
