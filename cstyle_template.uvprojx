@@ -336,7 +336,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>XMC_ASSERT_ENABLE</Define>
+              <Define>XMC_ASSERT_ENABLE,XMC_DEBUG_ENABLE</Define>
               <Undefine></Undefine>
               <IncludePath></IncludePath>
             </VariousControls>
@@ -391,6 +391,11 @@
               <FileName>xmc1100_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\xmc1100_it.c</FilePath>
+            </File>
+            <File>
+              <FileName>slist.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\slist.c</FilePath>
             </File>
           </Files>
         </Group>
