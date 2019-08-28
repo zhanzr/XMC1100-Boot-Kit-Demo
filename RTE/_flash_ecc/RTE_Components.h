@@ -16,6 +16,9 @@
  */
 #define CMSIS_device_header "XMC1100.h"
 
+/*  Keil.ARM Compiler::Compiler:I/O:STDERR:User:1.2.0 */
+#define RTE_Compiler_IO_STDERR          /* Compiler I/O: STDERR */
+          #define RTE_Compiler_IO_STDERR_User     /* Compiler I/O: STDERR User */
 /*  Keil.ARM Compiler::Compiler:I/O:STDOUT:User:1.2.0 */
 #define RTE_Compiler_IO_STDOUT          /* Compiler I/O: STDOUT */
           #define RTE_Compiler_IO_STDOUT_User     /* Compiler I/O: STDOUT User */

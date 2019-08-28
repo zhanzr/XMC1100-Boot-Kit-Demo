@@ -20,6 +20,11 @@ int stdout_putchar (int ch) {
 	return ch;
 }
 
+int stderr_putchar (int ch) {
+	XMC_UART_CH_Transmit(XMC_UART0_CH1, (uint8_t)ch);
+	return ch;
+}
+
 void ttywrch (int ch) {
 	XMC_UART_CH_Transmit(XMC_UART0_CH1, (uint8_t)ch);
 }
@@ -51,8 +56,8 @@ int main(void) {
 	
 	printf("assert 1\n");
 	assert(1);
-//	printf("assert 0\n");
-//	assert(0);
+	printf("assert 0\n");
+	assert(0);
 	
 	printf("XMC_ASSERT 1\n");
 	XMC_ASSERT("test zero", 1);
