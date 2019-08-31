@@ -37,6 +37,7 @@ using namespace std;
 #include "led.h"
 #include "XMC1000_TSE.h"
 
+#include "list.h"
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
@@ -70,6 +71,59 @@ void TimerCallback( xTimerHandle pxtimer ) {
 
 void StartDefaultTask(void const * argument);
 void StartTask02(void const * argument);
+
+void XMC_AssertHandler(const char *const msg, const char *const file, uint32_t line) {
+	XMC_DEBUG("%s %s %u\n", msg, file, line);
+  abort();
+}
+
+void print_list_content(List_t* p_fr_list) {    
+    uint32_t len = listCURRENT_LIST_LENGTH(p_fr_list);
+    XMC_DEBUG("List Length:%u\n", len);
+    
+	ListItem_t* item = listGET_HEAD_ENTRY(p_fr_list);
+    for(uint32_t i=0; i<len; ++i) {  
+			XMC_DEBUG("%u\t", (uint32_t)listGET_LIST_ITEM_VALUE(item));
+			item = listGET_NEXT(item);
+    }
+    XMC_DEBUG("\n");
+}
+
+void test_slist(void) {
+    List_t intList;
+    vListInitialise(&intList);
+    print_list_content(&intList);
+     
+    XMC_DEBUG("Add to list\n");
+    uint32_t a = UINT8_MAX;
+    ListItem_t nodeA;
+		vListInitialiseItem(&nodeA);
+		listSET_LIST_ITEM_VALUE(&nodeA, a);
+    vListInsertEnd(&intList, &nodeA);
+    print_list_content(&intList);
+	
+    XMC_DEBUG("Add to list\n");
+    uint32_t b = UINT16_MAX;		
+    ListItem_t nodeB;
+		vListInitialiseItem(&nodeB);
+		listSET_LIST_ITEM_VALUE(&nodeB, b);
+    vListInsertEnd(&intList, &nodeB);
+    print_list_content(&intList);
+		
+    XMC_DEBUG("Add to list\n");
+    uint32_t c = UINT32_MAX;
+    ListItem_t nodeC;
+		vListInitialiseItem(&nodeC);
+		listSET_LIST_ITEM_VALUE(&nodeC, c);
+    vListInsertEnd(&intList, &nodeC);
+    print_list_content(&intList);
+		
+    XMC_DEBUG("Now Remove\n");
+    uxListRemove(&nodeA);
+    print_list_content(&intList);
+    uxListRemove(&nodeC);
+    print_list_content(&intList);
+}
 
 /**
   * @brief  FreeRTOS initialization
@@ -168,6 +222,8 @@ void StartDefaultTask(void const * argument)
 //		printf(tmpBuf);		
 
 		printf("\n");
+		
+		test_slist();		
   }
 }
 

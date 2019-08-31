@@ -336,7 +336,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>XMC1100_T038x0064</Define>
+              <Define>XMC_DEBUG_ENABLE,XMC_ASSERT_ENABLE</Define>
               <Undefine></Undefine>
               <IncludePath>.;G:\FreeRTOSv10.1.1\FreeRTOS\Source\include;G:\FreeRTOSv10.1.1\FreeRTOS\Source\portable\RVDS\ARM_CM0</IncludePath>
             </VariousControls>

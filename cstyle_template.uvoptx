@@ -120,6 +120,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
+          <Name>抚??Dw抚??Dw抚?</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -151,25 +152,40 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>137</LineNumber>
+          <LineNumber>94</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>268440008</Address>
+          <Address>268457152</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>G:\FreeRTOSv10.1.1\FreeRTOS\Source\portable\RVDS\ARM_CM0\port.c</Filename>
+          <Filename>.\freertos.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\elfout\G:/FreeRTOSv10.1.1/FreeRTOS/Source/portable/RVDS/ARM_CM0/port.c\137</Expression>
+          <Expression>\\elfout\freertos.c\94</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>pxCurrentTCB</ItemText>
+          <ItemText>nodeA</ItemText>
+        </Ww>
+        <Ww>
+          <count>1</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>nodeB</ItemText>
+        </Ww>
+        <Ww>
+          <count>2</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>nodeC</ItemText>
+        </Ww>
+        <Ww>
+          <count>3</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>intList</ItemText>
         </Ww>
       </WatchWindow1>
       <MemoryWindow1>
@@ -259,7 +275,7 @@
       <GroupNumber>1</GroupNumber>
       <FileNumber>3</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>.\xmc1100_it.c</PathWithFileName>
