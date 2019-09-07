@@ -22,25 +22,21 @@ XMC_GPIO_CONFIG_t uart_tx;
 XMC_GPIO_CONFIG_t uart_rx;
 
 __IO uint32_t g_Ticks;
-char g_Buf[256];
 
 /* UART configuration */
-const XMC_UART_CH_CONFIG_t uart_config = 
-{	
+const XMC_UART_CH_CONFIG_t uart_config = {	
   .data_bits = 8U,
   .stop_bits = 1U,
-  .baudrate = 256000
+  .baudrate = 921600U
 };
 
-XMC_RTC_CONFIG_t rtc_config =
-{
+XMC_RTC_CONFIG_t rtc_config = {
   .time.seconds = 5U,
   .prescaler = 0x7fffU
 };     
 
-XMC_RTC_TIME_t init_rtc_time = 
-{
-	.year = 2018,
+XMC_RTC_TIME_t init_rtc_time = {
+	.year = 2019,
 	.month = XMC_RTC_MONTH_JANUARY,
 	.daysofweek = XMC_RTC_WEEKDAY_TUESDAY,
 	.days = 27,
@@ -49,37 +45,15 @@ XMC_RTC_TIME_t init_rtc_time =
 	.seconds = 55	
 };
 
-int stdout_putchar (int ch)
-{
+int stdout_putchar (int ch) {
 	XMC_UART_CH_Transmit(XMC_UART0_CH1, (uint8_t)ch);
 	return ch;
 }
 
-void SystemCoreClockSetup(void)
-{
-	XMC_SCU_CLOCK_CONFIG_t clock_config =
-	{
-		.rtc_src = XMC_SCU_CLOCK_RTCCLKSRC_DCO2,
-		.pclk_src = XMC_SCU_CLOCK_PCLKSRC_DOUBLE_MCLK,
-		.fdiv = 0, 
-		.idiv = 1
-	 };
-
-	XMC_SCU_CLOCK_Init(&clock_config);
-	
-//  SystemCoreClockUpdate();
-}
-
-//extern void initialise_monitor_handles(void);
-
-int main(void)
-{
+int main(void) {
 	__IO uint32_t tmpTick;
 	__IO uint32_t deltaTick;
 	__IO uint32_t i=0;		
-  uint32_t *address;
-  uint32_t pBuffer[64];
-  uint32_t rBuffer[16];
 	
 	__IO XMC_RTC_TIME_t now_rtc_time;
 
@@ -116,8 +90,7 @@ int main(void)
 	
 	LED_Initialize();
 	
-	while (1)
-  {				
+	while (1) {				
     LED_On(0);
     LED_On(1);
     LED_On(2);
@@ -125,8 +98,7 @@ int main(void)
     LED_On(4);
 		
 		tmpTick = g_Ticks;
-		while((tmpTick+2000) > g_Ticks)
-		{
+		while((tmpTick+2000) > g_Ticks) {
 			__NOP();
 			__WFI();
 		}
@@ -141,8 +113,7 @@ int main(void)
     LED_Off(4);
 		
 		tmpTick = g_Ticks;
-		while((tmpTick+2000) > g_Ticks)
-		{
+		while((tmpTick+2000) > g_Ticks) {
 			__NOP();
 			__WFI();
 		}		
