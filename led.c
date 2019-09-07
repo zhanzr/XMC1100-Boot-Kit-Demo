@@ -13,7 +13,7 @@ static const GPIO_PIN LED_PIN[] =
   { XMC_GPIO_PORT1, 5 }
 };
 
-#define LED_COUNT (sizeof(LED_PIN)/sizeof(GPIO_PIN))
+//#define LED_COUNT (sizeof(LED_PIN)/sizeof(GPIO_PIN))
 
 
 /**
