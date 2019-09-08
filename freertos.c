@@ -98,15 +98,13 @@ void StartDefaultTask(void const * argument);
 void StartTask02(void const * argument);
 void shell_task(void const * argument);
 	
-void coTask(CoRoutineHandle_t handle,UBaseType_t uxIndex)
-{
+void coroutine_test(CoRoutineHandle_t handle,UBaseType_t uxIndex) {
     static const TickType_t delay = 500 / portTICK_PERIOD_MS;
      
     crSTART(handle);
      
     while(1) {     	
 			LED_Toggle(uxIndex);
-//			crDELAY(handle,10);
 
 			crDELAY(handle,delay);
     }
@@ -145,8 +143,8 @@ void MX_FREERTOS_Init(void) {
 							&g_task_shell_handle);		
 							
 	BaseType_t ret_bt;
-	ret_bt = xCoRoutineCreate(coTask, 0, 0);
-	ret_bt = xCoRoutineCreate(coTask, 1, 1);
+	ret_bt = xCoRoutineCreate(coroutine_test, 0, 0);
+	ret_bt = xCoRoutineCreate(coroutine_test, 1, 1);
 							
 	/* Create one Software Timer.*/
 	g_timer = xTimerCreate("Timer", 
