@@ -10,6 +10,8 @@ typedef struct _GPIO_PIN {
   uint8_t         pin;
 } GPIO_PIN;
 
+#define LED_TOTAL_NUM	5
+
 void LED_Initialize (void) ;
 void LED_Uninitialize (void) ;
 

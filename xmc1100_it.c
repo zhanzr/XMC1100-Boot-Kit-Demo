@@ -1,14 +1,13 @@
 #include <XMC1100.h>
 #include <xmc_scu.h>
 #include <xmc_rtc.h>
+#include <xmc_uart.h>
 
 #include <stdio.h>
 
-extern __IO uint32_t g_Ticks;
-
 void HardFault_Handler(void)
 {
-	printf(__FUNCTION__);
+	XMC_UART_CH_Transmit(XMC_UART0_CH1, 'H');
 	while(1)
 	{;}
 }
@@ -16,8 +15,6 @@ void HardFault_Handler(void)
 //RTC Alarm
 void SCU_1_IRQHandler(void)
 {
-	uint32_t lt = g_Ticks;
-
 	XMC_RTC_ClearEvent(XMC_RTC_EVENT_PERIODIC_SECONDS);	
 }
                  
@@ -53,14 +50,7 @@ void ERU0_3_IRQHandler(void)
 	printf(__FUNCTION__);
 	while(1)
 	{;}
-}
-
-void USIC0_0_IRQHandler(void)
-{
-	printf(__FUNCTION__);
-	while(1)
-	{;}
-}        
+}      
        
 void USIC0_1_IRQHandler(void)
 {

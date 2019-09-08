@@ -33,6 +33,7 @@ using namespace std;
 #include "timers.h"
 
 #include "led.h"
+#include "serial.h"
 
 #define UART_RX P1_3
 #define UART_TX P1_2
@@ -40,13 +41,11 @@ using namespace std;
 XMC_GPIO_CONFIG_t uart_tx;
 XMC_GPIO_CONFIG_t uart_rx;
 
-__IO uint32_t g_Ticks;
-
 /* UART configuration */
 const XMC_UART_CH_CONFIG_t uart_config = {	
   .data_bits = 8U,
   .stop_bits = 1U,
-  .baudrate = 921600
+  .baudrate = SERIAL_BAUDRATE
 };
 
 XMC_RTC_CONFIG_t rtc_config =
@@ -66,34 +65,49 @@ XMC_RTC_TIME_t init_rtc_time =
 	.seconds = 55	
 };
 
-int stdout_putchar (int ch)
-{
-	XMC_UART_CH_Transmit(XMC_UART0_CH1, (uint8_t)ch);
-	return ch;
+extern SemaphoreHandle_t g_noti_sema_stdin;
+
+void USIC0_0_IRQHandler(void) {
+  static uint8_t data;
+
+  data = XMC_UART_CH_GetReceivedData(SERIAL_UART);
+
+  ring_buffer_put(&serial_buffer, data);	
+	
+	BaseType_t tmp_HigherPriorityTaskWoken = pdFAIL;
+	xSemaphoreGiveFromISR(g_noti_sema_stdin, &tmp_HigherPriorityTaskWoken);		
 }
 
 void MX_FREERTOS_Init(void);
 
 void vApplicationTickHook( void ) {
-	g_Ticks++;
 }
 	
-int main(void) {	
-	uint32_t ra = __return_address();
-	
+int main(void) {		
   /*Initialize the UART driver */
 	uart_tx.mode = XMC_GPIO_MODE_OUTPUT_PUSH_PULL_ALT7;
-	uart_rx.mode = XMC_GPIO_MODE_INPUT_TRISTATE;
+	uart_rx.mode = XMC_GPIO_MODE_INPUT_PULL_UP;
+//	uart_rx.mode = XMC_GPIO_MODE_INPUT_TRISTATE;
  /* Configure UART channel */
-  XMC_UART_CH_Init(XMC_UART0_CH1, &uart_config);
-  XMC_UART_CH_SetInputSource(XMC_UART0_CH1, XMC_UART_CH_INPUT_RXD,USIC0_C1_DX0_P1_3);
+  XMC_UART_CH_Init(SERIAL_UART, &uart_config);
+  XMC_UART_CH_SetInputSource(SERIAL_UART, XMC_UART_CH_INPUT_RXD, SERIAL_RX_INPUT);
   
+  /* Set service request for receive interrupt */
+  XMC_USIC_CH_SetInterruptNodePointer(SERIAL_UART, XMC_USIC_CH_INTERRUPT_NODE_POINTER_RECEIVE, 0U);
+  XMC_USIC_CH_SetInterruptNodePointer(SERIAL_UART, XMC_USIC_CH_INTERRUPT_NODE_POINTER_ALTERNATE_RECEIVE, 0U);
+
+  /*Set priority and enable NVIC node for receive interrupt*/
+  NVIC_SetPriority(SERIAL_RX_IRQN, 3);
+  NVIC_EnableIRQ(SERIAL_RX_IRQN);
+
+  XMC_UART_CH_EnableEvent(SERIAL_UART, XMC_UART_CH_EVENT_STANDARD_RECEIVE | XMC_UART_CH_EVENT_ALTERNATIVE_RECEIVE);
+	
 	/* Start UART channel */
-  XMC_UART_CH_Start(XMC_UART0_CH1);
+  XMC_UART_CH_Start(SERIAL_UART);
 
   /* Configure pins */
-	XMC_GPIO_Init(UART_TX, &uart_tx);
-  XMC_GPIO_Init(UART_RX, &uart_rx);
+	XMC_GPIO_Init(SERIAL_TX_PIN, &uart_tx);
+  XMC_GPIO_Init(SERIAL_RX_PIN, &uart_rx);
 	
 	XMC_SCU_StartTempMeasurement();
 	
