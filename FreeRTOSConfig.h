@@ -110,8 +110,10 @@
 #define	configUSE_STATS_FORMATTING_FUNCTIONS	1
 //#define	configGENERATE_RUN_TIME_STATS	1
 
+#define	configCOMMAND_INT_MAX_OUTPUT_SIZE	1024
+
 /* Co-routine definitions. */
-#define configUSE_CO_ROUTINES                    1
+#define configUSE_CO_ROUTINES                    0
 #define configMAX_CO_ROUTINE_PRIORITIES          ( 2 )
 
 /* Software timer definitions. */

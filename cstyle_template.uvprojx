@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>.;G:\FreeRTOSv10.1.1\FreeRTOS\Source\include;G:\FreeRTOSv10.1.1\FreeRTOS\Source\portable\RVDS\ARM_CM0</IncludePath>
+              <IncludePath>.;G:\FreeRTOSv10.1.1\FreeRTOS\Source\include;G:\FreeRTOSv10.1.1\FreeRTOS\Source\portable\RVDS\ARM_CM0;G:\FreeRTOSv10.1.1\FreeRTOS-Plus\Source\FreeRTOS-Plus-CLI</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -462,10 +462,15 @@
               <FileType>1</FileType>
               <FilePath>G:\FreeRTOSv10.1.1\FreeRTOS\Source\portable\RVDS\ARM_CM0\port.c</FilePath>
             </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>freertos_cli</GroupName>
+          <Files>
             <File>
-              <FileName>croutine.c</FileName>
+              <FileName>FreeRTOS_CLI.c</FileName>
               <FileType>1</FileType>
-              <FilePath>G:\FreeRTOSv10.1.1\FreeRTOS\Source\croutine.c</FilePath>
+              <FilePath>G:\FreeRTOSv10.1.1\FreeRTOS-Plus\Source\FreeRTOS-Plus-CLI\FreeRTOS_CLI.c</FilePath>
             </File>
           </Files>
         </Group>
