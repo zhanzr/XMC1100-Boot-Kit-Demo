@@ -208,12 +208,10 @@ void shell_state_machine(void)
   }
 }
 
-void shell_help(void)
-{
+void shell_help(void) {
   const shell_command_t *cur_command = shell_cmd_table;
 
-  while (cur_command->name)
-  {
+  while (cur_command->name) {
     shell_println(">%7s %-32s- %s", cur_command->name,
                                       cur_command->syntax,
                                       cur_command->description);

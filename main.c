@@ -70,7 +70,7 @@ void led_cmd(int32_t argc, char **argv) {
 		}	else if (strcmp(argv[2], "off") == 0) {
 			LED_Off(tmp_num);	
 		} else {
-			shell_println("Argument not supported");
+			printf("Argument not supported");
 		}
   }
 }
@@ -100,19 +100,17 @@ const shell_command_t cmd_table[] =
   {0, 0u, 0u, 0, 0, 0}
 };
 
-void my_shell_init(void)
-{
-  const char DELIMITER_STR[] = "************************************************";
+void my_shell_init(void) {
+  const char DELIMITER_STR[] = "********************************************\r\n";
 
-  shell_println("\r\n%s", DELIMITER_STR);
-  shell_println(" %s", "Shell Application");
-  shell_println(DELIMITER_STR);
-  shell_println(" Version %s", "1.0.0");
-  shell_println(" Built %s", __DATE__ " at " __TIME__);
+  printf("\r\n%s\r\n", DELIMITER_STR);
+  printf(" %s\r\n", "Shell Application\r\n");
+  printf(DELIMITER_STR);
+  printf("\r\n Version %s\r\n", "1.0.0");
+  printf(" Built %s\r\n", __DATE__ " @ " __TIME__);
 
-  shell_println("\n Enter 'help' for command list.");
-  shell_println("%s\n", DELIMITER_STR);
-
+  printf("\n Enter 'help' for command list.\r\n");
+  printf("%s\n", DELIMITER_STR);
 }
 
 int main(void) {
