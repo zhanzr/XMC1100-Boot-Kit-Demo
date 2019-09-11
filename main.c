@@ -207,8 +207,9 @@ void Proc_5 (void) /* without parameters */
   Bool_Glob = false;
 } /* Proc_5 */
 
-int main(void)
-{
+int main(void) {
+  SystemCoreClockSetup();
+	
 	__IO uint32_t tmpTick;
 	__IO uint32_t deltaTick;
 	

@@ -10,8 +10,8 @@
       <TargetName>flash_debug</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
-      <uAC6>0</uAC6>
+      <pCCUsed>6120000::V6.12::.\ARMCLANG</pCCUsed>
+      <uAC6>1</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>XMC1100-T038x0064</Device>
@@ -312,7 +312,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>4</Optim>
+            <Optim>5</Optim>
             <oTime>1</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -321,14 +321,14 @@
             <PlainCh>0</PlainCh>
             <Ropi>0</Ropi>
             <Rwpi>0</Rwpi>
-            <wLevel>2</wLevel>
+            <wLevel>3</wLevel>
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <uC99>1</uC99>
             <uGnu>0</uGnu>
             <useXO>0</useXO>
-            <v6Lang>0</v6Lang>
-            <v6LangP>0</v6LangP>
+            <v6Lang>5</v6Lang>
+            <v6LangP>3</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
             <v6Lto>0</v6Lto>
@@ -516,13 +516,27 @@
         <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="http://dave.infineon.com/Libraries/CMSIS_PACK/" vendor="Infineon" version="2.5.1"/>
         <targetInfos/>
       </file>
-      <file attr="config" category="source" condition="XMC11xx ARM" name="Device\XMC1100_series\Source\ARM\startup_XMC1100.s" version="0.0.0">
-        <instance index="0">RTE\Device\XMC1100-T038x0064\startup_XMC1100.s</instance>
+      <file attr="config" category="linkerScript" condition="XMC11xx_0064_ARMCC6" name="Device\XMC1100_series\Source\ARM6\XMC1100x0064.sct" version="1.0.0">
+        <instance index="0">RTE\Device\XMC1100-T038x0064\XMC1100x0064.sct</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="Infineon" Cversion="2.4.0" condition="XMC1"/>
         <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="https://www.infineon.com/cmsis_packs/XMC1000/" vendor="Infineon" version="2.11.0"/>
         <targetInfos>
           <targetInfo name="flash_debug"/>
         </targetInfos>
+      </file>
+      <file attr="config" category="source" condition="XMC11xx ARMCC6" name="Device\XMC1100_series\Source\ARM6\startup_XMC1100.asm" version="1.0.0">
+        <instance index="0">RTE\Device\XMC1100-T038x0064\startup_XMC1100.asm</instance>
+        <component Cclass="Device" Cgroup="Startup" Cvendor="Infineon" Cversion="2.4.0" condition="XMC1"/>
+        <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="https://www.infineon.com/cmsis_packs/XMC1000/" vendor="Infineon" version="2.11.0"/>
+        <targetInfos>
+          <targetInfo name="flash_debug"/>
+        </targetInfos>
+      </file>
+      <file attr="config" category="source" condition="XMC11xx ARM" name="Device\XMC1100_series\Source\ARM\startup_XMC1100.s" version="0.0.0">
+        <instance index="0" removed="1">RTE\Device\XMC1100-T038x0064\startup_XMC1100.s</instance>
+        <component Cclass="Device" Cgroup="Startup" Cvendor="Infineon" Cversion="2.4.0" condition="XMC1"/>
+        <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="https://www.infineon.com/cmsis_packs/XMC1000/" vendor="Infineon" version="2.11.0"/>
+        <targetInfos/>
       </file>
       <file attr="config" category="source" condition="XMC11xx" name="Device\XMC1100_series\Source\system_XMC1100.c" version="0.0.0">
         <instance index="0">RTE\Device\XMC1100-T038x0064\system_XMC1100.c</instance>
