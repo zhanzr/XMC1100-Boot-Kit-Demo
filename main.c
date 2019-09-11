@@ -211,7 +211,6 @@ int main(void)
 {
 	__IO uint32_t tmpTick;
 	__IO uint32_t deltaTick;
-	__IO uint32_t i=0;		
 	
 	__IO XMC_RTC_TIME_t now_rtc_time;
 
@@ -232,7 +231,7 @@ int main(void)
 	XMC_GPIO_Init(UART_TX, &uart_tx);
   XMC_GPIO_Init(UART_RX, &uart_rx);
 	
-  printf ("Dhrystone For XMC1100 Bootkit by Automan @ Infineon BBS @%u Hz\n",
+  printf ("Dhrystone @%u Hz\n",
 	SystemCoreClock	);
 	
 	//RTC
@@ -454,13 +453,10 @@ int main(void)
     printf("%6.1f \n", Dhrystones_Per_Second);
 	
   }
+  printf("%s %s\n", __DATE__, __TIME__);
 			
 	while (1)
   {				
-//    LED_On(0);
-//    LED_On(1);
-//    LED_On(2);
-//    LED_On(3);
     LED_On(4);
 		
 		tmpTick = g_Ticks;
@@ -473,10 +469,6 @@ int main(void)
 		XMC_RTC_GetTime((XMC_RTC_TIME_t *)&now_rtc_time);
 //		printf("%02d:%02d:%02d\n", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);
 
-//    LED_Off(0);
-//    LED_Off(1);
-//    LED_Off(2);
-//    LED_Off(3);
     LED_Off(4);
 		
 		tmpTick = g_Ticks;

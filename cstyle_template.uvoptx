@@ -22,7 +22,7 @@
   </DaveTm>
 
   <Target>
-    <TargetName>flash_ecc</TargetName>
+    <TargetName>flash_debug</TargetName>
     <ToolsetNumber>0x4</ToolsetNumber>
     <ToolsetName>ARM-ADS</ToolsetName>
     <TargetOption>
