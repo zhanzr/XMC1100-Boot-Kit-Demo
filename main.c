@@ -32,7 +32,7 @@ const XMC_UART_CH_CONFIG_t uart_config =
 {	
   .data_bits = 8U,
   .stop_bits = 1U,
-  .baudrate = 256000
+  .baudrate = 921600U
 };
 
 XMC_RTC_CONFIG_t rtc_config =
