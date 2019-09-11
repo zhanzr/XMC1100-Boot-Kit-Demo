@@ -58,7 +58,7 @@ $(EXECUABLE): $(ALL_OBJ)
 	$(LD) $(LFLAGS) $^ -o $@
 
 startup_xmc1100.o: RTE/Device/XMC1100-T038x0064/startup_xmc1100.s
-	$(AS) $(AFLAGS)
+	$(AS) $(AFLAGS) $<
 	
 retarget_io.o: $(RETARGET_IO_SRC)
 	@echo "Creating object..$< === $@"
@@ -134,4 +134,4 @@ xmc_usic.o: ./XMCLib/src/xmc_usic.c
 
 clean:
 	@echo "Cleaning up..."
-	rm -rvf *.o ${EXECUABLE}j
+	rm -rvf *.o ${EXECUABLE}
