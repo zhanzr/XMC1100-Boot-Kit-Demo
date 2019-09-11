@@ -57,6 +57,13 @@
 #include <XMC1100.h>
 #include "system_XMC1100.h"
 
+#include <xmc_uart.h>
+#include <xmc_gpio.h>
+
+//#include "EventRecorder.h"
+
+#include "serial.h"
+
 /*******************************************************************************
  * MACROS
  *******************************************************************************/
@@ -90,6 +97,16 @@ uint32_t SystemCoreClock __attribute__((section(".no_init")));
 uint32_t SystemCoreClock __at( 0x20003FFC );
 #endif
 
+XMC_GPIO_CONFIG_t uart_tx;
+XMC_GPIO_CONFIG_t uart_rx;
+
+/* UART configuration */
+const XMC_UART_CH_CONFIG_t uart_config = {	
+  .data_bits = 8U,
+  .stop_bits = 1U,
+  .baudrate = SERIAL_BAUDRATE
+}; 
+
 /*******************************************************************************
  * API IMPLEMENTATION
  *******************************************************************************/
@@ -98,6 +115,26 @@ __WEAK void SystemInit(void)
 {    
   SystemCoreSetup();
   SystemCoreClockSetup();
+	
+//  EventRecorderInitialize(EventRecordAll, 1);
+	
+  /*Initialize the UART driver */
+	uart_tx.mode = XMC_GPIO_MODE_OUTPUT_PUSH_PULL_ALT7;
+	uart_rx.mode = XMC_GPIO_MODE_INPUT_PULL_UP;
+//	uart_rx.mode = XMC_GPIO_MODE_INPUT_TRISTATE;
+ /* Configure UART channel */
+  XMC_UART_CH_Init(SERIAL_UART, &uart_config);
+  XMC_UART_CH_SetInputSource(SERIAL_UART, XMC_UART_CH_INPUT_RXD, SERIAL_RX_INPUT);
+  
+  /* Set service request for receive interrupt */
+  XMC_USIC_CH_SetInterruptNodePointer(SERIAL_UART, XMC_USIC_CH_INTERRUPT_NODE_POINTER_RECEIVE, 0U);
+  XMC_USIC_CH_SetInterruptNodePointer(SERIAL_UART, XMC_USIC_CH_INTERRUPT_NODE_POINTER_ALTERNATE_RECEIVE, 0U);
+
+  XMC_UART_CH_EnableEvent(SERIAL_UART, XMC_UART_CH_EVENT_STANDARD_RECEIVE | XMC_UART_CH_EVENT_ALTERNATIVE_RECEIVE);
+
+  /* Configure pins */
+	XMC_GPIO_Init(SERIAL_TX_PIN, &uart_tx);
+  XMC_GPIO_Init(SERIAL_RX_PIN, &uart_rx);	
 }
 
 __WEAK void SystemCoreSetup(void)

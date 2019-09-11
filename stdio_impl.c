@@ -60,8 +60,7 @@ int _read(int fd, void *buf, size_t count)
 }
 #endif
 
-#if defined(__CC_ARM)
-
+#ifdef __ARMCC_VERSION
 /**
   Get a character from stdin
  
@@ -88,6 +87,15 @@ int stdin_getchar (void) {
 int stdout_putchar (int ch) {
   XMC_UART_CH_Transmit(SERIAL_UART, ch);
   return (1);
+}
+
+int stderr_putchar (int ch) {
+  XMC_UART_CH_Transmit(SERIAL_UART, ch);
+  return (1);
+}
+
+void ttywrch (int ch) {
+  XMC_UART_CH_Transmit(SERIAL_UART, ch);
 }
 #endif
 
