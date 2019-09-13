@@ -20,8 +20,5 @@
 #define RTE_Compiler_IO_STDOUT          /* Compiler I/O: STDOUT */
           #define RTE_Compiler_IO_STDOUT_User     /* Compiler I/O: STDOUT User */
 
-#ifdef RTE_Compiler_IO_STDOUT
-#include "serial.h"
-#endif
 
 #endif /* RTE_COMPONENTS_H */

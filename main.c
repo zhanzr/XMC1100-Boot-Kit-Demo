@@ -41,6 +41,8 @@ void USIC0_0_IRQHandler(void) {
 
 //int main(void)
 void original_main(void) {
+  SystemCoreClockSetup();
+	
   /* System timer configuration */
   SysTick_Config(SystemCoreClock / HZ);
 	
