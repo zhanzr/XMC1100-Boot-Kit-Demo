@@ -1,5 +1,7 @@
 #pragma once
 
+#include <xmc_gpio.h>
+
 /* GPIO Pin identifier */
 typedef struct _GPIO_PIN {
   XMC_GPIO_PORT_t *port;
