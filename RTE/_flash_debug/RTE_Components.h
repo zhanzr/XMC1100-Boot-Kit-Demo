@@ -16,6 +16,10 @@
  */
 #define CMSIS_device_header "XMC1100.h"
 
+/*  Infineon::CMSIS Driver:USART:2.12 */
+#define RTE_Drivers_USART
+/*  Infineon::Device:RTE_Device:1.1.0 */
+#define RTE_DEVICE
 /*  Keil.ARM Compiler::Compiler:I/O:STDIN:User:1.2.0 */
 #define RTE_Compiler_IO_STDIN           /* Compiler I/O: STDIN */
           #define RTE_Compiler_IO_STDIN_User      /* Compiler I/O: STDIN User */

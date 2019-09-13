@@ -17,6 +17,11 @@
 #include <stdio.h>
 #include "serial.h"
 
+#include "Driver_USART.h"
+
+/* USART Driver */
+extern ARM_DRIVER_USART Driver_USART1;
+
 #if defined(__GNUC__)
 
 int _write(int fd, const void *buf, size_t count)
@@ -86,7 +91,8 @@ int stdin_getchar (void) {
   \return          The character written, or -1 on write error.
 */
 int stdout_putchar (int ch) {
-  XMC_UART_CH_Transmit(SERIAL_UART, ch);
+  //XMC_UART_CH_Transmit(SERIAL_UART, ch);
+	Driver_USART1.Send(&ch, 1);
   return (1);
 }
 #endif

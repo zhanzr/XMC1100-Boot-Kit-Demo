@@ -15,24 +15,41 @@
 #include "led.h"
 #include "serial.h"
 
-XMC_GPIO_CONFIG_t uart_tx;
-XMC_GPIO_CONFIG_t uart_rx;
+#include "Driver_USART.h"
+
+/* USART Driver */
+extern ARM_DRIVER_USART Driver_USART1;
+static ARM_DRIVER_USART *UARTdrv = &Driver_USART1; 
 
 __IO uint32_t g_Ticks;
 
-/* UART configuration */
-const XMC_UART_CH_CONFIG_t uart_config = {	
-  .data_bits = 8U,
-  .stop_bits = 1U,
-  .baudrate = SERIAL_BAUDRATE
-};
-
 static uint8_t g_rcv_byte;
 
-void USIC0_0_IRQHandler(void) {
-  g_rcv_byte = XMC_UART_CH_GetReceivedData(SERIAL_UART);
+void myUART_callback(uint32_t event)
+{
+    switch (event)
+    {
+    case ARM_USART_EVENT_RECEIVE_COMPLETE:  
+       UARTdrv->Receive(&g_rcv_byte, 1);
+     break;
+     
+    case ARM_USART_EVENT_TRANSFER_COMPLETE:
+    case ARM_USART_EVENT_SEND_COMPLETE:
+    case ARM_USART_EVENT_TX_COMPLETE:
+     
+        break;
+ 
+    case ARM_USART_EVENT_RX_TIMEOUT:
+         __breakpoint(0);  /* Error: Call debugger or replace with custom error handling */
+        break;
+ 
+    case ARM_USART_EVENT_RX_OVERFLOW:
+    case ARM_USART_EVENT_TX_UNDERFLOW:
+        __breakpoint(0);  /* Error: Call debugger or replace with custom error handling */
+        break;
+    }
 }
-
+  
 int main(void) {
 	__IO uint32_t tmpTick;
 	__IO uint32_t deltaTick;
@@ -42,38 +59,29 @@ int main(void) {
   SysTick_Config(SystemCoreClock / 1000);
 	
   /*Initialize the UART driver */
-	uart_tx.mode = XMC_GPIO_MODE_OUTPUT_PUSH_PULL_ALT7;
-	uart_rx.mode = XMC_GPIO_MODE_INPUT_PULL_UP;
-//	uart_rx.mode = XMC_GPIO_MODE_INPUT_TRISTATE;
- /* Configure UART channel */
-  XMC_UART_CH_Init(SERIAL_UART, &uart_config);
-  XMC_UART_CH_SetInputSource(SERIAL_UART, XMC_UART_CH_INPUT_RXD, SERIAL_RX_INPUT);
-  
-  /* Set service request for receive interrupt */
-  XMC_USIC_CH_SetInterruptNodePointer(SERIAL_UART, XMC_USIC_CH_INTERRUPT_NODE_POINTER_RECEIVE, 0U);
-  XMC_USIC_CH_SetInterruptNodePointer(SERIAL_UART, XMC_USIC_CH_INTERRUPT_NODE_POINTER_ALTERNATE_RECEIVE, 0U);
+  UARTdrv->Initialize(myUART_callback);
+  /*Power up the UART peripheral */
+  UARTdrv->PowerControl(ARM_POWER_FULL);
+  /*Configure the USART to 9600 Bits/sec */
+  UARTdrv->Control(ARM_USART_MODE_ASYNCHRONOUS |
+                   ARM_USART_DATA_BITS_8 |
+                   ARM_USART_PARITY_NONE |
+                   ARM_USART_STOP_BITS_1 , SERIAL_BAUDRATE);
+   
+  /* Enable the Transmitter/Receiver line */
+  UARTdrv->Control (ARM_USART_CONTROL_TX, 1);
+  UARTdrv->Control (ARM_USART_CONTROL_RX, 1);
 
-  /*Set priority and enable NVIC node for receive interrupt*/
-  NVIC_SetPriority(SERIAL_RX_IRQN, 3);
-  NVIC_EnableIRQ(SERIAL_RX_IRQN);
-
-  XMC_UART_CH_EnableEvent(SERIAL_UART, XMC_UART_CH_EVENT_STANDARD_RECEIVE | XMC_UART_CH_EVENT_ALTERNATIVE_RECEIVE);
-	
-	/* Start UART channel */
-  XMC_UART_CH_Start(SERIAL_UART);
-
-  /* Configure pins */
-	XMC_GPIO_Init(SERIAL_TX_PIN, &uart_tx);
-  XMC_GPIO_Init(SERIAL_RX_PIN, &uart_rx);
-	
-  printf ("UART xmclib echo test @%u Hz\n",
+  printf ("UART cmsis driver echo test @%u Hz\n",
 	SystemCoreClock	);
+
+	UARTdrv->Receive(&g_rcv_byte, 1);
 	
 	LED_Initialize();
 	
 	while (1) {		
-			if(0 != g_rcv_byte) {
-				stdout_putchar(g_rcv_byte);
+			if(0 != g_rcv_byte) {					
+				Driver_USART1.Send(&g_rcv_byte, 1);
 				g_rcv_byte = 0;
 			}
   }
