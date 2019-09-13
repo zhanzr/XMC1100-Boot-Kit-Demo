@@ -21,3 +21,5 @@
 
 *.dat
 
+flash_debug.axf
+flash_debug.htm

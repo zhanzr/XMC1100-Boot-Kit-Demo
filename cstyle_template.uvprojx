@@ -398,19 +398,9 @@
               <FilePath>.\xmc1100_it.c</FilePath>
             </File>
             <File>
-              <FileName>ring_buffer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\ring_buffer.c</FilePath>
-            </File>
-            <File>
               <FileName>stdio_impl.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\stdio_impl.c</FilePath>
-            </File>
-            <File>
-              <FileName>shell.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\shell.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -452,25 +442,7 @@
           <targetInfo name="flash_debug"/>
         </targetInfos>
       </component>
-      <component Cclass="Device" Cgroup="XMClib" Csub="CCU4" Cvendor="Infineon" Cversion="2.1.24" condition="XMC1 CMSIS SCU">
-        <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="https://www.infineon.com/cmsis_packs/XMC1000/" vendor="Infineon" version="2.11.0"/>
-        <targetInfos>
-          <targetInfo name="flash_debug"/>
-        </targetInfos>
-      </component>
-      <component Cclass="Device" Cgroup="XMClib" Csub="FLASH" Cvendor="Infineon" Cversion="2.1.24" condition="XMC1 CMSIS">
-        <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="https://www.infineon.com/cmsis_packs/XMC1000/" vendor="Infineon" version="2.11.0"/>
-        <targetInfos>
-          <targetInfo name="flash_debug"/>
-        </targetInfos>
-      </component>
       <component Cclass="Device" Cgroup="XMClib" Csub="GPIO" Cvendor="Infineon" Cversion="2.1.24" condition="XMC1 CMSIS">
-        <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="https://www.infineon.com/cmsis_packs/XMC1000/" vendor="Infineon" version="2.11.0"/>
-        <targetInfos>
-          <targetInfo name="flash_debug"/>
-        </targetInfos>
-      </component>
-      <component Cclass="Device" Cgroup="XMClib" Csub="RTC" Cvendor="Infineon" Cversion="2.1.24" condition="XMC1 CMSIS SCU">
         <package license="License/CMSIS_END_USER_LICENSE_AGREEMENT.txt" name="XMC1000_DFP" schemaVersion="1.2" supportContact="http://www.infineon.com/cms/en/corporate/company/contact/support/index.html" url="https://www.infineon.com/cmsis_packs/XMC1000/" vendor="Infineon" version="2.11.0"/>
         <targetInfos>
           <targetInfo name="flash_debug"/>

@@ -1,8 +1,6 @@
 #include <XMC1100.h>
 #include <xmc_scu.h>
-#include <xmc_rtc.h>
-
-extern void printf(const char* str);
+#include <stdio.h>
 
 extern __IO uint32_t g_Ticks;
 
@@ -36,9 +34,9 @@ void SysTick_Handler(void)
 //RTC Alarm
 void SCU_1_IRQHandler(void)
 {
-	uint32_t lt = g_Ticks;
+//	uint32_t lt = g_Ticks;
 
-	XMC_RTC_ClearEvent(XMC_RTC_EVENT_PERIODIC_SECONDS);	 
+//	XMC_RTC_ClearEvent(XMC_RTC_EVENT_PERIODIC_SECONDS);	 
 }
                  
 void SCU_2_IRQHandler(void)
