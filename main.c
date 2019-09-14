@@ -16,10 +16,10 @@
 
 #include "led.h"
 #include "serial.h"
-#include "core_portme.h"
 
-#define UART_RX P1_3
-#define UART_TX P1_2
+#ifndef HZ
+#define	HZ	1000
+#endif
 
 XMC_GPIO_CONFIG_t uart_tx;
 XMC_GPIO_CONFIG_t uart_rx;
@@ -39,10 +39,7 @@ void USIC0_0_IRQHandler(void) {
   data = XMC_UART_CH_GetReceivedData(SERIAL_UART);
 }
 
-//int main(void)
-void original_main(void) {
-  SystemCoreClockSetup();
-	
+int main(void){	
   /* System timer configuration */
   SysTick_Config(SystemCoreClock / HZ);
 	
@@ -74,27 +71,23 @@ void original_main(void) {
 	
 	LED_Initialize();
 			
-//	while (1)
-//  {				
-//    LED_On(4);
-//		
-//		tmpTick = g_Ticks;
-//		while((tmpTick+2000) > g_Ticks)
-//		{
-//			__NOP();
-//			__WFI();
-//		}
-//		
-//		XMC_RTC_GetTime((XMC_RTC_TIME_t *)&now_rtc_time);
-////		printf("%02d:%02d:%02d\n", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);
+	while (1) {	
+		printf ("%08X @%p\n", SystemCoreClock, &SystemCoreClock);
+		
+    LED_On(4);
+		
+		uint32_t tmpTick = g_Ticks;
+		while((tmpTick+2000) > g_Ticks) {
+			__NOP();
+			__WFI();
+		}
 
-//    LED_Off(4);
-//		
-//		tmpTick = g_Ticks;
-//		while((tmpTick+2000) > g_Ticks)
-//		{
-//			__NOP();
-//			__WFI();
-//		}		
-//  }
+    LED_Off(4);
+		
+		tmpTick = g_Ticks;
+		while((tmpTick+2000) > g_Ticks) {
+			__NOP();
+			__WFI();
+		}		
+  }
 }

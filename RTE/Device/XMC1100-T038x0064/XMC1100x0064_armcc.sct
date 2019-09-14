@@ -55,7 +55,7 @@ LR_IROM1 0x10001000 0x00010000  {    ; load region size_region
   }
   
   RW_IRAM2 0x20003F00 UNINIT 0x00000100  { ;no init section
-        *(.bss.no_init)
+        *(.no_init)
    }  
 }
 
