@@ -11,3 +11,4 @@ ARMCC 5.06 -O3 -Otime stdlib
 Microseconds for one run through Dhrystone[22-7289]:    24.2
 Dhrystones per Second:                      41282.5
 =======================================
+clang-format -style=llvm -dump-config > .clang-format
