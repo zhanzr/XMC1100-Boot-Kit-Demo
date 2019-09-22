@@ -1,13 +1,19 @@
+cmake_minimum_required(VERSION 3.1)
+
 set(CMAKE_C_COMPILER "armcc")
+set(CMAKE_ASM_COMPILER "armasm")
 set(CMAKE_CXX_COMPILER "armcc")
-set(CMAKE_EXECUTABLE_SUFFIX "axf")
+set(FROMELF "fromelf")
+
+set(OUTPUT_SUFFIX ".axf")
+                  
+ENABLE_LANGUAGE(C)
+ENABLE_LANGUAGE(ASM)
 
 set(VERBOSE "1")
 
-cmake_minimum_required(VERSION 3.14)
-
 project (flash_debug)
-
+                  
 set(SCATTER "${CMAKE_CURRENT_SOURCE_DIR}/flash_debug.sct")
 
 set(CORE_NAME "Cortex-M0")
@@ -25,40 +31,52 @@ set(CMAKE_C_FLAGS "-D${DERIVATE} --c99 --cpu ${CORE_NAME} -g -O${OPT_LEVEL} --ap
 )
 
 set(AFLAGS "--cpu ${CORE_NAME}")
+set(CMAKE_ASM_FLAGS "${AFLAGS}")
 
 set(CMAKE_EXE_LINKER_FLAGS "--cpu ${CORE_NAME} --strict --scatter ${SCATTER} --summary_stderr --info summarysizes --map --xref --callgraph --symbols --info sizes --info totals --info unused --info veneers" 
 )
- 
-#set(CMAKE_TOOLCHAIN_FILE "D:/CMake/share/cmake-3.15/Modules/Compiler/ARMCC.cmake") 
-#set(CMAKE_ARMCC-C_COMPILER_ENV_VAR "")
 
-#ENABLE_LANGUAGE(ARMCC-C)
-#ENABLE_LANGUAGE(C)
-#ENABLE_LANGUAGE(ASM)
-
-#SET(CMAKE_ASM_FLAGS "${CFLAGS} -x assembler-with-cpp")
-
-#set(LINKER_SCRIPT "mylinker.ld")
-
-set(CPU_OPTIONS "-mthumb -mcpu=cortex-m0")
-
-#SET(CMAKE_ASM_FLAGS_DEBUG "-g")
-#set(CMAKE_C_FLAGS_DEBUG "-Og -g -DDEBUG")
-#set(CMAKE_CXX_FLAGS_DEBUG "-Og -g")
-
-add_executable(flash_debug led.c
+add_executable(${CMAKE_PROJECT_NAME} 
+"RTE/Device/XMC1100-T038x0064/startup_xmc1100.s"
+"RTE/Device/XMC1100-T038x0064/system_XMC1100.c"
+retarget_io.c
+led.c
 main.c
 ring_buffer.c
 shell.c
 stdio_impl.c
 xmc1100_it.c
+${CMAKE_CURRENT_SOURCE_DIR}/XMCLib/src/xmc_common.c
+${CMAKE_CURRENT_SOURCE_DIR}/XMCLib/src/xmc1_flash.c
+${CMAKE_CURRENT_SOURCE_DIR}/XMCLib/src/xmc1_gpio.c
+${CMAKE_CURRENT_SOURCE_DIR}/XMCLib/src/xmc_gpio.c
+${CMAKE_CURRENT_SOURCE_DIR}/XMCLib/src/xmc_usic.c
+${CMAKE_CURRENT_SOURCE_DIR}/XMCLib/src/xmc_uart.c
+${CMAKE_CURRENT_SOURCE_DIR}/XMCLib/src/xmc1_scu.c
+${CMAKE_CURRENT_SOURCE_DIR}/XMCLib/src/xmc_rtc.c
+${CMAKE_CURRENT_SOURCE_DIR}/XMCLib/src/xmc1_rtc.c
 )
 
-target_include_directories(flash_debug PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories(flash_debug PRIVATE ${XMCLIB})
-target_include_directories(flash_debug PRIVATE ${DEVICE_INC})
-target_include_directories(flash_debug PRIVATE ${CMSIS_CORE_INC})
-target_include_directories(flash_debug PRIVATE ${RTE_INC})
-target_include_directories(flash_debug PRIVATE ${RTE_DEVICE_INC})
+SET_TARGET_PROPERTIES(${CMAKE_PROJECT_NAME} PROPERTIES 
+                  SUFFIX ${OUTPUT_SUFFIX})
 
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
+ ${CMAKE_CURRENT_SOURCE_DIR}
+ ${XMCLIB}
+ ${DEVICE_INC}
+ ${CMSIS_CORE_INC}
+ ${RTE_INC}
+ ${RTE_DEVICE_INC})
 
+add_custom_command(
+  OUTPUT "${CMAKE_PROJECT_NAME}.hex"
+  COMMAND ${FROMELF} "${CMAKE_PROJECT_NAME}${OUTPUT_SUFFIX}" -v --i32combined --output "${CMAKE_PROJECT_NAME}.hex"
+  DEPENDS "${CMAKE_PROJECT_NAME}${OUTPUT_SUFFIX}"
+  ARGS    ""
+  COMMENT "Converting binary file from elf"
+)
+
+add_custom_target(hex_file ALL echo
+      DEPENDS   "${CMAKE_PROJECT_NAME}.hex"
+    )
+    
