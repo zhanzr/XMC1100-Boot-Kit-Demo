@@ -17,31 +17,25 @@
 #include "xmc_common.h"
 #include "ring_buffer.h"
 
-void ring_buffer_init(ring_buffer_t *const rb)
-{
+void ring_buffer_init(ring_buffer_t *const rb) {
   rb->head = 0;
   rb->tail = 0;
 }
 
-int32_t ring_buffer_put(ring_buffer_t *const rb, uint8_t c)
-{
-  if (ring_buffer_is_full(rb))
-  {
-	return -1;
+int32_t ring_buffer_put(ring_buffer_t *const rb, uint8_t c) {
+  if (ring_buffer_is_full(rb)) {
+    return -1;
   }
 
   rb->buffer[rb->head] = c;
   rb->head = (rb->head + 1) % rb->len;
 
   return 0;
-
 }
 
-int32_t ring_buffer_get(ring_buffer_t *const rb, uint8_t *const c)
-{
-  if (ring_buffer_is_empty(rb))
-  {
-	return -1;
+int32_t ring_buffer_get(ring_buffer_t *const rb, uint8_t *const c) {
+  if (ring_buffer_is_empty(rb)) {
+    return -1;
   }
 
   *c = rb->buffer[rb->tail];
