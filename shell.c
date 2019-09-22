@@ -221,7 +221,8 @@ void shell_help(void) {
 
 void shell_init(const shell_command_t *const cmd_table, void (*init)(void))
 {
-  setvbuf(stdout, NULL, _IONBF, 0);
+//  setvbuf(stdout, NULL, _IONBF, 0);
+    setbuf(stdout, NULL);
 
   shell_state = SHELL_STATE_INIT;
   shell_cmdline_pos = 0u;

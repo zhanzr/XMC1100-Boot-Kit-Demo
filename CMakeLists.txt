@@ -71,7 +71,8 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
 add_custom_command(
   OUTPUT "${CMAKE_PROJECT_NAME}.hex"
   COMMAND ${FROMELF} "${CMAKE_PROJECT_NAME}${OUTPUT_SUFFIX}" -v --i32combined --output "${CMAKE_PROJECT_NAME}.hex"
-  DEPENDS "${CMAKE_PROJECT_NAME}${OUTPUT_SUFFIX}"
+#  DEPENDS "${CMAKE_PROJECT_NAME}${OUTPUT_SUFFIX}"
+  DEPENDS ${CMAKE_PROJECT_NAME}
   ARGS    ""
   COMMENT "Converting binary file from elf"
 )
