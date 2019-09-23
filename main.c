@@ -18,6 +18,7 @@
 #include "EventRecorder.h"
 
 #include "led.h"
+#include "serial.h"
 
 #define UART_RX P1_3
 #define UART_TX P1_2
@@ -33,20 +34,11 @@ const char* test_string[2] = {
 };
 
 /* UART configuration */
-const XMC_UART_CH_CONFIG_t uart_config = {	
-  .data_bits = 8U,
-  .stop_bits = 1U,
-//  .baudrate = 921600U
-  .baudrate = 9600U
-};
+const XMC_UART_CH_CONFIG_t uart_config = {
+    .data_bits = 8U, .stop_bits = 1U, .baudrate = SERIAL_BAUDRATE};
 
 osMutexId uart_mutex;
 osMutexDef (uart_mutex);
-
-int stdout_putchar (int ch) {
-	XMC_UART_CH_Transmit(XMC_UART0_CH1, (uint8_t)ch);
-	return ch;
-}
 
 //int mutex_printf (const char *format, ...) {
 //   osMutexWait(uart_mutex, osWaitForever);
@@ -74,6 +66,7 @@ void blink_func (void  const *argument) {
 		);
 		printf("\n");
 		printf(test_string[num]);
+		printf("\n%s\n", osKernelSystemId);
 		printf("\n");
   
 		osMutexRelease(uart_mutex);
@@ -97,6 +90,12 @@ void singal_func (void  const *argument) {
 osThreadId tid_signal;                 
 osThreadDef(singal_func, osPriorityNormal, 1, 0);
 
+void USIC0_0_IRQHandler(void) {
+  static uint8_t data;
+
+  data = XMC_UART_CH_GetReceivedData(SERIAL_UART);
+}
+
 int main(void) {
 //  EventRecorderInitialize(EventRecordAll, 1);
 	
@@ -104,23 +103,39 @@ int main(void) {
 	LED_Initialize();
 	
   /*Initialize the UART driver */
-	uart_tx.mode = XMC_GPIO_MODE_OUTPUT_PUSH_PULL_ALT7;
-	uart_rx.mode = XMC_GPIO_MODE_INPUT_TRISTATE;
- /* Configure UART channel */
-  XMC_UART_CH_Init(XMC_UART0_CH1, &uart_config);
-  XMC_UART_CH_SetInputSource(XMC_UART0_CH1, XMC_UART_CH_INPUT_RXD,USIC0_C1_DX0_P1_3);
-  
-	/* Start UART channel */
-  XMC_UART_CH_Start(XMC_UART0_CH1);
+  uart_tx.mode = XMC_GPIO_MODE_OUTPUT_PUSH_PULL_ALT7;
+  uart_rx.mode = XMC_GPIO_MODE_INPUT_PULL_UP;
+  //	uart_rx.mode = XMC_GPIO_MODE_INPUT_TRISTATE;
+  /* Configure UART channel */
+  XMC_UART_CH_Init(SERIAL_UART, &uart_config);
+  XMC_UART_CH_SetInputSource(SERIAL_UART, XMC_UART_CH_INPUT_RXD,
+                             SERIAL_RX_INPUT);
+
+  /* Set service request for receive interrupt */
+  XMC_USIC_CH_SetInterruptNodePointer(
+      SERIAL_UART, XMC_USIC_CH_INTERRUPT_NODE_POINTER_RECEIVE, 0U);
+  XMC_USIC_CH_SetInterruptNodePointer(
+      SERIAL_UART, XMC_USIC_CH_INTERRUPT_NODE_POINTER_ALTERNATE_RECEIVE, 0U);
+
+  /*Set priority and enable NVIC node for receive interrupt*/
+  NVIC_SetPriority(SERIAL_RX_IRQN, 3);
+  NVIC_EnableIRQ(SERIAL_RX_IRQN);
+
+  XMC_UART_CH_EnableEvent(SERIAL_UART,
+                          XMC_UART_CH_EVENT_STANDARD_RECEIVE |
+                              XMC_UART_CH_EVENT_ALTERNATIVE_RECEIVE);
+
+  /* Start UART channel */
+  XMC_UART_CH_Start(SERIAL_UART);
 
   /* Configure pins */
-	XMC_GPIO_Init(UART_TX, &uart_tx);
-  XMC_GPIO_Init(UART_RX, &uart_rx);
+  XMC_GPIO_Init(SERIAL_TX_PIN, &uart_tx);
+  XMC_GPIO_Init(SERIAL_RX_PIN, &uart_rx);
 	
 	NVIC_SetPriority(SVCall_IRQn, 0x2);
 	NVIC_SetPriority(PendSV_IRQn, 0x3);
   
-	printf ("XMC1100 test @%u Hz %s\n",
+	printf ("XMC1100 rtx @%u Hz %s\n",
 	SystemCoreClock,
 	osKernelSystemId);
 	

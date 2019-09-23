@@ -119,14 +119,7 @@ void ERU0_3_IRQHandler(void)
 	//printf(__FUNCTION__);
 	while(1)
 	{;}
-}
-
-void USIC0_0_IRQHandler(void)
-{
-	//printf(__FUNCTION__);
-	while(1)
-	{;}
-}        
+}      
        
 void USIC0_1_IRQHandler(void)
 {
