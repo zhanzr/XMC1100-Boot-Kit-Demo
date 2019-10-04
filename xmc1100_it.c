@@ -2,9 +2,9 @@
 #include <xmc_scu.h>
 #include <xmc_rtc.h>
 
-extern void printf(const char* str);
+#include <stdio.h>
 
-extern __IO uint32_t g_Ticks;
+extern __IO uint32_t g_ticks;
 
 void HardFault_Handler(void)
 {
@@ -29,14 +29,14 @@ void PendSV_Handler(void)
 
 void SysTick_Handler(void)
 {	
-	g_Ticks++;
+	g_ticks++;
 }
 
 
 //RTC Alarm
 void SCU_1_IRQHandler(void)
 {
-	uint32_t lt = g_Ticks;
+	uint32_t lt = g_ticks;
 
 	XMC_RTC_ClearEvent(XMC_RTC_EVENT_PERIODIC_SECONDS);	 
 }
