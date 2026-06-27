@@ -4,6 +4,34 @@
 #include <xmc_gpio.h>
 #include <xmc_ccu4.h>
 #include <xmc_scu.h>
+#define	LINE_NUM	4
+
+#define CLEAR_DISPLAY 0x01
+
+#define RETURN_HOME 0x02
+
+#define ENTRY_MODE_SET 0x04
+#define OPT_S	0x01					// Shift entire display to right
+#define OPT_INC 0x02					// Cursor increment
+
+#define DISPLAY_ON_OFF_CONTROL 0x08
+#define OPT_D	0x04					// Turn on display
+#define OPT_C	0x02					// Turn on cursor
+#define OPT_B 	0x01					// Turn on cursor blink
+
+#define CURSOR_DISPLAY_SHIFT 0x10		// Move and shift cursor
+#define OPT_SC 0x08
+#define OPT_RL 0x04
+
+#define FUNCTION_SET 0x20
+#define OPT_DL 0x10						// Set interface data length
+#define OPT_N 0x08						// Set number of display lines
+#define OPT_F 0x04						// Set alternate font
+#define SETCGRAM_ADDR 0x040
+#define SET_DDRAM_ADDR 0x80				// Set DDRAM address
+
+/* USER CODE END Private defines */
+
 
 // commands
 #define LCD_CLEARDISPLAY 0x01

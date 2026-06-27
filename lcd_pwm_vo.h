@@ -207,3 +207,4 @@ void PWM_CCU4_lInit_Interrupt(PWM_CCU4_t* handle_ptr);
 void PWM_CCU4_lConfigure_Events(PWM_CCU4_t* handle_ptr);
 
 void LCD_PWM_VO_Init(void);
+void LCD_VO_Config(uint32_t val);

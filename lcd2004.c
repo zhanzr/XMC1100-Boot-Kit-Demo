@@ -8,7 +8,7 @@
 
 static inline void SimpleDelay(uint32_t d)
 {
-	uint32_t t = d;
+	uint32_t t = d * 3;
 	while(--t)
 	{
 		__NOP();
@@ -90,13 +90,13 @@ void LCD_WrCmd_4 (uint8_t cmd)
 	RS_L(); 
 	SimpleDelay(10);
 //	RW_L();   	
-	DB4_Wr(cmd>>4);
+	DB4_Wr(cmd >> 4);
 	SimpleDelay(10);
 	E_H();
 	SimpleDelay(10);
 	E_L();
 	SimpleDelay(10);
-	DB4_Wr(cmd);
+	DB4_Wr(cmd & 0x0F);
 	SimpleDelay(10);
 	E_H();
 	SimpleDelay(10);
@@ -110,13 +110,13 @@ void LCD_WrDat_4 (uint8_t dat)
 	RS_H(); 
 	SimpleDelay(10);
 //	RW_L();   	
-	DB4_Wr(dat>>4);
+	DB4_Wr(dat >> 4);
 	SimpleDelay(10);
 	E_H();
 	SimpleDelay(10);
 	E_L();
 	SimpleDelay(10);
-	DB4_Wr(dat);
+	DB4_Wr(dat & 0x0F);
 	SimpleDelay(10);
 	E_H();
 	SimpleDelay(10);
@@ -145,15 +145,14 @@ void LCD_Initialize (void)
 	
 	E_L();
 	
-	//Change to 4 bit mode
-	LCD_WrCmd_4(0x28);
-	LCD_WrCmd_4(0x28);
-	LCD_WrCmd_4(0x28);
-	
-	LCD_WrCmd_4(0x08);
-	LCD_WrCmd_4(0x01);	
-	LCD_WrCmd_4(0x06);
-	LCD_WrCmd_4(0x0c);
+	// 4-bit mode
+	LCD_WrCmd_4(0x33);
+	LCD_WrCmd_4(0x32);
+	LCD_WrCmd_4(FUNCTION_SET | OPT_N);
+
+	LCD_WrCmd_4(CLEAR_DISPLAY);
+	LCD_WrCmd_4(DISPLAY_ON_OFF_CONTROL | OPT_D);
+	LCD_WrCmd_4(ENTRY_MODE_SET | OPT_INC);
 	
 	LCD_PWM_VO_Init();	
 }

@@ -31,6 +31,12 @@ void LED_Initialize (void)
 
 	XMC_GPIO_SetMode(XMC_GPIO_PORT1, 4, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
 	XMC_GPIO_SetMode(XMC_GPIO_PORT1, 5, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
+	
+	LED_Off(0);
+  LED_Off(1);
+  LED_Off(2);
+  LED_Off(3);
+  LED_Off(4);
 }
 
 /**
@@ -42,6 +48,12 @@ void LED_Initialize (void)
 */
 void LED_Uninitialize (void) 
 {
+	LED_Off(0);
+  LED_Off(1);
+  LED_Off(2);
+  LED_Off(3);
+  LED_Off(4);
+	
 	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 5, XMC_GPIO_MODE_INPUT_TRISTATE);
 	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 6, XMC_GPIO_MODE_INPUT_TRISTATE);
 	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 7, XMC_GPIO_MODE_INPUT_TRISTATE);

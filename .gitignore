@@ -1,0 +1,6 @@
+*.o
+*.d
+*.map
+*.lst
+ARM6/Objects
+ARM/Objects
