@@ -1,0 +1,193 @@
+Dependencies for Project 'cstyle_template', Target 'lcm2004_4bit': (DO NOT MODIFY !)
+CompilerVersion: 6240000::V6.24::ARMCLANG
+F (.\main.c)(0x6A3F9407)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier-I./RTE/_lcm2004_4bit-ID:/Arm/Packs/ARM/CMSIS/6.3.0/CMSIS/Core/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMC1100_series/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/inc-D__UVISION_VERSION="543" -DXMC1100_T038x0064 -D_RTE_ -DXMC1100_T038x0064-o ./objects/main.o -MMD)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\ARM\CMSIS\6.3.0\CMSIS\Core\Include\core_cm0.h)(0x6A3ED3D9)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\system_XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_flash.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_common.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_device.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_flash.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\XMC1000_RomFunctionTable.h)(0x6A3F8871)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_gpio.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_gpio.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_gpio_map.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_rtc.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_rtc.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_scu.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_scu.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_uart.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_usic.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_usic_map.h)(0x6A3F8872)
+I (lcd2004.h)(0x6A3D4A30)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_ccu4.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_ccu4_map.h)(0x6A3F8872)
+I (led.h)(0x6A3D4A30)
+F (.\led.c)(0x6A3D4A30)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier-I./RTE/_lcm2004_4bit-ID:/Arm/Packs/ARM/CMSIS/6.3.0/CMSIS/Core/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMC1100_series/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/inc-D__UVISION_VERSION="543" -DXMC1100_T038x0064 -D_RTE_ -DXMC1100_T038x0064-o ./objects/led.o -MMD)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_gpio.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_common.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_device.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\ARM\CMSIS\6.3.0\CMSIS\Core\Include\core_cm0.h)(0x6A3ED3D9)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\system_XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_gpio.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_gpio_map.h)(0x6A3F8872)
+I (led.h)(0x6A3D4A30)
+F (.\xmc1100_it.c)(0x6A3D4A30)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier-I./RTE/_lcm2004_4bit-ID:/Arm/Packs/ARM/CMSIS/6.3.0/CMSIS/Core/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMC1100_series/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/inc-D__UVISION_VERSION="543" -DXMC1100_T038x0064 -D_RTE_ -DXMC1100_T038x0064-o ./objects/xmc1100_it.o -MMD)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\ARM\CMSIS\6.3.0\CMSIS\Core\Include\core_cm0.h)(0x6A3ED3D9)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\system_XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_scu.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_common.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_device.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_scu.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_rtc.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_rtc.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_gpio.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_gpio.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_gpio_map.h)(0x6A3F8872)
+F (.\lcd2004.c)(0x6A3D4A30)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier-I./RTE/_lcm2004_4bit-ID:/Arm/Packs/ARM/CMSIS/6.3.0/CMSIS/Core/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMC1100_series/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/inc-D__UVISION_VERSION="543" -DXMC1100_T038x0064 -D_RTE_ -DXMC1100_T038x0064-o ./objects/lcd2004.o -MMD)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\ARM\CMSIS\6.3.0\CMSIS\Core\Include\core_cm0.h)(0x6A3ED3D9)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\system_XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_gpio.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_common.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_device.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_gpio.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_gpio_map.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_ccu4.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_ccu4_map.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_scu.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_scu.h)(0x6A3F8872)
+I (lcd2004.h)(0x6A3D4A30)
+I (lcd_pwm_vo.h)(0x6A3D4A30)
+F (.\lcd_pwm_vo.c)(0x6A3D4A30)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier-I./RTE/_lcm2004_4bit-ID:/Arm/Packs/ARM/CMSIS/6.3.0/CMSIS/Core/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMC1100_series/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/inc-D__UVISION_VERSION="543" -DXMC1100_T038x0064 -D_RTE_ -DXMC1100_T038x0064-o ./objects/lcd_pwm_vo.o -MMD)
+I (lcd_pwm_vo.h)(0x6A3D4A30)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\ARM\CMSIS\6.3.0\CMSIS\Core\Include\core_cm0.h)(0x6A3ED3D9)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\system_XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_gpio.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_common.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_device.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_gpio.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_gpio_map.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_ccu4.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_ccu4_map.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_scu.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_scu.h)(0x6A3F8872)
+F (.\retarget_io_drv.c)(0x6A3D4A30)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier-I./RTE/_lcm2004_4bit-ID:/Arm/Packs/ARM/CMSIS/6.3.0/CMSIS/Core/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMC1100_series/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/inc-D__UVISION_VERSION="543" -DXMC1100_T038x0064 -D_RTE_ -DXMC1100_T038x0064-o ./objects/retarget_io_drv.o -MMD)
+I (retarget_io_drv.h)(0x6A3D4A30)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\ARM\CMSIS\6.3.0\CMSIS\Core\Include\core_cm0.h)(0x6A3ED3D9)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\system_XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_scu.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_common.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_device.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_scu.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_rtc.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_rtc.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_uart.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_usic.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_usic_map.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_gpio.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_gpio.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_gpio_map.h)(0x6A3F8872)
+F (.\README.md)(0x6A3D4A30)()
+F (D:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/src/xmc1_flash.c)(0x6A3F8872)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier-I./RTE/_lcm2004_4bit-ID:/Arm/Packs/ARM/CMSIS/6.3.0/CMSIS/Core/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMC1100_series/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/inc-D__UVISION_VERSION="543" -DXMC1100_T038x0064 -D_RTE_ -DXMC1100_T038x0064-o ./objects/xmc1_flash.o -MMD)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_flash.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_common.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_device.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\ARM\CMSIS\6.3.0\CMSIS\Core\Include\core_cm0.h)(0x6A3ED3D9)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\system_XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_flash.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\XMC1000_RomFunctionTable.h)(0x6A3F8871)
+F (D:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/src/xmc1_gpio.c)(0x6A3F8872)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier-I./RTE/_lcm2004_4bit-ID:/Arm/Packs/ARM/CMSIS/6.3.0/CMSIS/Core/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMC1100_series/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/inc-D__UVISION_VERSION="543" -DXMC1100_T038x0064 -D_RTE_ -DXMC1100_T038x0064-o ./objects/xmc1_gpio.o -MMD)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_gpio.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_common.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_device.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\ARM\CMSIS\6.3.0\CMSIS\Core\Include\core_cm0.h)(0x6A3ED3D9)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\system_XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_gpio.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_gpio_map.h)(0x6A3F8872)
+F (D:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/src/xmc1_rtc.c)(0x6A3F8872)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier-I./RTE/_lcm2004_4bit-ID:/Arm/Packs/ARM/CMSIS/6.3.0/CMSIS/Core/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMC1100_series/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/inc-D__UVISION_VERSION="543" -DXMC1100_T038x0064 -D_RTE_ -DXMC1100_T038x0064-o ./objects/xmc1_rtc.o -MMD)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_rtc.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_common.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_device.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\ARM\CMSIS\6.3.0\CMSIS\Core\Include\core_cm0.h)(0x6A3ED3D9)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\system_XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_rtc.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_scu.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_scu.h)(0x6A3F8872)
+F (D:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/src/xmc1_scu.c)(0x6A3F8872)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier-I./RTE/_lcm2004_4bit-ID:/Arm/Packs/ARM/CMSIS/6.3.0/CMSIS/Core/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMC1100_series/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/inc-D__UVISION_VERSION="543" -DXMC1100_T038x0064 -D_RTE_ -DXMC1100_T038x0064-o ./objects/xmc1_scu.o -MMD)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_scu.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_common.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_device.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\ARM\CMSIS\6.3.0\CMSIS\Core\Include\core_cm0.h)(0x6A3ED3D9)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\system_XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_scu.h)(0x6A3F8872)
+F (D:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/src/xmc_ccu4.c)(0x6A3F8872)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier-I./RTE/_lcm2004_4bit-ID:/Arm/Packs/ARM/CMSIS/6.3.0/CMSIS/Core/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMC1100_series/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/inc-D__UVISION_VERSION="543" -DXMC1100_T038x0064 -D_RTE_ -DXMC1100_T038x0064-o ./objects/xmc_ccu4.o -MMD)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_ccu4.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_common.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_device.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\ARM\CMSIS\6.3.0\CMSIS\Core\Include\core_cm0.h)(0x6A3ED3D9)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\system_XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_ccu4_map.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_scu.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_scu.h)(0x6A3F8872)
+F (D:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/src/xmc_common.c)(0x6A3F8872)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier-I./RTE/_lcm2004_4bit-ID:/Arm/Packs/ARM/CMSIS/6.3.0/CMSIS/Core/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMC1100_series/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/inc-D__UVISION_VERSION="543" -DXMC1100_T038x0064 -D_RTE_ -DXMC1100_T038x0064-o ./objects/xmc_common.o -MMD)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_common.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_device.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\ARM\CMSIS\6.3.0\CMSIS\Core\Include\core_cm0.h)(0x6A3ED3D9)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\system_XMC1100.h)(0x6A3F8871)
+F (D:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/src/xmc_gpio.c)(0x6A3F8872)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier-I./RTE/_lcm2004_4bit-ID:/Arm/Packs/ARM/CMSIS/6.3.0/CMSIS/Core/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMC1100_series/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/inc-D__UVISION_VERSION="543" -DXMC1100_T038x0064 -D_RTE_ -DXMC1100_T038x0064-o ./objects/xmc_gpio.o -MMD)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_gpio.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_common.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_device.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\ARM\CMSIS\6.3.0\CMSIS\Core\Include\core_cm0.h)(0x6A3ED3D9)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\system_XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_gpio.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_gpio_map.h)(0x6A3F8872)
+F (D:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/src/xmc_rtc.c)(0x6A3F8872)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier-I./RTE/_lcm2004_4bit-ID:/Arm/Packs/ARM/CMSIS/6.3.0/CMSIS/Core/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMC1100_series/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/inc-D__UVISION_VERSION="543" -DXMC1100_T038x0064 -D_RTE_ -DXMC1100_T038x0064-o ./objects/xmc_rtc.o -MMD)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_scu.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_common.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_device.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\ARM\CMSIS\6.3.0\CMSIS\Core\Include\core_cm0.h)(0x6A3ED3D9)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\system_XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_scu.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_rtc.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_rtc.h)(0x6A3F8872)
+F (D:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/src/xmc_uart.c)(0x6A3F8872)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier-I./RTE/_lcm2004_4bit-ID:/Arm/Packs/ARM/CMSIS/6.3.0/CMSIS/Core/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMC1100_series/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/inc-D__UVISION_VERSION="543" -DXMC1100_T038x0064 -D_RTE_ -DXMC1100_T038x0064-o ./objects/xmc_uart.o -MMD)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_scu.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_common.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_device.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\ARM\CMSIS\6.3.0\CMSIS\Core\Include\core_cm0.h)(0x6A3ED3D9)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\system_XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_scu.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_uart.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_usic.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_usic_map.h)(0x6A3F8872)
+F (D:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/src/xmc_usic.c)(0x6A3F8872)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier-I./RTE/_lcm2004_4bit-ID:/Arm/Packs/ARM/CMSIS/6.3.0/CMSIS/Core/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMC1100_series/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/inc-D__UVISION_VERSION="543" -DXMC1100_T038x0064 -D_RTE_ -DXMC1100_T038x0064-o ./objects/xmc_usic.o -MMD)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_usic.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_common.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_device.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\ARM\CMSIS\6.3.0\CMSIS\Core\Include\core_cm0.h)(0x6A3ED3D9)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\system_XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_usic_map.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc_scu.h)(0x6A3F8872)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc\xmc1_scu.h)(0x6A3F8872)
+F (RTE/Device/XMC1100-T038x0064/startup_XMC1100.s)(0x6A3D4A30)(--cpu Cortex-M0 -g --diag_suppress=A1950W-I.\RTE\_lcm2004_4bit-ID:\Arm\Packs\ARM\CMSIS\6.3.0\CMSIS\Core\Include-ID:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include-ID:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMClib\inc--pd "__UVISION_VERSION SETA 543"--pd "XMC1100_T038x0064 SETA 1"--pd "_RTE_ SETA 1"--list .\listings\startup_xmc1100.lst--xref --width 80 -o .\objects\startup_xmc1100.o--depend .\objects\startup_xmc1100.d)
+F (RTE/Device/XMC1100-T038x0064/system_XMC1100.c)(0x6A3D4A30)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m0 -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier-I./RTE/_lcm2004_4bit-ID:/Arm/Packs/ARM/CMSIS/6.3.0/CMSIS/Core/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMC1100_series/Include-ID:/Arm/Packs/Infineon/XMC1000_DFP/2.12.0/Device/XMClib/inc-D__UVISION_VERSION="543" -DXMC1100_T038x0064 -D_RTE_ -DXMC1100_T038x0064-o ./objects/system_xmc1100.o -MMD)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\XMC1100.h)(0x6A3F8871)
+I (D:\Arm\Packs\ARM\CMSIS\6.3.0\CMSIS\Core\Include\core_cm0.h)(0x6A3ED3D9)
+I (D:\Arm\Packs\Infineon\XMC1000_DFP\2.12.0\Device\XMC1100_series\Include\system_XMC1100.h)(0x6A3F8871)
+F (RTE/Device/XMC1100-T038x0064/XMC1100x0064_ac6.sct)(0x6A3F8871)()

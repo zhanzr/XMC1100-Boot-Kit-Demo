@@ -101,96 +101,6 @@ static const uint8_t RAM_REVSCRMBL[RAM_BLOCKSIZE] = {
 
 typedef enum { ERROR = 0, SUCCESS = !ERROR } ErrorStatus;
 
-/**
- * @brief  This function verifies that RAM is functional,
- *   using the March C- algorithm.
- * @param :  None
- * @retval : ErrorStatus = (ERROR, SUCCESS)
- */
-ErrorStatus FullRamMarchC(void) {
-  ErrorStatus Result = SUCCESS;
-  uint32_t *p; /* RAM pointer */
-  uint32_t j;  /* Index for RAM physical addressing */
-
-  uint32_t ra =
-      __return_address(); /* save return address (as it will be destroyed) */
-
-  /* ---------------------------- STEP 1 ----------------------------------- */
-  /* Write background with addresses increasing */
-  for (p = RAM_START; p <= RAM_END; p++) {
-    /* Scrambling not important when there's no consecutive verify and write */
-    *p = BCKGRND;
-  }
-
-  /* ---------------------------- STEP 2 ----------------------------------- */
-  /* Verify background and write inverted background with addresses increasing
-   */
-  for (p = RAM_START; p <= RAM_END; p += RAM_BLOCKSIZE) {
-    for (j = 0u; j < RAM_BLOCKSIZE; j++) {
-      if (*(p + (uint32_t)RAM_SCRMBL[j]) != BCKGRND) {
-        Result = ERROR;
-      }
-      *(p + (uint32_t)RAM_SCRMBL[j]) = INV_BCKGRND;
-    }
-  }
-
-  /* ---------------------------- STEP 3 ----------------------------------- */
-  /* Verify inverted background and write background with addresses increasing
-   */
-  for (p = RAM_START; p <= RAM_END; p += RAM_BLOCKSIZE) {
-    for (j = 0u; j < RAM_BLOCKSIZE; j++) {
-      if (*(p + (uint32_t)RAM_SCRMBL[j]) != INV_BCKGRND) {
-        Result = ERROR;
-      }
-      *(p + (uint32_t)RAM_SCRMBL[j]) = BCKGRND;
-    }
-  }
-
-  /* ---------------------------- STEP 4 ----------------------------------- */
-  /* Verify background and write inverted background with addresses decreasing
-   */
-  for (p = RAM_END; p > RAM_START; p -= RAM_BLOCKSIZE) {
-    for (j = 0u; j < RAM_BLOCKSIZE; j++) {
-      if (*(p - (uint32_t)RAM_REVSCRMBL[j]) != BCKGRND) {
-        Result = ERROR;
-      }
-      *(p - (uint32_t)RAM_REVSCRMBL[j]) = INV_BCKGRND;
-    }
-  }
-
-  /* ---------------------------- STEP 5 ----------------------------------- */
-  /* Verify inverted background and write background with addresses decreasing
-   */
-  for (p = RAM_END; p > RAM_START; p -= RAM_BLOCKSIZE) {
-    for (j = 0u; j < RAM_BLOCKSIZE; j++) {
-      if (*(p - (uint32_t)RAM_REVSCRMBL[j]) != INV_BCKGRND) {
-        Result = ERROR;
-      }
-      *(p - (uint32_t)RAM_REVSCRMBL[j]) = BCKGRND;
-    }
-  }
-
-  /* ---------------------------- STEP 6 ----------------------------------- */
-  /* Verify background with addresses increasing */
-  for (p = RAM_START; p <= RAM_END; p++) {
-    if (*p != BCKGRND) {
-      Result = ERROR; /* No need to take into account scrambling here */
-    }
-  }
-
-  /* Restore destroyed return address back into the stack (all the content is
-     destroyed). Next line of code supposes the {r4-r5,pc} for Keil(ARMCC 5.06)
-     registers only was saved into stack by this test so their restored values
-     are not valid:
-     => optiomizations at caller must be switched off as caller cannot relay on
-     r4-r7 values!!! The return opcode would be POP {r4-r5,pc} or POP {r4-r7,pc}
-         depending on the version of the compiler.
-         So it is necessary to skip the registers(r4-r5, or r4-r7), only restore
-     the return address to the corrupted stack.*/
-  *((uint32_t *)(__current_sp()) + 2u) = ra;
-
-  return (Result);
-}
 
 #define PARITY_DSRAM1_TEST_ADDR 0x20001000
 #define PARITY_TIMEOUT ((uint32_t)0xDEADU)
@@ -411,41 +321,8 @@ void MemtestFunc(void) {
 
   LED_Initialize();
 
-  // Parity Test
 
-  if (ClassB_testFailed == ClassB_RAMTest_Parity()) {
-    XMC_UART_CH_Transmit(XMC_UART0_CH1, 'R');
-    XMC_UART_CH_Transmit(XMC_UART0_CH1, 'P');
-    XMC_UART_CH_Transmit(XMC_UART0_CH1, 'F');
-    XMC_UART_CH_Transmit(XMC_UART0_CH1, 'L');
-    XMC_UART_CH_Transmit(XMC_UART0_CH1, '\n');
-    FailSafePOR();
-  } else {
-    XMC_UART_CH_Transmit(XMC_UART0_CH1, 'R');
-    XMC_UART_CH_Transmit(XMC_UART0_CH1, 'P');
-    XMC_UART_CH_Transmit(XMC_UART0_CH1, 'O');
-    XMC_UART_CH_Transmit(XMC_UART0_CH1, 'K');
-    XMC_UART_CH_Transmit(XMC_UART0_CH1, '\n');
-  }
 
-  // March C
-  /* --------------------- Variable memory functional test -------------------*/
-  /* WARNING: Stack is zero-initialized when exiting from this routine */
-  if (FullRamMarchC() != SUCCESS) {
-    XMC_UART_CH_Transmit(XMC_UART0_CH1, 'R');
-    XMC_UART_CH_Transmit(XMC_UART0_CH1, 'T');
-    XMC_UART_CH_Transmit(XMC_UART0_CH1, 'F');
-    XMC_UART_CH_Transmit(XMC_UART0_CH1, 'L');
-    XMC_UART_CH_Transmit(XMC_UART0_CH1, '\n');
-
-    FailSafePOR();
-  } else {
-    XMC_UART_CH_Transmit(XMC_UART0_CH1, 'R');
-    XMC_UART_CH_Transmit(XMC_UART0_CH1, 'T');
-    XMC_UART_CH_Transmit(XMC_UART0_CH1, 'O');
-    XMC_UART_CH_Transmit(XMC_UART0_CH1, 'K');
-    XMC_UART_CH_Transmit(XMC_UART0_CH1, '\n');
-  }
 
   Reset_Handler();
 }
