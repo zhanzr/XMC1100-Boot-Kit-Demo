@@ -62,6 +62,7 @@
 #include "lcd2004.h"
 #include "lcd_pwm_vo.h"
 #include "led.h"
+#include "XMC1000_TSE.h"
 #include "main.h"
 
 #define UART_RX P1_3
@@ -105,13 +106,18 @@ void SysTick_Handler(void) { g_Ticks++; }
 
 int main(void) {
   __IO uint32_t tmpTick;
-
+	uint32_t temp_k;
+	int32_t temp_C;
+	
   __IO XMC_RTC_TIME_t now_rtc_time;
 
   SystemCoreClockSetup();
   /* System timer configuration */
   SysTick_Config(SystemCoreClock / HZ);
 
+	// Enable DTS
+	XMC_SCU_StartTempMeasurement();
+	
   /*Initialize the UART driver */
   uart_tx.mode = XMC_GPIO_MODE_OUTPUT_PUSH_PULL_ALT7;
   uart_rx.mode = XMC_GPIO_MODE_INPUT_TRISTATE;
@@ -133,7 +139,7 @@ int main(void) {
 
   printf("LCD2004 4bit mode For XMC1100 Bootkit. CM0 Rev:%u, %u Hz\n",
          __CM0_REV, SystemCoreClock);
-  printf("CPUID:%08X, MPU:%u\n", SCB->CPUID, __MPU_PRESENT);
+  printf("CPUID:%08X, CM:%u\n", SCB->CPUID, __CORTEX_M);
   // RTC
   XMC_RTC_Init(&rtc_config);
   XMC_RTC_SetTime(&init_rtc_time);
@@ -155,7 +161,7 @@ int main(void) {
 
   uint8_t g_line_buf[21] = {};
   while (1) {
-    LED_On(1);
+    LED_On(2);
 
     tmpTick = g_Ticks;
     while ((tmpTick + (HZ)) > g_Ticks) {
@@ -163,15 +169,19 @@ int main(void) {
       __WFI();
     }
 
-    XMC_RTC_GetTime((XMC_RTC_TIME_t *)&now_rtc_time);
-    printf("%02d:%02d:%02d\n", now_rtc_time.hours, now_rtc_time.minutes,
-           now_rtc_time.seconds);
+		/* Calculate temperature of the chip in Kelvin */
+		temp_k = XMC1000_CalcTemperatureUser();
+		temp_C = temp_k - ZERO_TEMP_KELVIN;		
 
-    sprintf(g_line_buf, "%02d:%02d:%02d", now_rtc_time.hours,
-            now_rtc_time.minutes, now_rtc_time.seconds);
+    XMC_RTC_GetTime((XMC_RTC_TIME_t *)&now_rtc_time);
+    printf("%02d K:%u T:%i\n",
+           now_rtc_time.seconds, temp_k, temp_C);
+		
+    sprintf(g_line_buf, "%02d K:%u T:%i",
+            now_rtc_time.seconds, temp_k, temp_C);
     LCD_displayL(3, 0, g_line_buf);
 
-    LED_Off(1);
+    LED_Off(2);
 
     tmpTick = g_Ticks;
     while ((tmpTick + (HZ)) > g_Ticks) {

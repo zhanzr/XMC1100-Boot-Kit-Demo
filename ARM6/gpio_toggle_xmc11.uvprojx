@@ -409,6 +409,11 @@
               <FileType>1</FileType>
               <FilePath>..\retarget_io_drv.c</FilePath>
             </File>
+            <File>
+              <FileName>XMC1000_tseRoutine.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\XMC1000_tseRoutine.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
