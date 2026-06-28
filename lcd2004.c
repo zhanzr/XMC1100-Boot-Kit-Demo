@@ -9,70 +9,67 @@
 static inline void SimpleDelay(uint32_t d)
 {
 	uint32_t t = d * 3;
-	while(--t)
-	{
+	while(--t) {
 		__NOP();
 	}
 }
 
-static inline void RS_H(void)
-{
-		XMC_GPIO_SetOutputHigh(XMC_GPIO_PORT0, 0);	
+static inline void RS_H(void) {
+		XMC_GPIO_SetOutputHigh(RS_PORT, RS_PIN);	
 }
 
-static inline void RS_L(void)
-{
-		XMC_GPIO_SetOutputLow(XMC_GPIO_PORT0, 0);	
+static inline void RS_L(void) {
+		XMC_GPIO_SetOutputLow(RS_PORT, RS_PIN);	
 }
 
 static inline void E_H(void)
 {
-		XMC_GPIO_SetOutputHigh(XMC_GPIO_PORT0, 2);	
+		XMC_GPIO_SetOutputHigh(E_PORT, E_PIN);	
 }
 
 static inline void E_L(void)
 {
-		XMC_GPIO_SetOutputLow(XMC_GPIO_PORT0, 2);	
+		XMC_GPIO_SetOutputLow(E_PORT, E_PIN);	
 }
 
 static inline void D4_H(void)
 {
-		XMC_GPIO_SetOutputHigh(XMC_GPIO_PORT0, 9);	
+		XMC_GPIO_SetOutputHigh(D4_PORT, D4_PIN);	
 }
 
 static inline void D4_L(void)
 {
-		XMC_GPIO_SetOutputLow(XMC_GPIO_PORT0, 9);	
+		XMC_GPIO_SetOutputLow(D4_PORT, D4_PIN);	
 }
 
 static inline void D5_H(void)
 {
-		XMC_GPIO_SetOutputHigh(XMC_GPIO_PORT1, 1);	
+		XMC_GPIO_SetOutputHigh(D5_PORT, D5_PIN);	
 }
 
 static inline void D5_L(void)
 {
-		XMC_GPIO_SetOutputLow(XMC_GPIO_PORT1, 1);	
+		XMC_GPIO_SetOutputLow(D5_PORT, D5_PIN);	
 }
 
 static inline void D6_H(void)
 {
-		XMC_GPIO_SetOutputHigh(XMC_GPIO_PORT1, 0);	
+		XMC_GPIO_SetOutputHigh(D6_PORT, D6_PIN);	
 }
 
 static inline void D6_L(void)
 {
-		XMC_GPIO_SetOutputLow(XMC_GPIO_PORT1, 0);	
+		XMC_GPIO_SetOutputLow(D6_PORT, D6_PIN);	
 }
 
 static inline void D7_H(void)
 {
-		XMC_GPIO_SetOutputHigh(XMC_GPIO_PORT0, 8);	
+		XMC_GPIO_SetOutputHigh(D7_PORT, D7_PIN);	
 }
 
 static inline void D7_L(void)
 {
-		XMC_GPIO_SetOutputLow(XMC_GPIO_PORT0, 8);	
+		XMC_GPIO_SetOutputLow(D7_PORT, D7_PIN);	
 }
 
 static inline void DB4_Wr(uint8_t dat)
@@ -130,38 +127,44 @@ void LCD_SetPos (uint8_t x, uint8_t y)
 	LCD_WrCmd_4(pos_tab[x] + y);	
 }
 
-void LCD_Initialize (void) 
-{
-	//RS
-	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 0, XMC_GPIO_MODE_OUTPUT_PUSH_PULL);
-	//E
-	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 2, XMC_GPIO_MODE_OUTPUT_PUSH_PULL);
+void LCD_Initialize (void) {
+	XMC_GPIO_SetMode(RS_PORT, RS_PIN, XMC_GPIO_MODE_OUTPUT_PUSH_PULL);
+	XMC_GPIO_SetMode(E_PORT, E_PIN, XMC_GPIO_MODE_OUTPUT_PUSH_PULL);
 	
 	//DB4-DB7
-	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 9, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
-	XMC_GPIO_SetMode(XMC_GPIO_PORT1, 1, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
-	XMC_GPIO_SetMode(XMC_GPIO_PORT1, 0, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);
-	XMC_GPIO_SetMode(XMC_GPIO_PORT0, 8, XMC_GPIO_MODE_OUTPUT_OPEN_DRAIN);	
+	XMC_GPIO_SetMode(D4_PORT, D4_PIN, XMC_GPIO_MODE_OUTPUT_PUSH_PULL);
+	XMC_GPIO_SetMode(D5_PORT, D5_PIN, XMC_GPIO_MODE_OUTPUT_PUSH_PULL);
+	XMC_GPIO_SetMode(D6_PORT, D6_PIN, XMC_GPIO_MODE_OUTPUT_PUSH_PULL);
+	XMC_GPIO_SetMode(D7_PORT, D7_PIN, XMC_GPIO_MODE_OUTPUT_PUSH_PULL);	
 	
-	E_L();
+//	E_L();
 	
 	// 4-bit mode
 	LCD_WrCmd_4(0x33);
+	SimpleDelay(10);
+	
 	LCD_WrCmd_4(0x32);
+	SimpleDelay(10);
+
 	LCD_WrCmd_4(FUNCTION_SET | OPT_N);
+	SimpleDelay(10);
 
 	LCD_WrCmd_4(CLEAR_DISPLAY);
+	SimpleDelay(10);
 	LCD_WrCmd_4(DISPLAY_ON_OFF_CONTROL | OPT_D);
+	SimpleDelay(10);
 	LCD_WrCmd_4(ENTRY_MODE_SET | OPT_INC);
+	SimpleDelay(10);
 	
-	LCD_PWM_VO_Init();	
+	LCD_PWM_VO_Init();
+	
+	LCD_VO_Config(2100);
 }
 
 void LCD_displayL(uint8_t l,uint8_t hori,uint8_t *s)
 {
 	LCD_SetPos(l, hori);
-	while(*s)
-	{
+	while(*s) {
 		LCD_WrDat_4(*s);
 		s++;
 	}

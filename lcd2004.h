@@ -4,6 +4,7 @@
 #include <xmc_gpio.h>
 #include <xmc_ccu4.h>
 #include <xmc_scu.h>
+
 #define	LINE_NUM	4
 
 #define CLEAR_DISPLAY 0x01
@@ -72,6 +73,20 @@
 #define LCD_5x8DOTS 0x00
 
 #define	WAIT_AVAIL_DLY	5100
+
+#define	RS_PORT	XMC_GPIO_PORT0
+#define	RS_PIN	0
+#define	E_PORT	XMC_GPIO_PORT0
+#define	E_PIN	2
+
+#define	D4_PORT	XMC_GPIO_PORT0
+#define	D4_PIN	9
+#define	D5_PORT	XMC_GPIO_PORT1
+#define	D5_PIN	1
+#define	D6_PORT	XMC_GPIO_PORT1
+#define	D6_PIN	0
+#define	D7_PORT	XMC_GPIO_PORT0
+#define	D7_PIN	8
 
 void LCD_Initialize (void);
 void LCD_displayL(uint8_t x,uint8_t y,uint8_t *s);

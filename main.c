@@ -177,13 +177,12 @@ int main(void) {
   LCD_displayL(3, 0, line[3]);
 	
 	uint8_t g_line_buf[21] = {};
-	volatile uint32_t vo_val = 100;
   while (1)
   {
     LED_On(0);
 
     tmpTick = g_Ticks;
-    while ((tmpTick + (HZ>>1)) > g_Ticks) {
+    while ((tmpTick + (HZ)) > g_Ticks) {
       __NOP();
       __WFI();
     }
@@ -191,15 +190,13 @@ int main(void) {
     XMC_RTC_GetTime((XMC_RTC_TIME_t *)&now_rtc_time);
 		printf("%02d:%02d:%02d\n", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);
 		
-		LCD_VO_Config(vo_val);
-		sprintf(g_line_buf, "%u", vo_val);
+		sprintf(g_line_buf, "%02d:%02d:%02d", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);
 		LCD_displayL(3, 0, g_line_buf);		
-		vo_val += 1000;
 		
     LED_Off(0);
 
     tmpTick = g_Ticks;
-    while ((tmpTick + (HZ>>1)) > g_Ticks) {
+    while ((tmpTick + (HZ)) > g_Ticks) {
       __NOP();
       __WFI();
     }

@@ -658,8 +658,7 @@ void LCD_PWM_VO_Init(void)
 }
 
 void LCD_VO_Config(uint32_t val) {
-	PWM_CCU4_0.sym_duty = val;
 	PWM_CCU4_Stop(&PWM_CCU4_0);
-	PWM_CCU4_Init(&PWM_CCU4_0);
+	PWM_CCU4_SetDutyCycle(&PWM_CCU4_0, val);
 	PWM_CCU4_Start(&PWM_CCU4_0);	
 }

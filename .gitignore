@@ -4,3 +4,5 @@
 *.lst
 ARM6/Objects
 ARM/Objects
+ARM6/JLinkLog.txt
+*.uvguix.*
