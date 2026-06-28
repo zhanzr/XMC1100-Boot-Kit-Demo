@@ -60,12 +60,9 @@
 #include <xmc_uart.h>
 
 #include "lcd2004.h"
-#include "led.h"
 #include "lcd_pwm_vo.h"
-
-#ifndef HZ
-#define HZ 1000
-#endif
+#include "led.h"
+#include "main.h"
 
 #define UART_RX P1_3
 #define UART_TX P1_2
@@ -77,11 +74,11 @@ __IO uint32_t g_Ticks;
 
 /* UART configuration */
 const XMC_UART_CH_CONFIG_t uart_config = {
-    .data_bits = 8U, .stop_bits = 1U, .baudrate = 256000};
+    .data_bits = 8U, .stop_bits = 1U, .baudrate = TEST_BAUDRATE};
 
 XMC_RTC_CONFIG_t rtc_config = {.time.seconds = 5U, .prescaler = 0x7fffU};
 
-XMC_RTC_TIME_t init_rtc_time = {.year = 2018,
+XMC_RTC_TIME_t init_rtc_time = {.year = 2026,
                                 .month = XMC_RTC_MONTH_JANUARY,
                                 .daysofweek = XMC_RTC_WEEKDAY_TUESDAY,
                                 .days = 27,
@@ -89,7 +86,8 @@ XMC_RTC_TIME_t init_rtc_time = {.year = 2018,
                                 .minutes = 40,
                                 .seconds = 55};
 
-uint8_t line[4][21] = {__DATE__, __TIME__, "Happy Spring Festvl", "               "};
+uint8_t line[4][21] = {__FILE_NAME__, __clang_version__, "Happy Spring Festvl",
+                       "               "};
 
 void SystemCoreClockSetup(void) {
   XMC_SCU_CLOCK_CONFIG_t clock_config = {
@@ -103,38 +101,17 @@ void SystemCoreClockSetup(void) {
   //  SystemCoreClockUpdate();
 }
 
-static inline void SimpleDelay(uint32_t d) {
-  uint32_t t = d;
-  while (--t) {
-    __NOP();
-  }
-}
-
-void XMC_AssertHandler(const char *const msg, const char *const file,
-                       uint32_t line) {
-  printf("Assert:%s,%s,%u\n", msg, file, line);
-
-  while (1) {
-    LED_Toggle(1);
-    SimpleDelay(100000);
-  }
-}
-
-void SysTick_Handler(void) {
-		g_Ticks++;
-}
+void SysTick_Handler(void) { g_Ticks++; }
 
 int main(void) {
   __IO uint32_t tmpTick;
-  __IO uint32_t deltaTick;
-  __IO uint32_t i = 0;
 
   __IO XMC_RTC_TIME_t now_rtc_time;
 
-	SystemCoreClockSetup();
+  SystemCoreClockSetup();
   /* System timer configuration */
   SysTick_Config(SystemCoreClock / HZ);
-	
+
   /*Initialize the UART driver */
   uart_tx.mode = XMC_GPIO_MODE_OUTPUT_PUSH_PULL_ALT7;
   uart_rx.mode = XMC_GPIO_MODE_INPUT_TRISTATE;
@@ -149,9 +126,9 @@ int main(void) {
   /* Configure pins */
   XMC_GPIO_Init(UART_TX, &uart_tx);
   XMC_GPIO_Init(UART_RX, &uart_rx);
-	
+
 #if defined(__ARMCC_VERSION)
-	printf("ARMCC %u\n", __ARMCC_VERSION);
+  printf("ARMCC %u\n", __ARMCC_VERSION);
 #endif
 
   printf("LCD2004 4bit mode For XMC1100 Bootkit. CM0 Rev:%u, %u Hz\n",
@@ -166,20 +143,19 @@ int main(void) {
   //  NVIC_SetPriority(SCU_1_IRQn, 3);
   //  NVIC_EnableIRQ(SCU_1_IRQn);
   XMC_RTC_Start();
-	
-	LED_Initialize();
-	
+
+  LED_Initialize();
+
   LCD_Initialize();
 
   LCD_displayL(0, 0, line[0]);
   LCD_displayL(1, 0, line[1]);
   LCD_displayL(2, 0, line[2]);
   LCD_displayL(3, 0, line[3]);
-	
-	uint8_t g_line_buf[21] = {};
-  while (1)
-  {
-    LED_On(0);
+
+  uint8_t g_line_buf[21] = {};
+  while (1) {
+    LED_On(1);
 
     tmpTick = g_Ticks;
     while ((tmpTick + (HZ)) > g_Ticks) {
@@ -188,12 +164,14 @@ int main(void) {
     }
 
     XMC_RTC_GetTime((XMC_RTC_TIME_t *)&now_rtc_time);
-		printf("%02d:%02d:%02d\n", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);
-		
-		sprintf(g_line_buf, "%02d:%02d:%02d", now_rtc_time.hours, now_rtc_time.minutes, now_rtc_time.seconds);
-		LCD_displayL(3, 0, g_line_buf);		
-		
-    LED_Off(0);
+    printf("%02d:%02d:%02d\n", now_rtc_time.hours, now_rtc_time.minutes,
+           now_rtc_time.seconds);
+
+    sprintf(g_line_buf, "%02d:%02d:%02d", now_rtc_time.hours,
+            now_rtc_time.minutes, now_rtc_time.seconds);
+    LCD_displayL(3, 0, g_line_buf);
+
+    LED_Off(1);
 
     tmpTick = g_Ticks;
     while ((tmpTick + (HZ)) > g_Ticks) {
